@@ -1,0 +1,50 @@
+[
+  {
+    "measure_name": "Total Org Determinations Override",
+    "measure_type": "Count",
+    "classification": "Base Measure",
+    "business_definition": "Total count of unique Organization Determinations.",
+    "formula_description": "COUNT(DISTINCT od_number)",
+    "source_tables": [
+      "FactObservation"
+    ],
+    "source_fields": [
+      "od_number"
+    ],
+    "dependencies": [],
+    "report_pages": [
+      "Executive Summary",
+      "Determinations Analysis"
+    ],
+    "visuals_used_in": [
+      "Total Organization Determinations",
+      "Monthly Determination Volume Trend",
+      "Determinations by Priority",
+      "Decisions by Disposition"
+    ],
+    "aggregation": ""
+  },
+  {
+    "measure_name": "Adverse Decision Rate",
+    "measure_type": "Percentage",
+    "classification": "Derived Measure",
+    "business_definition": "Percentage of determinations that resulted in adverse decisions.",
+    "formula_description": "DIVIDE(COUNT(disposition = 'Adverse'), COUNT(od_number))",
+    "source_tables": [
+      "FactObservation"
+    ],
+    "source_fields": [
+      "disposition",
+      "od_number"
+    ],
+    "dependencies": [
+      "Total Organization Determinations"
+    ],
+    "report_pages": [
+      "Executive Summary"
+    ],
+    "visuals_used_in": [
+      "Adverse Decision Rate"
+    ]
+  }
+]

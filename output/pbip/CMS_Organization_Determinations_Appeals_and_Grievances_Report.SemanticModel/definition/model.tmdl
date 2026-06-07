@@ -1,0 +1,391 @@
+model Model
+	compatibilityLevel: 1570
+	culture: en-US
+
+table FactDetermination
+	// Description: Captures details and outcomes of initial determinations and reconsiderations for coverage and payment, serving as the central fact for CMS reporting.
+	column determination_key
+		dataType: INTEGER
+	column patient_key
+		dataType: INTEGER
+	column provider_key
+		dataType: INTEGER
+	column organization_key
+		dataType: INTEGER
+	column condition_key
+		dataType: INTEGER
+	column request_date_key
+		dataType: INTEGER
+	column decision_date_key
+		dataType: INTEGER
+	column claim_received_date_key
+		dataType: INTEGER
+	column service_start_date_key
+		dataType: INTEGER
+	column service_end_date_key
+		dataType: INTEGER
+	column od_number
+		dataType: VARCHAR
+	column appeal_number
+		dataType: VARCHAR
+	column associated_od_number
+		dataType: VARCHAR
+	column requesting_party_code
+		dataType: VARCHAR
+	column is_contracted_provider_referral
+		dataType: BOOLEAN
+	column item_service_code
+		dataType: VARCHAR
+	column item_service_description
+		dataType: VARCHAR
+	column is_prior_auth_required
+		dataType: BOOLEAN
+	column processing_priority
+		dataType: VARCHAR
+	column is_expedited_processing_requested
+		dataType: BOOLEAN
+	column disposition
+		dataType: VARCHAR
+	column dismissal_rationale
+		dataType: VARCHAR
+	column decision_rationale
+		dataType: VARCHAR
+	column were_internal_plan_criteria_applied
+		dataType: BOOLEAN
+	column did_third_party_vendor_participate
+		dataType: BOOLEAN
+	column is_approved_item_different_from_requested
+		dataType: BOOLEAN
+	column approved_item_service_code
+		dataType: VARCHAR
+	column service_location_zip_code
+		dataType: VARCHAR
+	column place_of_service_code
+		dataType: VARCHAR
+	column is_clean_claim
+		dataType: BOOLEAN
+	column was_prior_approval_requested
+		dataType: BOOLEAN
+	column prior_approval_od_number
+		dataType: VARCHAR
+	column is_prior_auth_required_for_coverage
+		dataType: BOOLEAN
+	column is_appeal_of_od_dismissal
+		dataType: BOOLEAN
+	column was_initial_od_denied_medical_necessity
+		dataType: BOOLEAN
+	column was_reconsideration_reviewed_by_physician
+		dataType: BOOLEAN
+	column determination_type
+		dataType: VARCHAR
+	column determination_subtype
+		dataType: VARCHAR
+	column determination_count
+		dataType: INTEGER
+
+table FactEncounter
+	// Description: Captures details about patient encounters. While not directly generating measures for this specific CMS report, it provides contextual data.
+	column encounter_key
+		dataType: INTEGER
+	column patient_key
+		dataType: INTEGER
+	column provider_key
+		dataType: INTEGER
+	column organization_key
+		dataType: INTEGER
+	column start_date_key
+		dataType: INTEGER
+	column end_date_key
+		dataType: INTEGER
+	column encounter_fhir_id
+		dataType: VARCHAR
+	column class_code
+		dataType: VARCHAR
+	column discharge_disposition
+		dataType: VARCHAR
+	column encounter_count
+		dataType: INTEGER
+
+table FactProcedure
+	// Description: Captures details about procedures and services performed. While not directly generating measures for this specific CMS report, it provides contextual data.
+	column procedure_key
+		dataType: INTEGER
+	column patient_key
+		dataType: INTEGER
+	column provider_key
+		dataType: INTEGER
+	column organization_key
+		dataType: INTEGER
+	column performed_date_key
+		dataType: INTEGER
+	column procedure_fhir_id
+		dataType: VARCHAR
+	column procedure_code
+		dataType: VARCHAR
+	column procedure_description
+		dataType: VARCHAR
+	column procedure_count
+		dataType: INTEGER
+
+table FactMedication
+	// Description: Captures details about medication requests (e.g., Part B drugs). While not directly generating measures for this specific CMS report, it provides contextual data.
+	column medication_key
+		dataType: INTEGER
+	column patient_key
+		dataType: INTEGER
+	column provider_key
+		dataType: INTEGER
+	column organization_key
+		dataType: INTEGER
+	column authored_on_date_key
+		dataType: INTEGER
+	column medication_fhir_id
+		dataType: VARCHAR
+	column medication_code
+		dataType: VARCHAR
+	column medication_description
+		dataType: VARCHAR
+	column medication_request_count
+		dataType: INTEGER
+
+table DimPatient
+	// Description: Attributes of the patient (enrollee) involved in determinations and other healthcare events.
+	column patient_key
+		dataType: INTEGER
+	column patient_fhir_id
+		dataType: VARCHAR
+	column mbi
+		dataType: VARCHAR
+	column is_deceased
+		dataType: BOOLEAN
+	column gender
+		dataType: VARCHAR
+	column birth_date
+		dataType: DATE
+
+table DimProvider
+	// Description: Attributes of healthcare providers involved in requests, reviews, or service delivery.
+	column provider_key
+		dataType: INTEGER
+	column provider_fhir_id
+		dataType: VARCHAR
+	column npi
+		dataType: VARCHAR
+	column provider_name
+		dataType: VARCHAR
+	column qualification
+		dataType: VARCHAR
+
+table DimOrganization
+	// Description: Attributes of organizations involved, such as health plans, requesting parties, or third-party vendors.
+	column organization_key
+		dataType: INTEGER
+	column organization_fhir_id
+		dataType: VARCHAR
+	column organization_name
+		dataType: VARCHAR
+	column organization_type
+		dataType: VARCHAR
+	column contract_number
+		dataType: VARCHAR
+	column plan_benefit_package
+		dataType: VARCHAR
+
+table DimCondition
+	// Description: Attributes of medical conditions or diagnoses relevant to determinations.
+	column condition_key
+		dataType: INTEGER
+	column condition_fhir_id
+		dataType: VARCHAR
+	column condition_code
+		dataType: VARCHAR
+	column condition_description
+		dataType: VARCHAR
+
+table DimDate
+	// Description: Standard date dimension for time-based analysis of all events.
+	column date_key
+		dataType: INTEGER
+	column full_date
+		dataType: DATE
+	column day_of_week
+		dataType: VARCHAR
+	column day_name
+		dataType: VARCHAR
+	column day_of_month
+		dataType: INTEGER
+	column day_of_year
+		dataType: INTEGER
+	column week_of_year
+		dataType: INTEGER
+	column month
+		dataType: INTEGER
+	column month_name
+		dataType: VARCHAR
+	column quarter
+		dataType: INTEGER
+	column year
+		dataType: INTEGER
+	column is_weekend
+		dataType: BOOLEAN
+	column fiscal_period
+		dataType: VARCHAR
+
+relationship 'FactDetermination_DimPatient_patient_key'
+	fromTable: FactDetermination
+	fromColumn: patient_key
+	toTable: DimPatient
+	toColumn: patient_key
+	cardinality: manyToOne
+
+relationship 'FactDetermination_DimProvider_provider_key'
+	fromTable: FactDetermination
+	fromColumn: provider_key
+	toTable: DimProvider
+	toColumn: provider_key
+	cardinality: manyToOne
+
+relationship 'FactDetermination_DimOrganization_organization_key'
+	fromTable: FactDetermination
+	fromColumn: organization_key
+	toTable: DimOrganization
+	toColumn: organization_key
+	cardinality: manyToOne
+
+relationship 'FactDetermination_DimCondition_condition_key'
+	fromTable: FactDetermination
+	fromColumn: condition_key
+	toTable: DimCondition
+	toColumn: condition_key
+	cardinality: manyToOne
+
+relationship 'FactDetermination_DimDate_request_date_key'
+	fromTable: FactDetermination
+	fromColumn: request_date_key
+	toTable: DimDate
+	toColumn: date_key
+	cardinality: manyToOne
+
+relationship 'FactDetermination_DimDate_decision_date_key'
+	fromTable: FactDetermination
+	fromColumn: decision_date_key
+	toTable: DimDate
+	toColumn: date_key
+	cardinality: manyToOne
+	isActive: false
+
+relationship 'FactDetermination_DimDate_claim_received_date_key'
+	fromTable: FactDetermination
+	fromColumn: claim_received_date_key
+	toTable: DimDate
+	toColumn: date_key
+	cardinality: manyToOne
+	isActive: false
+
+relationship 'FactDetermination_DimDate_service_start_date_key'
+	fromTable: FactDetermination
+	fromColumn: service_start_date_key
+	toTable: DimDate
+	toColumn: date_key
+	cardinality: manyToOne
+	isActive: false
+
+relationship 'FactDetermination_DimDate_service_end_date_key'
+	fromTable: FactDetermination
+	fromColumn: service_end_date_key
+	toTable: DimDate
+	toColumn: date_key
+	cardinality: manyToOne
+	isActive: false
+
+relationship 'FactEncounter_DimPatient_patient_key'
+	fromTable: FactEncounter
+	fromColumn: patient_key
+	toTable: DimPatient
+	toColumn: patient_key
+	cardinality: manyToOne
+
+relationship 'FactEncounter_DimProvider_provider_key'
+	fromTable: FactEncounter
+	fromColumn: provider_key
+	toTable: DimProvider
+	toColumn: provider_key
+	cardinality: manyToOne
+
+relationship 'FactEncounter_DimOrganization_organization_key'
+	fromTable: FactEncounter
+	fromColumn: organization_key
+	toTable: DimOrganization
+	toColumn: organization_key
+	cardinality: manyToOne
+
+relationship 'FactEncounter_DimDate_start_date_key'
+	fromTable: FactEncounter
+	fromColumn: start_date_key
+	toTable: DimDate
+	toColumn: date_key
+	cardinality: manyToOne
+
+relationship 'FactEncounter_DimDate_end_date_key'
+	fromTable: FactEncounter
+	fromColumn: end_date_key
+	toTable: DimDate
+	toColumn: date_key
+	cardinality: manyToOne
+	isActive: false
+
+relationship 'FactProcedure_DimPatient_patient_key'
+	fromTable: FactProcedure
+	fromColumn: patient_key
+	toTable: DimPatient
+	toColumn: patient_key
+	cardinality: manyToOne
+
+relationship 'FactProcedure_DimProvider_provider_key'
+	fromTable: FactProcedure
+	fromColumn: provider_key
+	toTable: DimProvider
+	toColumn: provider_key
+	cardinality: manyToOne
+
+relationship 'FactProcedure_DimOrganization_organization_key'
+	fromTable: FactProcedure
+	fromColumn: organization_key
+	toTable: DimOrganization
+	toColumn: organization_key
+	cardinality: manyToOne
+
+relationship 'FactProcedure_DimDate_performed_date_key'
+	fromTable: FactProcedure
+	fromColumn: performed_date_key
+	toTable: DimDate
+	toColumn: date_key
+	cardinality: manyToOne
+
+relationship 'FactMedication_DimPatient_patient_key'
+	fromTable: FactMedication
+	fromColumn: patient_key
+	toTable: DimPatient
+	toColumn: patient_key
+	cardinality: manyToOne
+
+relationship 'FactMedication_DimProvider_provider_key'
+	fromTable: FactMedication
+	fromColumn: provider_key
+	toTable: DimProvider
+	toColumn: provider_key
+	cardinality: manyToOne
+
+relationship 'FactMedication_DimOrganization_organization_key'
+	fromTable: FactMedication
+	fromColumn: organization_key
+	toTable: DimOrganization
+	toColumn: organization_key
+	cardinality: manyToOne
+
+relationship 'FactMedication_DimDate_authored_on_date_key'
+	fromTable: FactMedication
+	fromColumn: authored_on_date_key
+	toTable: DimDate
+	toColumn: date_key
+	cardinality: manyToOne

@@ -1,0 +1,10 @@
+table _Measures
+	column _placeholder
+		dataType: string
+		isHidden: true
+
+	measure 'Total Org Determinations Override' = COUNTROWS(FactDetermination)
+		// Description: Total count of unique Organization Determinations.
+
+	measure 'Adverse Decision Rate' = DIVIDE(CALCULATE(COUNTROWS(FactDetermination), FactDetermination[disposition] = "Adverse"), [Total Org Determinations Override], 0)
+		// Description: Percentage of determinations that resulted in adverse decisions.

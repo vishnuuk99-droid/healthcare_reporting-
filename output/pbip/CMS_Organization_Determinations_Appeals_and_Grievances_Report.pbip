@@ -1,0 +1,10 @@
+{
+  "version": "1.0",
+  "artifacts": [
+    {
+      "report": {
+        "path": "CMS_Organization_Determinations_Appeals_and_Grievances_Report.Report"
+      }
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+[
+  {
+    "measure_name": "Total Org Determinations Override",
+    "business_definition": "Total count of unique Organization Determinations.",
+    "dax_expression": "COUNTROWS(FactDetermination)",
+    "dependencies": []
+  },
+  {
+    "measure_name": "Adverse Decision Rate",
+    "business_definition": "Percentage of determinations that resulted in adverse decisions.",
+    "dax_expression": "DIVIDE(CALCULATE(COUNTROWS(FactDetermination), FactDetermination[disposition] = \"Adverse\"), [Total Org Determinations Override], 0)",
+    "dependencies": [
+      "Total Org Determinations Override"
+    ]
+  }
+]

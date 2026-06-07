@@ -1,0 +1,818 @@
+[
+  {
+    "concept": "Medicare Advantage Organizations",
+    "fhir_resource": "Organization",
+    "fhir_field": "type",
+    "confidence": "high",
+    "reasoning": "These are specific types of organizations, directly mapping to the Organization.type field which describes the kind of organization.",
+    "status": "approved"
+  },
+  {
+    "concept": "Section 1876 Cost Plans",
+    "fhir_resource": "Organization",
+    "fhir_field": "type",
+    "confidence": "high",
+    "reasoning": "These are specific types of organizations, directly mapping to the Organization.type field which describes the kind of organization.",
+    "status": "approved"
+  },
+  {
+    "concept": "Health Care Prepayment Plans",
+    "fhir_resource": "Organization",
+    "fhir_field": "type",
+    "confidence": "high",
+    "reasoning": "These are specific types of organizations, directly mapping to the Organization.type field which describes the kind of organization.",
+    "status": "approved"
+  },
+  {
+    "concept": "Local CCP (Contract Type 01)",
+    "fhir_resource": "Organization",
+    "fhir_field": "type",
+    "confidence": "high",
+    "reasoning": "These are specific types of organizations, directly mapping to the Organization.type field which describes the kind of organization.",
+    "status": "approved"
+  },
+  {
+    "concept": "MSA (Contract Type 02)",
+    "fhir_resource": "Organization",
+    "fhir_field": "type",
+    "confidence": "high",
+    "reasoning": "These are specific types of organizations, directly mapping to the Organization.type field which describes the kind of organization.",
+    "status": "approved"
+  },
+  {
+    "concept": "RFB PFFS (Contract Type 03)",
+    "fhir_resource": "Organization",
+    "fhir_field": "type",
+    "confidence": "high",
+    "reasoning": "These are specific types of organizations, directly mapping to the Organization.type field which describes the kind of organization.",
+    "status": "approved"
+  },
+  {
+    "concept": "PFFS (Contract Type 04)",
+    "fhir_resource": "Organization",
+    "fhir_field": "type",
+    "confidence": "high",
+    "reasoning": "These are specific types of organizations, directly mapping to the Organization.type field which describes the kind of organization.",
+    "status": "approved"
+  },
+  {
+    "concept": "Regional CCP (Contract Type 11)",
+    "fhir_resource": "Organization",
+    "fhir_field": "type",
+    "confidence": "high",
+    "reasoning": "These are specific types of organizations, directly mapping to the Organization.type field which describes the kind of organization.",
+    "status": "approved"
+  },
+  {
+    "concept": "Employer / Union Direct (ED)-PFFS (Contract Type 14)",
+    "fhir_resource": "Organization",
+    "fhir_field": "type",
+    "confidence": "high",
+    "reasoning": "These are specific types of organizations, directly mapping to the Organization.type field which describes the kind of organization.",
+    "status": "approved"
+  },
+  {
+    "concept": "RFB Local CCP (Contract Type 15)",
+    "fhir_resource": "Organization",
+    "fhir_field": "type",
+    "confidence": "high",
+    "reasoning": "These are specific types of organizations, directly mapping to the Organization.type field which describes the kind of organization.",
+    "status": "approved"
+  },
+  {
+    "concept": "ED Local CCP (Contract Type 17)",
+    "fhir_resource": "Organization",
+    "fhir_field": "type",
+    "confidence": "high",
+    "reasoning": "These are specific types of organizations, directly mapping to the Organization.type field which describes the kind of organization.",
+    "status": "approved"
+  },
+  {
+    "concept": "All 800 series plans",
+    "fhir_resource": "Organization",
+    "fhir_field": "type",
+    "confidence": "high",
+    "reasoning": "These are specific types of organizations, directly mapping to the Organization.type field which describes the kind of organization.",
+    "status": "approved"
+  },
+  {
+    "concept": "Employer/Union Direct Contracts (regardless of organization type)",
+    "fhir_resource": "Organization",
+    "fhir_field": "type",
+    "confidence": "high",
+    "reasoning": "These are specific types of organizations, directly mapping to the Organization.type field which describes the kind of organization.",
+    "status": "approved"
+  },
+  {
+    "concept": "Organization Determination (OD) Number",
+    "fhir_resource": "Observation",
+    "fhir_field": "identifier",
+    "confidence": "medium",
+    "reasoning": "The OD Number is an identifier for a specific determination event or outcome. An Observation resource can represent the outcome of a determination, and its identifier field can store this number.",
+    "status": "approved"
+  },
+  {
+    "concept": "Contract Number",
+    "fhir_resource": "Organization",
+    "fhir_field": "identifier",
+    "confidence": "high",
+    "reasoning": "A contract number is an identifier for an organization (e.g., a health plan), fitting the Organization.identifier field.",
+    "status": "approved"
+  },
+  {
+    "concept": "Plan Benefit Package (PBP)",
+    "fhir_resource": "Organization",
+    "fhir_field": "identifier",
+    "confidence": "high",
+    "reasoning": "A Plan Benefit Package is an identifier for a specific offering by an organization, fitting the Organization.identifier field.",
+    "status": "approved"
+  },
+  {
+    "concept": "Enrollee MBI",
+    "fhir_resource": "Patient",
+    "fhir_field": "identifier",
+    "confidence": "high",
+    "reasoning": "The Medicare Beneficiary Identifier (MBI) is a key identifier for a patient, explicitly listed in the Patient resource's CMS concepts.",
+    "status": "approved"
+  },
+  {
+    "concept": "Requesting Party",
+    "fhir_resource": "Observation",
+    "fhir_field": "valueCodeableConcept",
+    "confidence": "low",
+    "reasoning": "This concept describes the *type* or *role* of the party requesting the determination (e.g., enrollee, provider, plan). While the actual party would be a Patient, Practitioner, or Organization, the *role* itself can be captured as a coded value within an Observation representing the determination.",
+    "status": "approved"
+  },
+  {
+    "concept": "Provider NPI",
+    "fhir_resource": "Practitioner",
+    "fhir_field": "identifier",
+    "confidence": "high",
+    "reasoning": "The National Provider Identifier (NPI) is a standard identifier for practitioners, explicitly listed in the Practitioner resource's common fields.",
+    "status": "approved"
+  },
+  {
+    "concept": "Was this a contracted provider referral? (Y/N)",
+    "fhir_resource": "Observation",
+    "fhir_field": "valueBoolean",
+    "confidence": "medium",
+    "reasoning": "This is a boolean flag indicating a specific condition related to the determination. An Observation can capture such a boolean value, with a specific code defining the concept.",
+    "status": "approved"
+  },
+  {
+    "concept": "Item/Service/Part B Drug Code (CPT, HCPCS, J code, DRG) - CPT, HCPCS",
+    "fhir_resource": "Procedure",
+    "fhir_field": "code",
+    "confidence": "high",
+    "reasoning": "CPT and HCPCS codes are standard for identifying procedures and services, directly mapping to Procedure.code.",
+    "status": "approved"
+  },
+  {
+    "concept": "Item/Service/Part B Drug Code (CPT, HCPCS, J code, DRG) - J code",
+    "fhir_resource": "MedicationRequest",
+    "fhir_field": "medicationCodeableConcept",
+    "confidence": "high",
+    "reasoning": "J codes are used for Part B drugs, which are medications. MedicationRequest.medicationCodeableConcept is the appropriate field for medication codes.",
+    "status": "approved"
+  },
+  {
+    "concept": "Item/Service/Part B Drug Code (CPT, HCPCS, J code, DRG) - DRG",
+    "fhir_resource": "Encounter",
+    "fhir_field": "type",
+    "confidence": "low",
+    "reasoning": "DRG (Diagnosis Related Group) is a classification for an entire hospital stay (Encounter) based on diagnoses and procedures, rather than a single item/service code. Encounter.type can classify the type of encounter, which is the closest fit in the catalog.",
+    "status": "approved"
+  },
+  {
+    "concept": "Item/Service/Part B Drug Description - for services",
+    "fhir_resource": "Procedure",
+    "fhir_field": "code.text",
+    "confidence": "high",
+    "reasoning": "The description for a service or item is typically the display text associated with its code, found in Procedure.code.text.",
+    "status": "approved"
+  },
+  {
+    "concept": "Item/Service/Part B Drug Description - for drugs",
+    "fhir_resource": "MedicationRequest",
+    "fhir_field": "medicationCodeableConcept.text",
+    "confidence": "high",
+    "reasoning": "The description for a Part B drug is typically the display text associated with its code, found in MedicationRequest.medicationCodeableConcept.text.",
+    "status": "approved"
+  },
+  {
+    "concept": "Diagnosis Codes (ICD-10, HIPPS codes)",
+    "fhir_resource": "Condition",
+    "fhir_field": "code",
+    "confidence": "high",
+    "reasoning": "ICD-10 codes are standard for diagnoses, directly mapping to Condition.code. HIPPS codes are often derived from diagnoses.",
+    "status": "approved"
+  },
+  {
+    "concept": "Was prior authorization required? (Y/N)",
+    "fhir_resource": "Observation",
+    "fhir_field": "valueBoolean",
+    "confidence": "medium",
+    "reasoning": "This is a boolean flag indicating a specific condition related to the determination. An Observation can capture such a boolean value, with a specific code defining the concept.",
+    "status": "approved"
+  },
+  {
+    "concept": "Processing Priority (Standard, Expedited)",
+    "fhir_resource": "Observation",
+    "fhir_field": "valueCodeableConcept",
+    "confidence": "medium",
+    "reasoning": "This is a coded value describing the priority of the determination process. An Observation can capture such a coded value, with a specific code defining the concept.",
+    "status": "approved"
+  },
+  {
+    "concept": "Was expedited processing requested? (Y/N)",
+    "fhir_resource": "Observation",
+    "fhir_field": "valueBoolean",
+    "confidence": "medium",
+    "reasoning": "This is a boolean flag indicating a specific condition related to the determination. An Observation can capture such a boolean value, with a specific code defining the concept.",
+    "status": "approved"
+  },
+  {
+    "concept": "Date Request Received (YYYY-MM-DD hh:mm:ss)",
+    "fhir_resource": "Observation",
+    "fhir_field": "effectiveDateTime",
+    "confidence": "medium",
+    "reasoning": "This is a timestamp for an event in the determination process. An Observation can capture the effective date/time of an event it represents.",
+    "status": "approved"
+  },
+  {
+    "concept": "Date of Decision (YYYY-MM-DD hh:mm:ss)",
+    "fhir_resource": "Observation",
+    "fhir_field": "effectiveDateTime",
+    "confidence": "medium",
+    "reasoning": "This is a timestamp for an event in the determination process. An Observation can capture the effective date/time of an event it represents.",
+    "status": "approved"
+  },
+  {
+    "concept": "Disposition (Fully favorable, Partially favorable, Adverse, Dismissal)",
+    "fhir_resource": "Observation",
+    "fhir_field": "valueCodeableConcept",
+    "confidence": "high",
+    "reasoning": "This is the core outcome of the determination, a coded value that can be captured by Observation.valueCodeableConcept.",
+    "status": "approved"
+  },
+  {
+    "concept": "Dismissal Rationale",
+    "fhir_resource": "Observation",
+    "fhir_field": "valueCodeableConcept",
+    "confidence": "high",
+    "reasoning": "This is a specific coded reason for a dismissal, which can be captured by Observation.valueCodeableConcept.",
+    "status": "approved"
+  },
+  {
+    "concept": "Decision Rationale",
+    "fhir_resource": "Observation",
+    "fhir_field": "valueCodeableConcept",
+    "confidence": "high",
+    "reasoning": "This is a specific coded reason for a decision, which can be captured by Observation.valueCodeableConcept. The organizational decision affects the value's format, not the FHIR field.",
+    "status": "approved"
+  },
+  {
+    "concept": "Reviewer Qualifications (Physician, Other Appropriate Healthcare Professional)",
+    "fhir_resource": "Practitioner",
+    "fhir_field": "qualification",
+    "confidence": "high",
+    "reasoning": "This describes the professional qualifications of an individual practitioner, directly mapping to Practitioner.qualification.",
+    "status": "approved"
+  },
+  {
+    "concept": "Were internal plan coverage criteria applied? (Y/N)",
+    "fhir_resource": "Observation",
+    "fhir_field": "valueBoolean",
+    "confidence": "medium",
+    "reasoning": "This is a boolean flag indicating a specific condition related to the determination. An Observation can capture such a boolean value, with a specific code defining the concept.",
+    "status": "approved"
+  },
+  {
+    "concept": "Did a third-party vendor participate, in any capacity, in the determination review or decision-making? (Y/N)",
+    "fhir_resource": "Observation",
+    "fhir_field": "valueBoolean",
+    "confidence": "medium",
+    "reasoning": "This is a boolean flag indicating a specific condition related to the determination. An Observation can capture such a boolean value, with a specific code defining the concept.",
+    "status": "approved"
+  },
+  {
+    "concept": "For partially or fully favorable decisions, was the approved item, service or Part B drug different from what was requested? (Y/N)",
+    "fhir_resource": "Observation",
+    "fhir_field": "valueBoolean",
+    "confidence": "medium",
+    "reasoning": "This is a boolean flag indicating a specific condition related to the determination outcome. An Observation can capture such a boolean value, with a specific code defining the concept.",
+    "status": "approved"
+  },
+  {
+    "concept": "Procedure code for the approved item, service, or Part B drug (if different from requested) - for services",
+    "fhir_resource": "Procedure",
+    "fhir_field": "code",
+    "confidence": "high",
+    "reasoning": "This refers to the code for an approved procedure or service, directly mapping to Procedure.code.",
+    "status": "approved"
+  },
+  {
+    "concept": "Procedure code for the approved item, service, or Part B drug (if different from requested) - for drugs",
+    "fhir_resource": "MedicationRequest",
+    "fhir_field": "medicationCodeableConcept",
+    "confidence": "high",
+    "reasoning": "This refers to the code for an approved Part B drug, directly mapping to MedicationRequest.medicationCodeableConcept.",
+    "status": "approved"
+  },
+  {
+    "concept": "Service Location (zip code)",
+    "fhir_resource": "Location",
+    "fhir_field": "address.postalCode",
+    "confidence": "high",
+    "reasoning": "The zip code of a service location is part of the address of a Location resource, which can be referenced from an Encounter or Procedure.",
+    "status": "approved"
+  },
+  {
+    "concept": "Place of Service (code)",
+    "fhir_resource": "Encounter",
+    "fhir_field": "class",
+    "confidence": "high",
+    "reasoning": "Place of Service codes classify the setting of an encounter. Encounter.class provides broad categories like inpatient, outpatient, emergency, which align with this concept.",
+    "status": "approved"
+  },
+  {
+    "concept": "Start Date of Service (YYYY-MM-DD)",
+    "fhir_resource": "Encounter",
+    "fhir_field": "period.start",
+    "confidence": "high",
+    "reasoning": "The start date of a service is captured by the period.start field of an Encounter or Procedure.",
+    "status": "approved"
+  },
+  {
+    "concept": "End Date of Service (YYYY-MM-DD)",
+    "fhir_resource": "Encounter",
+    "fhir_field": "period.end",
+    "confidence": "high",
+    "reasoning": "The end date of a service is captured by the period.end field of an Encounter or Procedure.",
+    "status": "approved"
+  },
+  {
+    "concept": "Date Claim Received (YYYY-MM-DD)",
+    "fhir_resource": "Observation",
+    "fhir_field": "effectiveDateTime",
+    "confidence": "medium",
+    "reasoning": "This is a timestamp for when a claim was received. An Observation can capture the effective date/time of an event it represents, such as a claim receipt.",
+    "status": "approved"
+  },
+  {
+    "concept": "Was it a clean claim? (Y/N)",
+    "fhir_resource": "Observation",
+    "fhir_field": "valueBoolean",
+    "confidence": "medium",
+    "reasoning": "This is a boolean flag about the claim. An Observation can capture such a boolean value, with a specific code defining the concept.",
+    "status": "approved"
+  },
+  {
+    "concept": "Was prior approval (e.g., a prior authorization or voluntary pre-service request) requested? (Y/N)",
+    "fhir_resource": "Observation",
+    "fhir_field": "valueBoolean",
+    "confidence": "medium",
+    "reasoning": "This is a boolean flag indicating whether prior approval was requested. An Observation can capture such a boolean value, with a specific code defining the concept.",
+    "status": "approved"
+  },
+  {
+    "concept": "OD number for associated prior approval request (if prior approval requested)",
+    "fhir_resource": "Observation",
+    "fhir_field": "identifier",
+    "confidence": "medium",
+    "reasoning": "This is an identifier for a prior approval request. An Observation can represent the prior approval event/outcome, and its identifier field can store this number.",
+    "status": "approved"
+  },
+  {
+    "concept": "Was prior authorization a required condition for coverage? (Y/N)",
+    "fhir_resource": "Observation",
+    "fhir_field": "valueBoolean",
+    "confidence": "medium",
+    "reasoning": "This is a boolean flag indicating a condition for coverage. An Observation can capture such a boolean value, with a specific code defining the concept.",
+    "status": "approved"
+  },
+  {
+    "concept": "Appeal Number",
+    "fhir_resource": "Observation",
+    "fhir_field": "identifier",
+    "confidence": "medium",
+    "reasoning": "The Appeal Number is an identifier for a specific appeal determination event or outcome. An Observation can represent the outcome of an appeal, and its identifier field can store this number.",
+    "status": "approved"
+  },
+  {
+    "concept": "Is this an appeal of an OD dismissal? (Y/N)",
+    "fhir_resource": "Observation",
+    "fhir_field": "valueBoolean",
+    "confidence": "medium",
+    "reasoning": "This is a boolean flag indicating a specific condition related to the appeal. An Observation can capture such a boolean value, with a specific code defining the concept.",
+    "status": "approved"
+  },
+  {
+    "concept": "Was the initial OD request denied for lack of medical necessity? (Y/N)",
+    "fhir_resource": "Observation",
+    "fhir_field": "valueBoolean",
+    "confidence": "medium",
+    "reasoning": "This is a boolean flag indicating a specific condition related to the initial determination. An Observation can capture such a boolean value, with a specific code defining the concept.",
+    "status": "approved"
+  },
+  {
+    "concept": "Was the reconsideration request reviewed by a physician? (Y/N)",
+    "fhir_resource": "Observation",
+    "fhir_field": "valueBoolean",
+    "confidence": "medium",
+    "reasoning": "This is a boolean flag indicating a specific condition related to the reconsideration review. An Observation can capture such a boolean value, with a specific code defining the concept.",
+    "status": "approved"
+  },
+  {
+    "concept": "Report Period",
+    "fhir_resource": "Observation",
+    "fhir_field": "effectiveDateTime",
+    "confidence": "medium",
+    "reasoning": "This defines the time frame for which data is reported. While not a direct FHIR field, it represents a filter applied to date/time fields like Observation.effectiveDateTime or Encounter.period.",
+    "status": "approved"
+  },
+  {
+    "concept": "Dual Eligible Special Needs Plans (D-SNPs)",
+    "fhir_resource": "Organization",
+    "fhir_field": "type",
+    "confidence": "high",
+    "reasoning": "These are specific types of organizations, directly mapping to the Organization.type field which describes the kind of organization.",
+    "status": "approved"
+  },
+  {
+    "concept": "Enrollee died",
+    "fhir_resource": "Patient",
+    "fhir_field": "deceased[x]",
+    "confidence": "high",
+    "reasoning": "This indicates the death status of a patient, directly mapping to Patient.deceased[x].",
+    "status": "approved"
+  },
+  {
+    "concept": "hospital discharges",
+    "fhir_resource": "Encounter",
+    "fhir_field": "hospitalization.dischargeDisposition",
+    "confidence": "high",
+    "reasoning": "This refers to the outcome of a hospital stay, directly mapping to Encounter.hospitalization.dischargeDisposition.",
+    "status": "approved"
+  },
+  {
+    "concept": "National PACE Plans",
+    "fhir_resource": "Organization",
+    "fhir_field": "type",
+    "confidence": "high",
+    "reasoning": "These are specific types of organizations, directly mapping to the Organization.type field which describes the kind of organization.",
+    "status": "approved"
+  },
+  {
+    "concept": "1833 Cost Plans",
+    "fhir_resource": "Organization",
+    "fhir_field": "type",
+    "confidence": "high",
+    "reasoning": "These are specific types of organizations, directly mapping to the Organization.type field which describes the kind of organization.",
+    "status": "approved"
+  },
+  {
+    "concept": "Medicare-Medicaid Plans (MMPs)",
+    "fhir_resource": "Organization",
+    "fhir_field": "type",
+    "confidence": "high",
+    "reasoning": "These are specific types of organizations, directly mapping to the Organization.type field which describes the kind of organization.",
+    "status": "approved"
+  },
+  {
+    "concept": "Independent Review Entity (IRE) decisions",
+    "fhir_resource": "Organization",
+    "fhir_field": "type",
+    "confidence": "high",
+    "reasoning": "An Independent Review Entity (IRE) is a type of organization, directly mapping to Organization.type.",
+    "status": "approved"
+  },
+  {
+    "concept": "Administrative Law Judge (ALJ)",
+    "fhir_resource": "Practitioner",
+    "fhir_field": "qualification",
+    "confidence": "medium",
+    "reasoning": "An Administrative Law Judge is a type of professional qualification for a practitioner. Could also refer to an Organization if referring to the office.",
+    "status": "approved"
+  },
+  {
+    "concept": "Appeals Council",
+    "fhir_resource": "Organization",
+    "fhir_field": "type",
+    "confidence": "high",
+    "reasoning": "An Appeals Council is a type of organization, directly mapping to Organization.type.",
+    "status": "approved"
+  },
+  {
+    "concept": "service or item",
+    "fhir_resource": "Procedure",
+    "fhir_field": "",
+    "confidence": "high",
+    "reasoning": "This is a general reference to a healthcare service or item, which is broadly represented by the Procedure resource.",
+    "status": "approved"
+  },
+  {
+    "concept": "provider/supplier",
+    "fhir_resource": "Practitioner",
+    "fhir_field": "",
+    "confidence": "high",
+    "reasoning": "This is a general reference to a healthcare provider or supplier, which is broadly represented by the Practitioner resource (or Organization for an entity).",
+    "status": "approved"
+  },
+  {
+    "concept": "Part B drugs",
+    "fhir_resource": "MedicationRequest",
+    "fhir_field": "",
+    "confidence": "high",
+    "reasoning": "This is a general reference to medications, specifically Part B drugs, which are broadly represented by the MedicationRequest resource.",
+    "status": "approved"
+  },
+  {
+    "concept": "Quality Improvement Organization (QIO)",
+    "fhir_resource": "Organization",
+    "fhir_field": "type",
+    "confidence": "high",
+    "reasoning": "A Quality Improvement Organization (QIO) is a type of organization, directly mapping to Organization.type.",
+    "status": "approved"
+  },
+  {
+    "concept": "Medicare-covered services",
+    "fhir_resource": "Procedure",
+    "fhir_field": "",
+    "confidence": "high",
+    "reasoning": "This is a general reference to healthcare services, which are broadly represented by the Procedure resource.",
+    "status": "approved"
+  },
+  {
+    "concept": "SNF stay",
+    "fhir_resource": "Encounter",
+    "fhir_field": "class",
+    "confidence": "high",
+    "reasoning": "A Skilled Nursing Facility (SNF) stay is a type of inpatient encounter, directly mapping to Encounter.class.",
+    "status": "approved"
+  },
+  {
+    "concept": "service",
+    "fhir_resource": "Procedure",
+    "fhir_field": "",
+    "confidence": "high",
+    "reasoning": "This is a general reference to a healthcare service, which is broadly represented by the Procedure resource.",
+    "status": "approved"
+  },
+  {
+    "concept": "Plan",
+    "fhir_resource": "Organization",
+    "fhir_field": "",
+    "confidence": "high",
+    "reasoning": "This is a general reference to a health plan, which is broadly represented by the Organization resource.",
+    "status": "approved"
+  },
+  {
+    "concept": "Associated Organization Determination (OD) Number (for Reconsiderations)",
+    "fhir_resource": "Observation",
+    "fhir_field": "identifier",
+    "confidence": "high",
+    "reasoning": "This is an identifier for a related determination. The Observation resource is used to represent the determination outcome, and its identifier field can hold this associated number.",
+    "status": "approved"
+  },
+  {
+    "concept": "Initial Determinations (Coverage Decisions, Payment Decisions)",
+    "fhir_resource": "Observation",
+    "fhir_field": "code",
+    "confidence": "medium",
+    "reasoning": "This concept describes the specific type of determination being reported. An Observation can represent the determination event, and its code field can specify whether it's an 'Initial Determination'.",
+    "status": "approved"
+  },
+  {
+    "concept": "Reconsiderations (Coverage Decisions, Payment Decisions)",
+    "fhir_resource": "Observation",
+    "fhir_field": "code",
+    "confidence": "medium",
+    "reasoning": "This concept describes the specific type of determination being reported. An Observation can represent the determination event, and its code field can specify whether it's a 'Reconsideration'.",
+    "status": "approved"
+  },
+  {
+    "concept": "Completed organization determinations and reconsiderations",
+    "fhir_resource": "Observation",
+    "fhir_field": "status",
+    "confidence": "high",
+    "reasoning": "This indicates the completion status of the determination process, which directly maps to the status field of an Observation resource representing the determination.",
+    "status": "approved"
+  },
+  {
+    "concept": "substantive decision",
+    "fhir_resource": "Observation",
+    "fhir_field": "status",
+    "confidence": "medium",
+    "reasoning": "A 'substantive decision' implies that a final outcome has been reached for the determination. This aligns with the status field of an Observation (e.g., 'final', 'completed').",
+    "status": "approved"
+  },
+  {
+    "concept": "Denial of a Medicare request for coverage",
+    "fhir_resource": "Observation",
+    "fhir_field": "valueCodeableConcept",
+    "confidence": "high",
+    "reasoning": "This describes a specific outcome of a determination, which is a type of Disposition (e.g., 'Adverse'). This maps to Observation.valueCodeableConcept where the code represents the denial.",
+    "status": "approved"
+  },
+  {
+    "concept": "Medicaid payment or provision",
+    "fhir_resource": "Observation",
+    "fhir_field": "valueCodeableConcept",
+    "confidence": "low",
+    "reasoning": "This refers to a type of payment or coverage. While not directly supported by a specific FHIR field in the catalog, an Observation can capture this as a coded value, indicating the source or type of payment/provision.",
+    "status": "approved"
+  },
+  {
+    "concept": "Medicare and Medicaid coverage criteria",
+    "fhir_resource": "Observation",
+    "fhir_field": "code",
+    "confidence": "medium",
+    "reasoning": "This describes the type of criteria applied during a determination. An Observation can represent the application of criteria, and its code field can specify the type (e.g., Medicare, Medicaid).",
+    "status": "approved"
+  },
+  {
+    "concept": "Denials based on exhaustion of Medicare benefits",
+    "fhir_resource": "Observation",
+    "fhir_field": "valueCodeableConcept",
+    "confidence": "high",
+    "reasoning": "This is a specific reason for a denial, which falls under the 'Decision Rationale' concept already mapped to Observation.valueCodeableConcept.",
+    "status": "approved"
+  },
+  {
+    "concept": "transfers to post-acute care settings",
+    "fhir_resource": "Encounter",
+    "fhir_field": "hospitalization.dischargeDisposition",
+    "confidence": "high",
+    "reasoning": "This describes the patient's destination after an inpatient stay, which is captured by Encounter.hospitalization.dischargeDisposition.",
+    "status": "approved"
+  },
+  {
+    "concept": "supplemental services",
+    "fhir_resource": "Procedure",
+    "fhir_field": "code",
+    "confidence": "high",
+    "reasoning": "This refers to a specific category of services. The Procedure resource represents services, and its code field can specify the type of service, including 'supplemental'.",
+    "status": "approved"
+  },
+  {
+    "concept": "extend or continue coverage",
+    "fhir_resource": "Observation",
+    "fhir_field": "valueCodeableConcept",
+    "confidence": "medium",
+    "reasoning": "This describes the nature of a favorable decision. An Observation can capture the outcome of a determination, and its valueCodeableConcept can represent this specific type of decision.",
+    "status": "approved"
+  },
+  {
+    "concept": "multiple line items",
+    "fhir_resource": "Observation",
+    "fhir_field": "related",
+    "confidence": "low",
+    "reasoning": "This concept describes that a single determination can cover multiple services/items. While not a direct field, an Observation representing the determination could link to multiple Procedure or MedicationRequest resources via 'related' to represent these line items.",
+    "status": "approved"
+  },
+  {
+    "concept": "physician’s office",
+    "fhir_resource": "Organization",
+    "fhir_field": "type",
+    "confidence": "high",
+    "reasoning": "A 'physician's office' is a type of healthcare organization, directly mapping to Organization.type.",
+    "status": "approved"
+  },
+  {
+    "concept": "contract or non-contract provider",
+    "fhir_resource": "Observation",
+    "fhir_field": "valueCodeableConcept",
+    "confidence": "medium",
+    "reasoning": "This describes the contractual relationship of a provider. An Observation can capture this as a coded value, with a subject reference to the Practitioner or Organization.",
+    "status": "approved"
+  },
+  {
+    "concept": "service decision",
+    "fhir_resource": "Observation",
+    "fhir_field": "code",
+    "confidence": "medium",
+    "reasoning": "This refers to a decision about a service. An Observation can represent the determination, and its code can specify it as a 'service decision'.",
+    "status": "approved"
+  },
+  {
+    "concept": "auto-adjudicated claims",
+    "fhir_resource": "Observation",
+    "fhir_field": "valueCodeableConcept",
+    "confidence": "low",
+    "reasoning": "This describes the automated processing method for a claim. An Observation can capture this as a coded value, related to the claim itself.",
+    "status": "approved"
+  },
+  {
+    "concept": "concurrent authorization",
+    "fhir_resource": "Observation",
+    "fhir_field": "code",
+    "confidence": "medium",
+    "reasoning": "This refers to a specific type of authorization decision. An Observation can represent this determination, and its code can specify it as 'concurrent authorization'.",
+    "status": "approved"
+  },
+  {
+    "concept": "requests to continue previously authorized ongoing courses of treatment",
+    "fhir_resource": "Observation",
+    "fhir_field": "code",
+    "confidence": "low",
+    "reasoning": "This describes a specific type of request for a determination. An Observation can represent the determination event, and its code can specify this type of request.",
+    "status": "approved"
+  },
+  {
+    "concept": "courses of treatment",
+    "fhir_resource": "Procedure",
+    "fhir_field": "code",
+    "confidence": "medium",
+    "reasoning": "This refers to a planned series of interventions or therapies. While a single Procedure represents an action, a 'course of treatment' implies multiple, which could be represented by a high-level Procedure code or a series of Procedure resources.",
+    "status": "approved"
+  },
+  {
+    "concept": "reduction/discontinuation of covered services",
+    "fhir_resource": "Observation",
+    "fhir_field": "valueCodeableConcept",
+    "confidence": "high",
+    "reasoning": "This describes a specific outcome of a determination regarding services. It's a type of Disposition or Decision Rationale, mapping to Observation.valueCodeableConcept.",
+    "status": "approved"
+  },
+  {
+    "concept": "pre-service requests",
+    "fhir_resource": "Observation",
+    "fhir_field": "code",
+    "confidence": "medium",
+    "reasoning": "This describes the timing/nature of a request for a determination. An Observation can represent the determination event, and its code can specify it as a 'pre-service request'.",
+    "status": "approved"
+  },
+  {
+    "concept": "claims payment requests",
+    "fhir_resource": "Observation",
+    "fhir_field": "code",
+    "confidence": "medium",
+    "reasoning": "This describes a specific type of request for a determination. An Observation can represent the determination event, and its code can specify it as a 'claims payment request'.",
+    "status": "approved"
+  },
+  {
+    "concept": "Reopenings",
+    "fhir_resource": "Observation",
+    "fhir_field": "code",
+    "confidence": "medium",
+    "reasoning": "This refers to an administrative process to re-evaluate a prior decision. An Observation can represent this event, and its code can specify it as a 'reopening'.",
+    "status": "approved"
+  },
+  {
+    "concept": "Duplicate payment requests",
+    "fhir_resource": "Observation",
+    "fhir_field": "code",
+    "confidence": "medium",
+    "reasoning": "This describes a specific type of request. An Observation can represent the request event, and its code can specify it as a 'duplicate payment request'.",
+    "status": "approved"
+  },
+  {
+    "concept": "Payment requests",
+    "fhir_resource": "Observation",
+    "fhir_field": "code",
+    "confidence": "medium",
+    "reasoning": "This describes a general type of request for payment. An Observation can represent the request event, and its code can specify it as a 'payment request'.",
+    "status": "approved"
+  },
+  {
+    "concept": "claim rejections",
+    "fhir_resource": "Observation",
+    "fhir_field": "valueCodeableConcept",
+    "confidence": "high",
+    "reasoning": "This describes a specific outcome for a claim. An Observation can represent the claim processing outcome, and its valueCodeableConcept can represent a 'rejection'.",
+    "status": "approved"
+  },
+  {
+    "concept": "claims/requests",
+    "fhir_resource": "Observation",
+    "fhir_field": "code",
+    "confidence": "medium",
+    "reasoning": "This is a general term encompassing both claims and requests for determination. An Observation can represent either, with its code specifying the type.",
+    "status": "approved"
+  },
+  {
+    "concept": "Medicaid benefits",
+    "fhir_resource": "Observation",
+    "fhir_field": "valueCodeableConcept",
+    "confidence": "low",
+    "reasoning": "This refers to a type of healthcare benefit. While not directly supported by a specific FHIR field in the catalog, an Observation can capture this as a coded value, indicating the type of benefit.",
+    "status": "approved"
+  },
+  {
+    "concept": "Medicaid home-and community-based long-term services and supports",
+    "fhir_resource": "Procedure",
+    "fhir_field": "code",
+    "confidence": "high",
+    "reasoning": "This describes a specific category of services. The Procedure resource represents services, and its code field can specify the type of service.",
+    "status": "approved"
+  },
+  {
+    "concept": "Plan decisions regarding a request to vacate a dismissal",
+    "fhir_resource": "Observation",
+    "fhir_field": "code",
+    "confidence": "medium",
+    "reasoning": "This describes a specific type of decision made by a plan. An Observation can represent this determination, and its code can specify it as a 'decision to vacate a dismissal'.",
+    "status": "approved"
+  }
+]

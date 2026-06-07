@@ -1,0 +1,236 @@
+[
+  {
+    "resource": "Patient",
+    "profile": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient",
+    "business_meaning": "An individual receiving or registered to receive healthcare services. Represents beneficiaries, members, or enrollees in CMS programs.",
+    "common_fields": [
+      "identifier (MBI, SSN)",
+      "name",
+      "birthDate",
+      "gender",
+      "address",
+      "telecom",
+      "race (US Core extension)",
+      "ethnicity (US Core extension)",
+      "communication.language"
+    ],
+    "cms_concepts": [
+      "beneficiary",
+      "member",
+      "enrollee",
+      "patient demographics",
+      "Medicare beneficiary identifier",
+      "dual-eligible",
+      "age group",
+      "gender",
+      "race/ethnicity"
+    ]
+  },
+  {
+    "resource": "Encounter",
+    "profile": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter",
+    "business_meaning": "An interaction between a patient and healthcare provider for the purpose of providing services or assessing health status. Covers inpatient stays, outpatient visits, emergency visits, and telehealth.",
+    "common_fields": [
+      "identifier",
+      "status",
+      "class (inpatient, outpatient, emergency, virtual)",
+      "type",
+      "subject (Patient reference)",
+      "participant (Practitioner reference)",
+      "period (start/end dates)",
+      "reasonCode",
+      "diagnosis",
+      "hospitalization",
+      "serviceProvider (Organization reference)",
+      "location"
+    ],
+    "cms_concepts": [
+      "visit",
+      "encounter",
+      "admission",
+      "discharge",
+      "length of stay",
+      "readmission",
+      "telehealth visit",
+      "ED visit",
+      "inpatient stay",
+      "outpatient visit",
+      "claim type",
+      "service date",
+      "disposition"
+    ]
+  },
+  {
+    "resource": "Condition",
+    "profile": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-problems-health-concerns",
+    "business_meaning": "A clinical condition, problem, diagnosis, or health concern that has been identified. Used for tracking diagnoses, comorbidities, and health status.",
+    "common_fields": [
+      "identifier",
+      "clinicalStatus",
+      "verificationStatus",
+      "category (problem-list-item, encounter-diagnosis, health-concern)",
+      "severity",
+      "code (ICD-10, SNOMED)",
+      "subject (Patient reference)",
+      "encounter (Encounter reference)",
+      "onsetDateTime",
+      "abatementDateTime",
+      "recordedDate"
+    ],
+    "cms_concepts": [
+      "diagnosis",
+      "diagnosis code",
+      "ICD-10",
+      "primary diagnosis",
+      "secondary diagnosis",
+      "comorbidity",
+      "chronic condition",
+      "HCC category",
+      "risk adjustment",
+      "problem list"
+    ]
+  },
+  {
+    "resource": "Observation",
+    "profile": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+    "business_meaning": "Measurements, assessments, and results. Encompasses lab results, vital signs, clinical assessments, quality measure observations, and social determinants of health screenings.",
+    "common_fields": [
+      "identifier",
+      "status",
+      "category (laboratory, vital-signs, social-history, survey)",
+      "code (LOINC)",
+      "subject (Patient reference)",
+      "encounter (Encounter reference)",
+      "effectiveDateTime",
+      "value[x] (valueQuantity, valueCodeableConcept, valueString)",
+      "interpretation",
+      "referenceRange"
+    ],
+    "cms_concepts": [
+      "lab result",
+      "vital sign",
+      "blood pressure",
+      "HbA1c",
+      "BMI",
+      "screening result",
+      "assessment score",
+      "quality measure numerator",
+      "quality measure denominator",
+      "SDOH screening",
+      "PHQ-9",
+      "functional status"
+    ]
+  },
+  {
+    "resource": "Procedure",
+    "profile": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure",
+    "business_meaning": "An action performed on or for a patient for diagnostic or therapeutic purposes. Includes surgeries, counseling, physical therapy, and other interventions.",
+    "common_fields": [
+      "identifier",
+      "status",
+      "code (CPT, HCPCS, SNOMED)",
+      "subject (Patient reference)",
+      "encounter (Encounter reference)",
+      "performedDateTime / performedPeriod",
+      "performer (Practitioner reference)",
+      "reasonCode",
+      "bodySite",
+      "location"
+    ],
+    "cms_concepts": [
+      "procedure",
+      "procedure code",
+      "CPT code",
+      "HCPCS code",
+      "surgery",
+      "intervention",
+      "service performed",
+      "treatment",
+      "therapy",
+      "preventive service"
+    ]
+  },
+  {
+    "resource": "MedicationRequest",
+    "profile": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest",
+    "business_meaning": "An order or request for a medication to be supplied and administered to a patient. Covers prescriptions, medication orders, and Part D drug events.",
+    "common_fields": [
+      "identifier",
+      "status",
+      "intent (order, plan, proposal)",
+      "medicationCodeableConcept (RxNorm, NDC)",
+      "subject (Patient reference)",
+      "encounter (Encounter reference)",
+      "authoredOn",
+      "requester (Practitioner reference)",
+      "dosageInstruction",
+      "dispenseRequest",
+      "substitution"
+    ],
+    "cms_concepts": [
+      "prescription",
+      "medication",
+      "drug",
+      "Part D event",
+      "NDC code",
+      "RxNorm",
+      "formulary",
+      "medication adherence",
+      "days supply",
+      "refill",
+      "generic vs brand",
+      "prior authorization"
+    ]
+  },
+  {
+    "resource": "Practitioner",
+    "profile": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner",
+    "business_meaning": "A person who is directly or indirectly involved in the provisioning of healthcare. Represents physicians, nurses, specialists, and other providers.",
+    "common_fields": [
+      "identifier (NPI)",
+      "name",
+      "telecom",
+      "address",
+      "gender",
+      "qualification"
+    ],
+    "cms_concepts": [
+      "provider",
+      "physician",
+      "practitioner",
+      "NPI",
+      "attending provider",
+      "rendering provider",
+      "referring provider",
+      "prescriber",
+      "specialty",
+      "provider type"
+    ]
+  },
+  {
+    "resource": "Organization",
+    "profile": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization",
+    "business_meaning": "A formally or informally recognized grouping of people or organizations formed for the purpose of achieving some form of collective action. Includes hospitals, health plans, and CMS-regulated entities.",
+    "common_fields": [
+      "identifier (NPI, TIN, CCN)",
+      "active",
+      "type",
+      "name",
+      "telecom",
+      "address"
+    ],
+    "cms_concepts": [
+      "organization",
+      "facility",
+      "hospital",
+      "health plan",
+      "payer",
+      "reporting entity",
+      "TIN",
+      "CCN",
+      "provider organization",
+      "ACO",
+      "managed care organization"
+    ]
+  }
+]

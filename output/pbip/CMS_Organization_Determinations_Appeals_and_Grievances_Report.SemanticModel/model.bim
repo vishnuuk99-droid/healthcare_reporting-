@@ -1,0 +1,901 @@
+{
+  "compatibilityLevel": 1570,
+  "model": {
+    "culture": "en-US",
+    "defaultPowerBIDataSourceVersion": "powerBI_V3",
+    "tables": [
+      {
+        "name": "FactDetermination",
+        "columns": [
+          {
+            "name": "determination_key",
+            "dataType": "int64",
+            "sourceColumn": "determination_key"
+          },
+          {
+            "name": "patient_key",
+            "dataType": "int64",
+            "sourceColumn": "patient_key"
+          },
+          {
+            "name": "provider_key",
+            "dataType": "int64",
+            "sourceColumn": "provider_key"
+          },
+          {
+            "name": "organization_key",
+            "dataType": "int64",
+            "sourceColumn": "organization_key"
+          },
+          {
+            "name": "condition_key",
+            "dataType": "int64",
+            "sourceColumn": "condition_key"
+          },
+          {
+            "name": "request_date_key",
+            "dataType": "int64",
+            "sourceColumn": "request_date_key"
+          },
+          {
+            "name": "decision_date_key",
+            "dataType": "int64",
+            "sourceColumn": "decision_date_key"
+          },
+          {
+            "name": "claim_received_date_key",
+            "dataType": "int64",
+            "sourceColumn": "claim_received_date_key"
+          },
+          {
+            "name": "service_start_date_key",
+            "dataType": "int64",
+            "sourceColumn": "service_start_date_key"
+          },
+          {
+            "name": "service_end_date_key",
+            "dataType": "int64",
+            "sourceColumn": "service_end_date_key"
+          },
+          {
+            "name": "od_number",
+            "dataType": "string",
+            "sourceColumn": "od_number"
+          },
+          {
+            "name": "appeal_number",
+            "dataType": "string",
+            "sourceColumn": "appeal_number"
+          },
+          {
+            "name": "associated_od_number",
+            "dataType": "string",
+            "sourceColumn": "associated_od_number"
+          },
+          {
+            "name": "requesting_party_code",
+            "dataType": "string",
+            "sourceColumn": "requesting_party_code"
+          },
+          {
+            "name": "is_contracted_provider_referral",
+            "dataType": "boolean",
+            "sourceColumn": "is_contracted_provider_referral"
+          },
+          {
+            "name": "item_service_code",
+            "dataType": "string",
+            "sourceColumn": "item_service_code"
+          },
+          {
+            "name": "item_service_description",
+            "dataType": "string",
+            "sourceColumn": "item_service_description"
+          },
+          {
+            "name": "is_prior_auth_required",
+            "dataType": "boolean",
+            "sourceColumn": "is_prior_auth_required"
+          },
+          {
+            "name": "processing_priority",
+            "dataType": "string",
+            "sourceColumn": "processing_priority"
+          },
+          {
+            "name": "is_expedited_processing_requested",
+            "dataType": "boolean",
+            "sourceColumn": "is_expedited_processing_requested"
+          },
+          {
+            "name": "disposition",
+            "dataType": "string",
+            "sourceColumn": "disposition"
+          },
+          {
+            "name": "dismissal_rationale",
+            "dataType": "string",
+            "sourceColumn": "dismissal_rationale"
+          },
+          {
+            "name": "decision_rationale",
+            "dataType": "string",
+            "sourceColumn": "decision_rationale"
+          },
+          {
+            "name": "were_internal_plan_criteria_applied",
+            "dataType": "boolean",
+            "sourceColumn": "were_internal_plan_criteria_applied"
+          },
+          {
+            "name": "did_third_party_vendor_participate",
+            "dataType": "boolean",
+            "sourceColumn": "did_third_party_vendor_participate"
+          },
+          {
+            "name": "is_approved_item_different_from_requested",
+            "dataType": "boolean",
+            "sourceColumn": "is_approved_item_different_from_requested"
+          },
+          {
+            "name": "approved_item_service_code",
+            "dataType": "string",
+            "sourceColumn": "approved_item_service_code"
+          },
+          {
+            "name": "service_location_zip_code",
+            "dataType": "string",
+            "sourceColumn": "service_location_zip_code"
+          },
+          {
+            "name": "place_of_service_code",
+            "dataType": "string",
+            "sourceColumn": "place_of_service_code"
+          },
+          {
+            "name": "is_clean_claim",
+            "dataType": "boolean",
+            "sourceColumn": "is_clean_claim"
+          },
+          {
+            "name": "was_prior_approval_requested",
+            "dataType": "boolean",
+            "sourceColumn": "was_prior_approval_requested"
+          },
+          {
+            "name": "prior_approval_od_number",
+            "dataType": "string",
+            "sourceColumn": "prior_approval_od_number"
+          },
+          {
+            "name": "is_prior_auth_required_for_coverage",
+            "dataType": "boolean",
+            "sourceColumn": "is_prior_auth_required_for_coverage"
+          },
+          {
+            "name": "is_appeal_of_od_dismissal",
+            "dataType": "boolean",
+            "sourceColumn": "is_appeal_of_od_dismissal"
+          },
+          {
+            "name": "was_initial_od_denied_medical_necessity",
+            "dataType": "boolean",
+            "sourceColumn": "was_initial_od_denied_medical_necessity"
+          },
+          {
+            "name": "was_reconsideration_reviewed_by_physician",
+            "dataType": "boolean",
+            "sourceColumn": "was_reconsideration_reviewed_by_physician"
+          },
+          {
+            "name": "determination_type",
+            "dataType": "string",
+            "sourceColumn": "determination_type"
+          },
+          {
+            "name": "determination_subtype",
+            "dataType": "string",
+            "sourceColumn": "determination_subtype"
+          },
+          {
+            "name": "determination_count",
+            "dataType": "int64",
+            "sourceColumn": "determination_count"
+          }
+        ],
+        "measures": [],
+        "partitions": [
+          {
+            "name": "FactDetermination-partition",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": "let\n    Source = \"\"\nin\n    Source"
+            }
+          }
+        ],
+        "description": "Captures details and outcomes of initial determinations and reconsiderations for coverage and payment, serving as the central fact for CMS reporting."
+      },
+      {
+        "name": "FactEncounter",
+        "columns": [
+          {
+            "name": "encounter_key",
+            "dataType": "int64",
+            "sourceColumn": "encounter_key"
+          },
+          {
+            "name": "patient_key",
+            "dataType": "int64",
+            "sourceColumn": "patient_key"
+          },
+          {
+            "name": "provider_key",
+            "dataType": "int64",
+            "sourceColumn": "provider_key"
+          },
+          {
+            "name": "organization_key",
+            "dataType": "int64",
+            "sourceColumn": "organization_key"
+          },
+          {
+            "name": "start_date_key",
+            "dataType": "int64",
+            "sourceColumn": "start_date_key"
+          },
+          {
+            "name": "end_date_key",
+            "dataType": "int64",
+            "sourceColumn": "end_date_key"
+          },
+          {
+            "name": "encounter_fhir_id",
+            "dataType": "string",
+            "sourceColumn": "encounter_fhir_id"
+          },
+          {
+            "name": "class_code",
+            "dataType": "string",
+            "sourceColumn": "class_code"
+          },
+          {
+            "name": "discharge_disposition",
+            "dataType": "string",
+            "sourceColumn": "discharge_disposition"
+          },
+          {
+            "name": "encounter_count",
+            "dataType": "int64",
+            "sourceColumn": "encounter_count"
+          }
+        ],
+        "measures": [],
+        "partitions": [
+          {
+            "name": "FactEncounter-partition",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": "let\n    Source = \"\"\nin\n    Source"
+            }
+          }
+        ],
+        "description": "Captures details about patient encounters. While not directly generating measures for this specific CMS report, it provides contextual data."
+      },
+      {
+        "name": "FactProcedure",
+        "columns": [
+          {
+            "name": "procedure_key",
+            "dataType": "int64",
+            "sourceColumn": "procedure_key"
+          },
+          {
+            "name": "patient_key",
+            "dataType": "int64",
+            "sourceColumn": "patient_key"
+          },
+          {
+            "name": "provider_key",
+            "dataType": "int64",
+            "sourceColumn": "provider_key"
+          },
+          {
+            "name": "organization_key",
+            "dataType": "int64",
+            "sourceColumn": "organization_key"
+          },
+          {
+            "name": "performed_date_key",
+            "dataType": "int64",
+            "sourceColumn": "performed_date_key"
+          },
+          {
+            "name": "procedure_fhir_id",
+            "dataType": "string",
+            "sourceColumn": "procedure_fhir_id"
+          },
+          {
+            "name": "procedure_code",
+            "dataType": "string",
+            "sourceColumn": "procedure_code"
+          },
+          {
+            "name": "procedure_description",
+            "dataType": "string",
+            "sourceColumn": "procedure_description"
+          },
+          {
+            "name": "procedure_count",
+            "dataType": "int64",
+            "sourceColumn": "procedure_count"
+          }
+        ],
+        "measures": [],
+        "partitions": [
+          {
+            "name": "FactProcedure-partition",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": "let\n    Source = \"\"\nin\n    Source"
+            }
+          }
+        ],
+        "description": "Captures details about procedures and services performed. While not directly generating measures for this specific CMS report, it provides contextual data."
+      },
+      {
+        "name": "FactMedication",
+        "columns": [
+          {
+            "name": "medication_key",
+            "dataType": "int64",
+            "sourceColumn": "medication_key"
+          },
+          {
+            "name": "patient_key",
+            "dataType": "int64",
+            "sourceColumn": "patient_key"
+          },
+          {
+            "name": "provider_key",
+            "dataType": "int64",
+            "sourceColumn": "provider_key"
+          },
+          {
+            "name": "organization_key",
+            "dataType": "int64",
+            "sourceColumn": "organization_key"
+          },
+          {
+            "name": "authored_on_date_key",
+            "dataType": "int64",
+            "sourceColumn": "authored_on_date_key"
+          },
+          {
+            "name": "medication_fhir_id",
+            "dataType": "string",
+            "sourceColumn": "medication_fhir_id"
+          },
+          {
+            "name": "medication_code",
+            "dataType": "string",
+            "sourceColumn": "medication_code"
+          },
+          {
+            "name": "medication_description",
+            "dataType": "string",
+            "sourceColumn": "medication_description"
+          },
+          {
+            "name": "medication_request_count",
+            "dataType": "int64",
+            "sourceColumn": "medication_request_count"
+          }
+        ],
+        "measures": [],
+        "partitions": [
+          {
+            "name": "FactMedication-partition",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": "let\n    Source = \"\"\nin\n    Source"
+            }
+          }
+        ],
+        "description": "Captures details about medication requests (e.g., Part B drugs). While not directly generating measures for this specific CMS report, it provides contextual data."
+      },
+      {
+        "name": "DimPatient",
+        "columns": [
+          {
+            "name": "patient_key",
+            "dataType": "int64",
+            "sourceColumn": "patient_key"
+          },
+          {
+            "name": "patient_fhir_id",
+            "dataType": "string",
+            "sourceColumn": "patient_fhir_id"
+          },
+          {
+            "name": "mbi",
+            "dataType": "string",
+            "sourceColumn": "mbi"
+          },
+          {
+            "name": "is_deceased",
+            "dataType": "boolean",
+            "sourceColumn": "is_deceased"
+          },
+          {
+            "name": "gender",
+            "dataType": "string",
+            "sourceColumn": "gender"
+          },
+          {
+            "name": "birth_date",
+            "dataType": "dateTime",
+            "sourceColumn": "birth_date"
+          }
+        ],
+        "measures": [],
+        "partitions": [
+          {
+            "name": "DimPatient-partition",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": "let\n    Source = \"\"\nin\n    Source"
+            }
+          }
+        ],
+        "description": "Attributes of the patient (enrollee) involved in determinations and other healthcare events."
+      },
+      {
+        "name": "DimProvider",
+        "columns": [
+          {
+            "name": "provider_key",
+            "dataType": "int64",
+            "sourceColumn": "provider_key"
+          },
+          {
+            "name": "provider_fhir_id",
+            "dataType": "string",
+            "sourceColumn": "provider_fhir_id"
+          },
+          {
+            "name": "npi",
+            "dataType": "string",
+            "sourceColumn": "npi"
+          },
+          {
+            "name": "provider_name",
+            "dataType": "string",
+            "sourceColumn": "provider_name"
+          },
+          {
+            "name": "qualification",
+            "dataType": "string",
+            "sourceColumn": "qualification"
+          }
+        ],
+        "measures": [],
+        "partitions": [
+          {
+            "name": "DimProvider-partition",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": "let\n    Source = \"\"\nin\n    Source"
+            }
+          }
+        ],
+        "description": "Attributes of healthcare providers involved in requests, reviews, or service delivery."
+      },
+      {
+        "name": "DimOrganization",
+        "columns": [
+          {
+            "name": "organization_key",
+            "dataType": "int64",
+            "sourceColumn": "organization_key"
+          },
+          {
+            "name": "organization_fhir_id",
+            "dataType": "string",
+            "sourceColumn": "organization_fhir_id"
+          },
+          {
+            "name": "organization_name",
+            "dataType": "string",
+            "sourceColumn": "organization_name"
+          },
+          {
+            "name": "organization_type",
+            "dataType": "string",
+            "sourceColumn": "organization_type"
+          },
+          {
+            "name": "contract_number",
+            "dataType": "string",
+            "sourceColumn": "contract_number"
+          },
+          {
+            "name": "plan_benefit_package",
+            "dataType": "string",
+            "sourceColumn": "plan_benefit_package"
+          }
+        ],
+        "measures": [],
+        "partitions": [
+          {
+            "name": "DimOrganization-partition",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": "let\n    Source = \"\"\nin\n    Source"
+            }
+          }
+        ],
+        "description": "Attributes of organizations involved, such as health plans, requesting parties, or third-party vendors."
+      },
+      {
+        "name": "DimCondition",
+        "columns": [
+          {
+            "name": "condition_key",
+            "dataType": "int64",
+            "sourceColumn": "condition_key"
+          },
+          {
+            "name": "condition_fhir_id",
+            "dataType": "string",
+            "sourceColumn": "condition_fhir_id"
+          },
+          {
+            "name": "condition_code",
+            "dataType": "string",
+            "sourceColumn": "condition_code"
+          },
+          {
+            "name": "condition_description",
+            "dataType": "string",
+            "sourceColumn": "condition_description"
+          }
+        ],
+        "measures": [],
+        "partitions": [
+          {
+            "name": "DimCondition-partition",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": "let\n    Source = \"\"\nin\n    Source"
+            }
+          }
+        ],
+        "description": "Attributes of medical conditions or diagnoses relevant to determinations."
+      },
+      {
+        "name": "DimDate",
+        "columns": [
+          {
+            "name": "date_key",
+            "dataType": "int64",
+            "sourceColumn": "date_key"
+          },
+          {
+            "name": "full_date",
+            "dataType": "dateTime",
+            "sourceColumn": "full_date"
+          },
+          {
+            "name": "day_of_week",
+            "dataType": "string",
+            "sourceColumn": "day_of_week"
+          },
+          {
+            "name": "day_name",
+            "dataType": "string",
+            "sourceColumn": "day_name"
+          },
+          {
+            "name": "day_of_month",
+            "dataType": "int64",
+            "sourceColumn": "day_of_month"
+          },
+          {
+            "name": "day_of_year",
+            "dataType": "int64",
+            "sourceColumn": "day_of_year"
+          },
+          {
+            "name": "week_of_year",
+            "dataType": "int64",
+            "sourceColumn": "week_of_year"
+          },
+          {
+            "name": "month",
+            "dataType": "int64",
+            "sourceColumn": "month"
+          },
+          {
+            "name": "month_name",
+            "dataType": "string",
+            "sourceColumn": "month_name"
+          },
+          {
+            "name": "quarter",
+            "dataType": "int64",
+            "sourceColumn": "quarter"
+          },
+          {
+            "name": "year",
+            "dataType": "int64",
+            "sourceColumn": "year"
+          },
+          {
+            "name": "is_weekend",
+            "dataType": "boolean",
+            "sourceColumn": "is_weekend"
+          },
+          {
+            "name": "fiscal_period",
+            "dataType": "string",
+            "sourceColumn": "fiscal_period"
+          }
+        ],
+        "measures": [],
+        "partitions": [
+          {
+            "name": "DimDate-partition",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": "let\n    Source = \"\"\nin\n    Source"
+            }
+          }
+        ],
+        "description": "Standard date dimension for time-based analysis of all events."
+      },
+      {
+        "name": "_Measures",
+        "columns": [
+          {
+            "name": "_placeholder",
+            "dataType": "string",
+            "sourceColumn": "_placeholder",
+            "isHidden": true
+          }
+        ],
+        "measures": [
+          {
+            "name": "Total Org Determinations Override",
+            "expression": "COUNTROWS(FactDetermination)",
+            "description": "Total count of unique Organization Determinations."
+          },
+          {
+            "name": "Adverse Decision Rate",
+            "expression": "DIVIDE(CALCULATE(COUNTROWS(FactDetermination), FactDetermination[disposition] = \"Adverse\"), [Total Org Determinations Override], 0)",
+            "description": "Percentage of determinations that resulted in adverse decisions."
+          }
+        ],
+        "partitions": [
+          {
+            "name": "_Measures-partition",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": "let\n    Source = \"\"\nin\n    Source"
+            }
+          }
+        ],
+        "description": "Consolidated business and compliance measures."
+      }
+    ],
+    "relationships": [
+      {
+        "name": "FactDetermination_DimPatient_patient_key",
+        "fromTable": "FactDetermination",
+        "fromColumn": "patient_key",
+        "toTable": "DimPatient",
+        "toColumn": "patient_key",
+        "crossFilteringBehavior": "oneDirection",
+        "isActive": true
+      },
+      {
+        "name": "FactDetermination_DimProvider_provider_key",
+        "fromTable": "FactDetermination",
+        "fromColumn": "provider_key",
+        "toTable": "DimProvider",
+        "toColumn": "provider_key",
+        "crossFilteringBehavior": "oneDirection",
+        "isActive": true
+      },
+      {
+        "name": "FactDetermination_DimOrganization_organization_key",
+        "fromTable": "FactDetermination",
+        "fromColumn": "organization_key",
+        "toTable": "DimOrganization",
+        "toColumn": "organization_key",
+        "crossFilteringBehavior": "oneDirection",
+        "isActive": true
+      },
+      {
+        "name": "FactDetermination_DimCondition_condition_key",
+        "fromTable": "FactDetermination",
+        "fromColumn": "condition_key",
+        "toTable": "DimCondition",
+        "toColumn": "condition_key",
+        "crossFilteringBehavior": "oneDirection",
+        "isActive": true
+      },
+      {
+        "name": "FactDetermination_DimDate_request_date_key",
+        "fromTable": "FactDetermination",
+        "fromColumn": "request_date_key",
+        "toTable": "DimDate",
+        "toColumn": "date_key",
+        "crossFilteringBehavior": "oneDirection",
+        "isActive": true
+      },
+      {
+        "name": "FactDetermination_DimDate_decision_date_key",
+        "fromTable": "FactDetermination",
+        "fromColumn": "decision_date_key",
+        "toTable": "DimDate",
+        "toColumn": "date_key",
+        "crossFilteringBehavior": "oneDirection",
+        "isActive": false
+      },
+      {
+        "name": "FactDetermination_DimDate_claim_received_date_key",
+        "fromTable": "FactDetermination",
+        "fromColumn": "claim_received_date_key",
+        "toTable": "DimDate",
+        "toColumn": "date_key",
+        "crossFilteringBehavior": "oneDirection",
+        "isActive": false
+      },
+      {
+        "name": "FactDetermination_DimDate_service_start_date_key",
+        "fromTable": "FactDetermination",
+        "fromColumn": "service_start_date_key",
+        "toTable": "DimDate",
+        "toColumn": "date_key",
+        "crossFilteringBehavior": "oneDirection",
+        "isActive": false
+      },
+      {
+        "name": "FactDetermination_DimDate_service_end_date_key",
+        "fromTable": "FactDetermination",
+        "fromColumn": "service_end_date_key",
+        "toTable": "DimDate",
+        "toColumn": "date_key",
+        "crossFilteringBehavior": "oneDirection",
+        "isActive": false
+      },
+      {
+        "name": "FactEncounter_DimPatient_patient_key",
+        "fromTable": "FactEncounter",
+        "fromColumn": "patient_key",
+        "toTable": "DimPatient",
+        "toColumn": "patient_key",
+        "crossFilteringBehavior": "oneDirection",
+        "isActive": true
+      },
+      {
+        "name": "FactEncounter_DimProvider_provider_key",
+        "fromTable": "FactEncounter",
+        "fromColumn": "provider_key",
+        "toTable": "DimProvider",
+        "toColumn": "provider_key",
+        "crossFilteringBehavior": "oneDirection",
+        "isActive": true
+      },
+      {
+        "name": "FactEncounter_DimOrganization_organization_key",
+        "fromTable": "FactEncounter",
+        "fromColumn": "organization_key",
+        "toTable": "DimOrganization",
+        "toColumn": "organization_key",
+        "crossFilteringBehavior": "oneDirection",
+        "isActive": true
+      },
+      {
+        "name": "FactEncounter_DimDate_start_date_key",
+        "fromTable": "FactEncounter",
+        "fromColumn": "start_date_key",
+        "toTable": "DimDate",
+        "toColumn": "date_key",
+        "crossFilteringBehavior": "oneDirection",
+        "isActive": true
+      },
+      {
+        "name": "FactEncounter_DimDate_end_date_key",
+        "fromTable": "FactEncounter",
+        "fromColumn": "end_date_key",
+        "toTable": "DimDate",
+        "toColumn": "date_key",
+        "crossFilteringBehavior": "oneDirection",
+        "isActive": false
+      },
+      {
+        "name": "FactProcedure_DimPatient_patient_key",
+        "fromTable": "FactProcedure",
+        "fromColumn": "patient_key",
+        "toTable": "DimPatient",
+        "toColumn": "patient_key",
+        "crossFilteringBehavior": "oneDirection",
+        "isActive": true
+      },
+      {
+        "name": "FactProcedure_DimProvider_provider_key",
+        "fromTable": "FactProcedure",
+        "fromColumn": "provider_key",
+        "toTable": "DimProvider",
+        "toColumn": "provider_key",
+        "crossFilteringBehavior": "oneDirection",
+        "isActive": true
+      },
+      {
+        "name": "FactProcedure_DimOrganization_organization_key",
+        "fromTable": "FactProcedure",
+        "fromColumn": "organization_key",
+        "toTable": "DimOrganization",
+        "toColumn": "organization_key",
+        "crossFilteringBehavior": "oneDirection",
+        "isActive": true
+      },
+      {
+        "name": "FactProcedure_DimDate_performed_date_key",
+        "fromTable": "FactProcedure",
+        "fromColumn": "performed_date_key",
+        "toTable": "DimDate",
+        "toColumn": "date_key",
+        "crossFilteringBehavior": "oneDirection",
+        "isActive": true
+      },
+      {
+        "name": "FactMedication_DimPatient_patient_key",
+        "fromTable": "FactMedication",
+        "fromColumn": "patient_key",
+        "toTable": "DimPatient",
+        "toColumn": "patient_key",
+        "crossFilteringBehavior": "oneDirection",
+        "isActive": true
+      },
+      {
+        "name": "FactMedication_DimProvider_provider_key",
+        "fromTable": "FactMedication",
+        "fromColumn": "provider_key",
+        "toTable": "DimProvider",
+        "toColumn": "provider_key",
+        "crossFilteringBehavior": "oneDirection",
+        "isActive": true
+      },
+      {
+        "name": "FactMedication_DimOrganization_organization_key",
+        "fromTable": "FactMedication",
+        "fromColumn": "organization_key",
+        "toTable": "DimOrganization",
+        "toColumn": "organization_key",
+        "crossFilteringBehavior": "oneDirection",
+        "isActive": true
+      },
+      {
+        "name": "FactMedication_DimDate_authored_on_date_key",
+        "fromTable": "FactMedication",
+        "fromColumn": "authored_on_date_key",
+        "toTable": "DimDate",
+        "toColumn": "date_key",
+        "crossFilteringBehavior": "oneDirection",
+        "isActive": true
+      }
+    ]
+  }
+}

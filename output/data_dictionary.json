@@ -1,0 +1,32 @@
+[
+  {
+    "report_field": "Organization Determination Number",
+    "business_definition": "Unique identifier for each organization determination request.",
+    "classification": "FHIR",
+    "source_type": "Direct",
+    "source_resource": "FactObservation",
+    "source_field": "od_number",
+    "transformation_rule": "None - direct mapping",
+    "report_usage": "Table"
+  },
+  {
+    "report_field": "Disposition",
+    "business_definition": "Outcome of the determination request.",
+    "classification": "FHIR",
+    "source_type": "Direct",
+    "source_resource": "FactObservation",
+    "source_field": "disposition",
+    "transformation_rule": "None - direct mapping",
+    "report_usage": "Table"
+  },
+  {
+    "report_field": "Adverse Decision Rate",
+    "business_definition": "The proportion of determinations resulting in an adverse outcome.",
+    "classification": "Derived",
+    "source_type": "Derived",
+    "source_resource": "FactObservation",
+    "source_field": "disposition",
+    "transformation_rule": "Count of adverse decisions / total decisions",
+    "report_usage": "KPI"
+  }
+]

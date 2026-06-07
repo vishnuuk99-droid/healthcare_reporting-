@@ -1,0 +1,18 @@
+[
+  {
+    "decision_id": "4fac028f",
+    "type": "reporting_preference",
+    "source_term": "Decision Rationale (numbered list)",
+    "mapped_term": "Decision Rationale (descriptive reasons only)",
+    "description": "For the 'Decision Rationale' data element under Initial Determinations (I.A. Coverage Decisions and I.B. Payment Decisions), the numerical prefixes (e.g., '01 - ') will be removed, and only the descriptive reason (e.g., 'Cost Sharing/Benefit Limits') will be reported.",
+    "timestamp": "2026-06-06T08:25:22.687836+00:00"
+  },
+  {
+    "decision_id": "95cb9416",
+    "type": "reporting_preference",
+    "source_term": "Decision Rationale (numbered list)",
+    "mapped_term": "Decision Rationale (descriptive reasons only)",
+    "description": "For the 'Decision Rationale' data element under Reconsiderations (II.A. Coverage Decisions and II.B. Payment Decisions), the numerical prefixes (e.g., '01 - ') will be removed, and only the descriptive reason (e.g., 'Cost Sharing/Benefit Limits') will be reported.",
+    "timestamp": "2026-06-06T09:03:06.419869+00:00"
+  }
+]

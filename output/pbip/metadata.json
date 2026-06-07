@@ -1,0 +1,35 @@
+{
+  "project_name": "CMS Organization Determinations, Appeals, and Grievances Report",
+  "project_slug": "CMS_Organization_Determinations_Appeals_and_Grievances_Report",
+  "generated_at": "2026-06-08T00:56:15.087307",
+  "pbip_spec_version": "1.0",
+  "pbir_version": "1.0",
+  "stats": {
+    "tables_count": 9,
+    "measures_count": 2,
+    "pages_count": 2,
+    "visuals_count": 5,
+    "relationships_count": 22
+  },
+  "contents": {
+    "tables": [
+      "FactDetermination",
+      "FactEncounter",
+      "FactProcedure",
+      "FactMedication",
+      "DimPatient",
+      "DimProvider",
+      "DimOrganization",
+      "DimCondition",
+      "DimDate"
+    ],
+    "measures": [
+      "Total Org Determinations Override",
+      "Adverse Decision Rate"
+    ],
+    "pages": [
+      "Executive Summary",
+      "Determinations Analysis"
+    ]
+  }
+}

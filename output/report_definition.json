@@ -1,0 +1,95 @@
+{
+  "report_name": "CMS Organization Determinations, Appeals, and Grievances Report",
+  "pages": [
+    {
+      "page_name": "Executive Summary",
+      "purpose": "Provides a high-level overview of determination volumes, appeals, and timeliness KPIs.",
+      "visuals": [
+        {
+          "title": "Total Organization Determinations",
+          "visual_type": "card",
+          "dimensions": [],
+          "measures": [
+            "Total Org Determinations Override"
+          ],
+          "business_reason": "Executive summary metric for overall volume."
+        },
+        {
+          "title": "Adverse Decision Rate",
+          "visual_type": "gauge",
+          "dimensions": [],
+          "measures": [
+            "Adverse Decision Rate"
+          ],
+          "business_reason": "Tracks the rate of adverse outcomes against compliance thresholds."
+        },
+        {
+          "title": "Monthly Determination Volume Trend",
+          "visual_type": "line_chart",
+          "dimensions": [
+            "DimDate.month_name"
+          ],
+          "measures": [
+            "Total Org Determinations Override"
+          ],
+          "business_reason": "Analyzes workload volume trends over time."
+        }
+      ]
+    },
+    {
+      "page_name": "Determinations Analysis",
+      "purpose": "Detailed breakdown of organization determinations by priority, type, and disposition.",
+      "visuals": [
+        {
+          "title": "Determinations by Priority",
+          "visual_type": "donut_chart",
+          "dimensions": [
+            "FactDetermination.processing_priority"
+          ],
+          "measures": [
+            "Total Org Determinations Override"
+          ],
+          "business_reason": "Compares standard vs expedited volumes."
+        },
+        {
+          "title": "Decisions by Disposition",
+          "visual_type": "bar_chart",
+          "dimensions": [
+            "FactDetermination.disposition"
+          ],
+          "measures": [
+            "Total Org Determinations Override"
+          ],
+          "business_reason": "Shows distribution of fully favorable, partially favorable, and adverse decisions."
+        }
+      ]
+    }
+  ],
+  "filters": [
+    {
+      "name": "Reporting Year",
+      "field": "DimDate.year",
+      "filter_type": "dropdown",
+      "default_value": "2026",
+      "scope": "report"
+    }
+  ],
+  "visuals": [],
+  "measures": [
+    {
+      "name": "Total Organization Determinations",
+      "dax_expression": "COUNTROWS(FactObservation)",
+      "format_string": "#,##0",
+      "description": "Total count of Organization Determinations.",
+      "home_table": "FactObservation"
+    },
+    {
+      "name": "Adverse Decision Rate",
+      "dax_expression": "DIVIDE(CALCULATE(COUNTROWS(FactObservation), FactObservation[disposition] = \"Adverse\"), COUNTROWS(FactObservation))",
+      "format_string": "0.0%",
+      "description": "Percentage of determinations that resulted in adverse decisions.",
+      "home_table": "FactObservation"
+    }
+  ],
+  "drillthrough_pages": []
+}
