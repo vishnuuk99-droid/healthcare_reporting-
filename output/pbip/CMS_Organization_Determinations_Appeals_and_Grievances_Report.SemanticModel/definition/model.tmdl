@@ -5,231 +5,568 @@ model Model
 table FactDetermination
 	// Description: Captures details and outcomes of initial determinations and reconsiderations for coverage and payment, serving as the central fact for CMS reporting.
 	column determination_key
-		dataType: INTEGER
+		dataType: int64
+		sourceColumn: determination_key
 	column patient_key
-		dataType: INTEGER
+		dataType: int64
+		sourceColumn: patient_key
 	column provider_key
-		dataType: INTEGER
+		dataType: int64
+		sourceColumn: provider_key
 	column organization_key
-		dataType: INTEGER
+		dataType: int64
+		sourceColumn: organization_key
 	column condition_key
-		dataType: INTEGER
+		dataType: int64
+		sourceColumn: condition_key
 	column request_date_key
-		dataType: INTEGER
+		dataType: int64
+		sourceColumn: request_date_key
 	column decision_date_key
-		dataType: INTEGER
+		dataType: int64
+		sourceColumn: decision_date_key
 	column claim_received_date_key
-		dataType: INTEGER
+		dataType: int64
+		sourceColumn: claim_received_date_key
 	column service_start_date_key
-		dataType: INTEGER
+		dataType: int64
+		sourceColumn: service_start_date_key
 	column service_end_date_key
-		dataType: INTEGER
+		dataType: int64
+		sourceColumn: service_end_date_key
 	column od_number
-		dataType: VARCHAR
+		dataType: string
+		sourceColumn: od_number
 	column appeal_number
-		dataType: VARCHAR
+		dataType: string
+		sourceColumn: appeal_number
 	column associated_od_number
-		dataType: VARCHAR
+		dataType: string
+		sourceColumn: associated_od_number
 	column requesting_party_code
-		dataType: VARCHAR
+		dataType: string
+		sourceColumn: requesting_party_code
 	column is_contracted_provider_referral
-		dataType: BOOLEAN
+		dataType: boolean
+		sourceColumn: is_contracted_provider_referral
 	column item_service_code
-		dataType: VARCHAR
+		dataType: string
+		sourceColumn: item_service_code
 	column item_service_description
-		dataType: VARCHAR
+		dataType: string
+		sourceColumn: item_service_description
 	column is_prior_auth_required
-		dataType: BOOLEAN
+		dataType: boolean
+		sourceColumn: is_prior_auth_required
 	column processing_priority
-		dataType: VARCHAR
+		dataType: string
+		sourceColumn: processing_priority
 	column is_expedited_processing_requested
-		dataType: BOOLEAN
+		dataType: boolean
+		sourceColumn: is_expedited_processing_requested
 	column disposition
-		dataType: VARCHAR
+		dataType: string
+		sourceColumn: disposition
 	column dismissal_rationale
-		dataType: VARCHAR
+		dataType: string
+		sourceColumn: dismissal_rationale
 	column decision_rationale
-		dataType: VARCHAR
+		dataType: string
+		sourceColumn: decision_rationale
 	column were_internal_plan_criteria_applied
-		dataType: BOOLEAN
+		dataType: boolean
+		sourceColumn: were_internal_plan_criteria_applied
 	column did_third_party_vendor_participate
-		dataType: BOOLEAN
+		dataType: boolean
+		sourceColumn: did_third_party_vendor_participate
 	column is_approved_item_different_from_requested
-		dataType: BOOLEAN
+		dataType: boolean
+		sourceColumn: is_approved_item_different_from_requested
 	column approved_item_service_code
-		dataType: VARCHAR
+		dataType: string
+		sourceColumn: approved_item_service_code
 	column service_location_zip_code
-		dataType: VARCHAR
+		dataType: string
+		sourceColumn: service_location_zip_code
 	column place_of_service_code
-		dataType: VARCHAR
+		dataType: string
+		sourceColumn: place_of_service_code
 	column is_clean_claim
-		dataType: BOOLEAN
+		dataType: boolean
+		sourceColumn: is_clean_claim
 	column was_prior_approval_requested
-		dataType: BOOLEAN
+		dataType: boolean
+		sourceColumn: was_prior_approval_requested
 	column prior_approval_od_number
-		dataType: VARCHAR
+		dataType: string
+		sourceColumn: prior_approval_od_number
 	column is_prior_auth_required_for_coverage
-		dataType: BOOLEAN
+		dataType: boolean
+		sourceColumn: is_prior_auth_required_for_coverage
 	column is_appeal_of_od_dismissal
-		dataType: BOOLEAN
+		dataType: boolean
+		sourceColumn: is_appeal_of_od_dismissal
 	column was_initial_od_denied_medical_necessity
-		dataType: BOOLEAN
+		dataType: boolean
+		sourceColumn: was_initial_od_denied_medical_necessity
 	column was_reconsideration_reviewed_by_physician
-		dataType: BOOLEAN
+		dataType: boolean
+		sourceColumn: was_reconsideration_reviewed_by_physician
 	column determination_type
-		dataType: VARCHAR
+		dataType: string
+		sourceColumn: determination_type
 	column determination_subtype
-		dataType: VARCHAR
+		dataType: string
+		sourceColumn: determination_subtype
 	column determination_count
-		dataType: INTEGER
+		dataType: int64
+		sourceColumn: determination_count
+	partition FactDetermination-partition = m
+		mode: import
+		source =
+			let
+			    Source = Table.FromRecords({
+			        [determination_key = 1, patient_key = 1, provider_key = 2, organization_key = 1, condition_key = 3, request_date_key = 20260115, decision_date_key = 20260115, claim_received_date_key = 20260115, service_start_date_key = 20260115, service_end_date_key = 20260115, od_number = "OD-101", appeal_number = "AP-201", associated_od_number = "OD-101", requesting_party_code = "01", is_contracted_provider_referral = true, item_service_code = "99213", item_service_description = "Office Visit", is_prior_auth_required = true, processing_priority = "Standard", is_expedited_processing_requested = false, disposition = "Fully favorable", dismissal_rationale = "Mock dismissal_rationale 1", decision_rationale = "Medical Necessity", were_internal_plan_criteria_applied = true, did_third_party_vendor_participate = false, is_approved_item_different_from_requested = false, approved_item_service_code = "99213", service_location_zip_code = "90210", place_of_service_code = "11", is_clean_claim = true, was_prior_approval_requested = true, prior_approval_od_number = "PA-901", is_prior_auth_required_for_coverage = true, is_appeal_of_od_dismissal = true, was_initial_od_denied_medical_necessity = true, was_reconsideration_reviewed_by_physician = true, determination_type = "Mock determination_type 1", determination_subtype = "Mock determination_subtype 1", determination_count = 10],
+			        [determination_key = 2, patient_key = 2, provider_key = 3, organization_key = 1, condition_key = 4, request_date_key = 20260220, decision_date_key = 20260220, claim_received_date_key = 20260220, service_start_date_key = 20260220, service_end_date_key = 20260220, od_number = "OD-102", appeal_number = "AP-202", associated_od_number = "OD-102", requesting_party_code = "03", is_contracted_provider_referral = false, item_service_code = "85025", item_service_description = "CBC Test", is_prior_auth_required = false, processing_priority = "Expedited", is_expedited_processing_requested = true, disposition = "Adverse", dismissal_rationale = "Mock dismissal_rationale 2", decision_rationale = "Lack of Documentation", were_internal_plan_criteria_applied = false, did_third_party_vendor_participate = true, is_approved_item_different_from_requested = false, approved_item_service_code = "85025", service_location_zip_code = "10001", place_of_service_code = "81", is_clean_claim = true, was_prior_approval_requested = false, prior_approval_od_number = "PA-902", is_prior_auth_required_for_coverage = false, is_appeal_of_od_dismissal = false, was_initial_od_denied_medical_necessity = false, was_reconsideration_reviewed_by_physician = false, determination_type = "Mock determination_type 2", determination_subtype = "Mock determination_subtype 2", determination_count = 20],
+			        [determination_key = 3, patient_key = 3, provider_key = 4, organization_key = 2, condition_key = 5, request_date_key = 20260310, decision_date_key = 20260310, claim_received_date_key = 20260310, service_start_date_key = 20260310, service_end_date_key = 20260310, od_number = "OD-103", appeal_number = "AP-203", associated_od_number = "OD-103", requesting_party_code = "01", is_contracted_provider_referral = true, item_service_code = "CT001", item_service_description = "CT Scan", is_prior_auth_required = true, processing_priority = "Standard", is_expedited_processing_requested = false, disposition = "Partially favorable", dismissal_rationale = "Mock dismissal_rationale 3", decision_rationale = "Benefit Limits", were_internal_plan_criteria_applied = true, did_third_party_vendor_participate = false, is_approved_item_different_from_requested = true, approved_item_service_code = "CT002", service_location_zip_code = "30301", place_of_service_code = "21", is_clean_claim = false, was_prior_approval_requested = true, prior_approval_od_number = "PA-903", is_prior_auth_required_for_coverage = true, is_appeal_of_od_dismissal = true, was_initial_od_denied_medical_necessity = true, was_reconsideration_reviewed_by_physician = true, determination_type = "Mock determination_type 3", determination_subtype = "Mock determination_subtype 3", determination_count = 30],
+			        [determination_key = 4, patient_key = 4, provider_key = 5, organization_key = 2, condition_key = 1, request_date_key = 20260425, decision_date_key = 20260425, claim_received_date_key = 20260425, service_start_date_key = 20260425, service_end_date_key = 20260425, od_number = "OD-104", appeal_number = "AP-204", associated_od_number = "OD-104", requesting_party_code = "01", is_contracted_provider_referral = true, item_service_code = "RX002", item_service_description = "Medication Request", is_prior_auth_required = true, processing_priority = "Standard", is_expedited_processing_requested = false, disposition = "Fully favorable", dismissal_rationale = "Mock dismissal_rationale 4", decision_rationale = "Medical Necessity", were_internal_plan_criteria_applied = true, did_third_party_vendor_participate = false, is_approved_item_different_from_requested = false, approved_item_service_code = "RX002", service_location_zip_code = "60601", place_of_service_code = "01", is_clean_claim = true, was_prior_approval_requested = true, prior_approval_od_number = "PA-904", is_prior_auth_required_for_coverage = false, is_appeal_of_od_dismissal = false, was_initial_od_denied_medical_necessity = false, was_reconsideration_reviewed_by_physician = false, determination_type = "Mock determination_type 4", determination_subtype = "Mock determination_subtype 4", determination_count = 40],
+			        [determination_key = 5, patient_key = 5, provider_key = 1, organization_key = 3, condition_key = 2, request_date_key = 20260515, decision_date_key = 20260515, claim_received_date_key = 20260515, service_start_date_key = 20260515, service_end_date_key = 20260515, od_number = "OD-105", appeal_number = "AP-205", associated_od_number = "OD-105", requesting_party_code = "03", is_contracted_provider_referral = false, item_service_code = "99214", item_service_description = "Office Visit High", is_prior_auth_required = true, processing_priority = "Expedited", is_expedited_processing_requested = true, disposition = "Adverse", dismissal_rationale = "Mock dismissal_rationale 5", decision_rationale = "Experimental Treatment", were_internal_plan_criteria_applied = false, did_third_party_vendor_participate = true, is_approved_item_different_from_requested = false, approved_item_service_code = "99214", service_location_zip_code = "77001", place_of_service_code = "11", is_clean_claim = true, was_prior_approval_requested = true, prior_approval_od_number = "PA-905", is_prior_auth_required_for_coverage = true, is_appeal_of_od_dismissal = true, was_initial_od_denied_medical_necessity = true, was_reconsideration_reviewed_by_physician = true, determination_type = "Mock determination_type 5", determination_subtype = "Mock determination_subtype 5", determination_count = 50]
+			    }),
+			    #"Changed Type" = Table.TransformColumnTypes(Source, {
+			        {"determination_key", Int64.Type},
+			        {"patient_key", Int64.Type},
+			        {"provider_key", Int64.Type},
+			        {"organization_key", Int64.Type},
+			        {"condition_key", Int64.Type},
+			        {"request_date_key", Int64.Type},
+			        {"decision_date_key", Int64.Type},
+			        {"claim_received_date_key", Int64.Type},
+			        {"service_start_date_key", Int64.Type},
+			        {"service_end_date_key", Int64.Type},
+			        {"od_number", type text},
+			        {"appeal_number", type text},
+			        {"associated_od_number", type text},
+			        {"requesting_party_code", type text},
+			        {"is_contracted_provider_referral", type logical},
+			        {"item_service_code", type text},
+			        {"item_service_description", type text},
+			        {"is_prior_auth_required", type logical},
+			        {"processing_priority", type text},
+			        {"is_expedited_processing_requested", type logical},
+			        {"disposition", type text},
+			        {"dismissal_rationale", type text},
+			        {"decision_rationale", type text},
+			        {"were_internal_plan_criteria_applied", type logical},
+			        {"did_third_party_vendor_participate", type logical},
+			        {"is_approved_item_different_from_requested", type logical},
+			        {"approved_item_service_code", type text},
+			        {"service_location_zip_code", type text},
+			        {"place_of_service_code", type text},
+			        {"is_clean_claim", type logical},
+			        {"was_prior_approval_requested", type logical},
+			        {"prior_approval_od_number", type text},
+			        {"is_prior_auth_required_for_coverage", type logical},
+			        {"is_appeal_of_od_dismissal", type logical},
+			        {"was_initial_od_denied_medical_necessity", type logical},
+			        {"was_reconsideration_reviewed_by_physician", type logical},
+			        {"determination_type", type text},
+			        {"determination_subtype", type text},
+			        {"determination_count", Int64.Type}
+			    })
+			in
+			    #"Changed Type"
 
 table FactEncounter
 	// Description: Captures details about patient encounters. While not directly generating measures for this specific CMS report, it provides contextual data.
 	column encounter_key
-		dataType: INTEGER
+		dataType: int64
+		sourceColumn: encounter_key
 	column patient_key
-		dataType: INTEGER
+		dataType: int64
+		sourceColumn: patient_key
 	column provider_key
-		dataType: INTEGER
+		dataType: int64
+		sourceColumn: provider_key
 	column organization_key
-		dataType: INTEGER
+		dataType: int64
+		sourceColumn: organization_key
 	column start_date_key
-		dataType: INTEGER
+		dataType: int64
+		sourceColumn: start_date_key
 	column end_date_key
-		dataType: INTEGER
+		dataType: int64
+		sourceColumn: end_date_key
 	column encounter_fhir_id
-		dataType: VARCHAR
+		dataType: string
+		sourceColumn: encounter_fhir_id
 	column class_code
-		dataType: VARCHAR
+		dataType: string
+		sourceColumn: class_code
 	column discharge_disposition
-		dataType: VARCHAR
+		dataType: string
+		sourceColumn: discharge_disposition
 	column encounter_count
-		dataType: INTEGER
+		dataType: int64
+		sourceColumn: encounter_count
+	partition FactEncounter-partition = m
+		mode: import
+		source =
+			let
+			    Source = Table.FromRecords({
+			        [encounter_key = 1, patient_key = 1, provider_key = 1, organization_key = 1, start_date_key = 1, end_date_key = 1, encounter_fhir_id = "enc-1", class_code = "Mock class_code 1", discharge_disposition = "Mock discharge_disposition 1", encounter_count = 10],
+			        [encounter_key = 2, patient_key = 2, provider_key = 2, organization_key = 2, start_date_key = 2, end_date_key = 2, encounter_fhir_id = "enc-2", class_code = "Mock class_code 2", discharge_disposition = "Mock discharge_disposition 2", encounter_count = 20],
+			        [encounter_key = 3, patient_key = 3, provider_key = 3, organization_key = 3, start_date_key = 3, end_date_key = 3, encounter_fhir_id = "enc-3", class_code = "Mock class_code 3", discharge_disposition = "Mock discharge_disposition 3", encounter_count = 30],
+			        [encounter_key = 4, patient_key = 4, provider_key = 4, organization_key = 4, start_date_key = 4, end_date_key = 4, encounter_fhir_id = "enc-4", class_code = "Mock class_code 4", discharge_disposition = "Mock discharge_disposition 4", encounter_count = 40],
+			        [encounter_key = 5, patient_key = 5, provider_key = 5, organization_key = 5, start_date_key = 5, end_date_key = 5, encounter_fhir_id = "enc-5", class_code = "Mock class_code 5", discharge_disposition = "Mock discharge_disposition 5", encounter_count = 50]
+			    }),
+			    #"Changed Type" = Table.TransformColumnTypes(Source, {
+			        {"encounter_key", Int64.Type},
+			        {"patient_key", Int64.Type},
+			        {"provider_key", Int64.Type},
+			        {"organization_key", Int64.Type},
+			        {"start_date_key", Int64.Type},
+			        {"end_date_key", Int64.Type},
+			        {"encounter_fhir_id", type text},
+			        {"class_code", type text},
+			        {"discharge_disposition", type text},
+			        {"encounter_count", Int64.Type}
+			    })
+			in
+			    #"Changed Type"
 
 table FactProcedure
 	// Description: Captures details about procedures and services performed. While not directly generating measures for this specific CMS report, it provides contextual data.
 	column procedure_key
-		dataType: INTEGER
+		dataType: int64
+		sourceColumn: procedure_key
 	column patient_key
-		dataType: INTEGER
+		dataType: int64
+		sourceColumn: patient_key
 	column provider_key
-		dataType: INTEGER
+		dataType: int64
+		sourceColumn: provider_key
 	column organization_key
-		dataType: INTEGER
+		dataType: int64
+		sourceColumn: organization_key
 	column performed_date_key
-		dataType: INTEGER
+		dataType: int64
+		sourceColumn: performed_date_key
 	column procedure_fhir_id
-		dataType: VARCHAR
+		dataType: string
+		sourceColumn: procedure_fhir_id
 	column procedure_code
-		dataType: VARCHAR
+		dataType: string
+		sourceColumn: procedure_code
 	column procedure_description
-		dataType: VARCHAR
+		dataType: string
+		sourceColumn: procedure_description
 	column procedure_count
-		dataType: INTEGER
+		dataType: int64
+		sourceColumn: procedure_count
+	partition FactProcedure-partition = m
+		mode: import
+		source =
+			let
+			    Source = Table.FromRecords({
+			        [procedure_key = 1, patient_key = 1, provider_key = 1, organization_key = 1, performed_date_key = 1, procedure_fhir_id = "proc-1", procedure_code = "99213", procedure_description = "Office Visit", procedure_count = 10],
+			        [procedure_key = 2, patient_key = 2, provider_key = 2, organization_key = 2, performed_date_key = 2, procedure_fhir_id = "proc-2", procedure_code = "85025", procedure_description = "CBC Test", procedure_count = 20],
+			        [procedure_key = 3, patient_key = 3, provider_key = 3, organization_key = 3, performed_date_key = 3, procedure_fhir_id = "proc-3", procedure_code = "CT001", procedure_description = "CT Scan", procedure_count = 30],
+			        [procedure_key = 4, patient_key = 4, provider_key = 4, organization_key = 4, performed_date_key = 4, procedure_fhir_id = "proc-4", procedure_code = "RX002", procedure_description = "Medication Request", procedure_count = 40],
+			        [procedure_key = 5, patient_key = 5, provider_key = 5, organization_key = 5, performed_date_key = 5, procedure_fhir_id = "proc-5", procedure_code = "99214", procedure_description = "Office Visit High", procedure_count = 50]
+			    }),
+			    #"Changed Type" = Table.TransformColumnTypes(Source, {
+			        {"procedure_key", Int64.Type},
+			        {"patient_key", Int64.Type},
+			        {"provider_key", Int64.Type},
+			        {"organization_key", Int64.Type},
+			        {"performed_date_key", Int64.Type},
+			        {"procedure_fhir_id", type text},
+			        {"procedure_code", type text},
+			        {"procedure_description", type text},
+			        {"procedure_count", Int64.Type}
+			    })
+			in
+			    #"Changed Type"
 
 table FactMedication
 	// Description: Captures details about medication requests (e.g., Part B drugs). While not directly generating measures for this specific CMS report, it provides contextual data.
 	column medication_key
-		dataType: INTEGER
+		dataType: int64
+		sourceColumn: medication_key
 	column patient_key
-		dataType: INTEGER
+		dataType: int64
+		sourceColumn: patient_key
 	column provider_key
-		dataType: INTEGER
+		dataType: int64
+		sourceColumn: provider_key
 	column organization_key
-		dataType: INTEGER
+		dataType: int64
+		sourceColumn: organization_key
 	column authored_on_date_key
-		dataType: INTEGER
+		dataType: int64
+		sourceColumn: authored_on_date_key
 	column medication_fhir_id
-		dataType: VARCHAR
+		dataType: string
+		sourceColumn: medication_fhir_id
 	column medication_code
-		dataType: VARCHAR
+		dataType: string
+		sourceColumn: medication_code
 	column medication_description
-		dataType: VARCHAR
+		dataType: string
+		sourceColumn: medication_description
 	column medication_request_count
-		dataType: INTEGER
+		dataType: int64
+		sourceColumn: medication_request_count
+	partition FactMedication-partition = m
+		mode: import
+		source =
+			let
+			    Source = Table.FromRecords({
+			        [medication_key = 1, patient_key = 1, provider_key = 1, organization_key = 1, authored_on_date_key = 1, medication_fhir_id = "med-1", medication_code = "0001", medication_description = "Mock medication_description 1", medication_request_count = 10],
+			        [medication_key = 2, patient_key = 2, provider_key = 2, organization_key = 2, authored_on_date_key = 2, medication_fhir_id = "med-2", medication_code = "0002", medication_description = "Mock medication_description 2", medication_request_count = 20],
+			        [medication_key = 3, patient_key = 3, provider_key = 3, organization_key = 3, authored_on_date_key = 3, medication_fhir_id = "med-3", medication_code = "0003", medication_description = "Mock medication_description 3", medication_request_count = 30],
+			        [medication_key = 4, patient_key = 4, provider_key = 4, organization_key = 4, authored_on_date_key = 4, medication_fhir_id = "med-4", medication_code = "0004", medication_description = "Mock medication_description 4", medication_request_count = 40],
+			        [medication_key = 5, patient_key = 5, provider_key = 5, organization_key = 5, authored_on_date_key = 5, medication_fhir_id = "med-5", medication_code = "0005", medication_description = "Mock medication_description 5", medication_request_count = 50]
+			    }),
+			    #"Changed Type" = Table.TransformColumnTypes(Source, {
+			        {"medication_key", Int64.Type},
+			        {"patient_key", Int64.Type},
+			        {"provider_key", Int64.Type},
+			        {"organization_key", Int64.Type},
+			        {"authored_on_date_key", Int64.Type},
+			        {"medication_fhir_id", type text},
+			        {"medication_code", type text},
+			        {"medication_description", type text},
+			        {"medication_request_count", Int64.Type}
+			    })
+			in
+			    #"Changed Type"
 
 table DimPatient
 	// Description: Attributes of the patient (enrollee) involved in determinations and other healthcare events.
 	column patient_key
-		dataType: INTEGER
+		dataType: int64
+		sourceColumn: patient_key
 	column patient_fhir_id
-		dataType: VARCHAR
+		dataType: string
+		sourceColumn: patient_fhir_id
 	column mbi
-		dataType: VARCHAR
+		dataType: string
+		sourceColumn: mbi
 	column is_deceased
-		dataType: BOOLEAN
+		dataType: boolean
+		sourceColumn: is_deceased
 	column gender
-		dataType: VARCHAR
+		dataType: string
+		sourceColumn: gender
 	column birth_date
-		dataType: DATE
+		dataType: dateTime
+		sourceColumn: birth_date
+	partition DimPatient-partition = m
+		mode: import
+		source =
+			let
+			    Source = Table.FromRecords({
+			        [patient_key = 1, patient_fhir_id = "pat-1", mbi = "1EG4-TE5-MK2", is_deceased = false, gender = "female", birth_date = #date(1975, 3, 12)],
+			        [patient_key = 2, patient_fhir_id = "pat-2", mbi = "2FH5-UG6-NL3", is_deceased = false, gender = "male", birth_date = #date(1988, 11, 23)],
+			        [patient_key = 3, patient_fhir_id = "pat-3", mbi = "3GJ6-VH7-OM4", is_deceased = false, gender = "female", birth_date = #date(1962, 7, 4)],
+			        [patient_key = 4, patient_fhir_id = "pat-4", mbi = "4HK7-WI8-PN5", is_deceased = false, gender = "male", birth_date = #date(1995, 1, 30)],
+			        [patient_key = 5, patient_fhir_id = "pat-5", mbi = "5JL8-XJ9-QO6", is_deceased = false, gender = "female", birth_date = #date(1954, 9, 18)]
+			    }),
+			    #"Changed Type" = Table.TransformColumnTypes(Source, {
+			        {"patient_key", Int64.Type},
+			        {"patient_fhir_id", type text},
+			        {"mbi", type text},
+			        {"is_deceased", type logical},
+			        {"gender", type text},
+			        {"birth_date", type date}
+			    })
+			in
+			    #"Changed Type"
 
 table DimProvider
 	// Description: Attributes of healthcare providers involved in requests, reviews, or service delivery.
 	column provider_key
-		dataType: INTEGER
+		dataType: int64
+		sourceColumn: provider_key
 	column provider_fhir_id
-		dataType: VARCHAR
+		dataType: string
+		sourceColumn: provider_fhir_id
 	column npi
-		dataType: VARCHAR
+		dataType: string
+		sourceColumn: npi
 	column provider_name
-		dataType: VARCHAR
+		dataType: string
+		sourceColumn: provider_name
 	column qualification
-		dataType: VARCHAR
+		dataType: string
+		sourceColumn: qualification
+	partition DimProvider-partition = m
+		mode: import
+		source =
+			let
+			    Source = Table.FromRecords({
+			        [provider_key = 1, provider_fhir_id = "prov-1", npi = "NPI11111", provider_name = "Dr. Alice Smith", qualification = "Physician"],
+			        [provider_key = 2, provider_fhir_id = "prov-2", npi = "NPI22222", provider_name = "Dr. Bob Jones", qualification = "Specialist"],
+			        [provider_key = 3, provider_fhir_id = "prov-3", npi = "NPI33333", provider_name = "Dr. Carol White", qualification = "Physician"],
+			        [provider_key = 4, provider_fhir_id = "prov-4", npi = "NPI44444", provider_name = "Dr. David Black", qualification = "Specialist"],
+			        [provider_key = 5, provider_fhir_id = "prov-5", npi = "NPI55555", provider_name = "Dr. Emily Green", qualification = "Physician"]
+			    }),
+			    #"Changed Type" = Table.TransformColumnTypes(Source, {
+			        {"provider_key", Int64.Type},
+			        {"provider_fhir_id", type text},
+			        {"npi", type text},
+			        {"provider_name", type text},
+			        {"qualification", type text}
+			    })
+			in
+			    #"Changed Type"
 
 table DimOrganization
 	// Description: Attributes of organizations involved, such as health plans, requesting parties, or third-party vendors.
 	column organization_key
-		dataType: INTEGER
+		dataType: int64
+		sourceColumn: organization_key
 	column organization_fhir_id
-		dataType: VARCHAR
+		dataType: string
+		sourceColumn: organization_fhir_id
 	column organization_name
-		dataType: VARCHAR
+		dataType: string
+		sourceColumn: organization_name
 	column organization_type
-		dataType: VARCHAR
+		dataType: string
+		sourceColumn: organization_type
 	column contract_number
-		dataType: VARCHAR
+		dataType: string
+		sourceColumn: contract_number
 	column plan_benefit_package
-		dataType: VARCHAR
+		dataType: string
+		sourceColumn: plan_benefit_package
+	partition DimOrganization-partition = m
+		mode: import
+		source =
+			let
+			    Source = Table.FromRecords({
+			        [organization_key = 1, organization_fhir_id = "org-1", organization_name = "HealthPlan Alpha", organization_type = "MAO", contract_number = "H1001", plan_benefit_package = "001"],
+			        [organization_key = 2, organization_fhir_id = "org-2", organization_name = "HealthPlan Beta", organization_type = "MAO", contract_number = "H2002", plan_benefit_package = "002"],
+			        [organization_key = 3, organization_fhir_id = "org-3", organization_name = "HealthPlan Gamma", organization_type = "1876 Cost Plan", contract_number = "H3003", plan_benefit_package = "001"],
+			        [organization_key = 4, organization_fhir_id = "org-4", organization_name = "IRE Vendor", organization_type = "IRE", contract_number = "H4004", plan_benefit_package = "003"],
+			        [organization_key = 5, organization_fhir_id = "org-5", organization_name = "Appeals Board", organization_type = "Appeals Council", contract_number = "H5005", plan_benefit_package = "002"]
+			    }),
+			    #"Changed Type" = Table.TransformColumnTypes(Source, {
+			        {"organization_key", Int64.Type},
+			        {"organization_fhir_id", type text},
+			        {"organization_name", type text},
+			        {"organization_type", type text},
+			        {"contract_number", type text},
+			        {"plan_benefit_package", type text}
+			    })
+			in
+			    #"Changed Type"
 
 table DimCondition
 	// Description: Attributes of medical conditions or diagnoses relevant to determinations.
 	column condition_key
-		dataType: INTEGER
+		dataType: int64
+		sourceColumn: condition_key
 	column condition_fhir_id
-		dataType: VARCHAR
+		dataType: string
+		sourceColumn: condition_fhir_id
 	column condition_code
-		dataType: VARCHAR
+		dataType: string
+		sourceColumn: condition_code
 	column condition_description
-		dataType: VARCHAR
+		dataType: string
+		sourceColumn: condition_description
+	partition DimCondition-partition = m
+		mode: import
+		source =
+			let
+			    Source = Table.FromRecords({
+			        [condition_key = 1, condition_fhir_id = "cond-1", condition_code = "I10", condition_description = "Essential hypertension"],
+			        [condition_key = 2, condition_fhir_id = "cond-2", condition_code = "E11.9", condition_description = "Type 2 diabetes mellitus"],
+			        [condition_key = 3, condition_fhir_id = "cond-3", condition_code = "M54.5", condition_description = "Low back pain"],
+			        [condition_key = 4, condition_fhir_id = "cond-4", condition_code = "J45.909", condition_description = "Asthma, unspecified"],
+			        [condition_key = 5, condition_fhir_id = "cond-5", condition_code = "Z00.00", condition_description = "Encounter for general adult medical exam"]
+			    }),
+			    #"Changed Type" = Table.TransformColumnTypes(Source, {
+			        {"condition_key", Int64.Type},
+			        {"condition_fhir_id", type text},
+			        {"condition_code", type text},
+			        {"condition_description", type text}
+			    })
+			in
+			    #"Changed Type"
 
 table DimDate
 	// Description: Standard date dimension for time-based analysis of all events.
 	column date_key
-		dataType: INTEGER
+		dataType: int64
+		sourceColumn: date_key
 	column full_date
-		dataType: DATE
+		dataType: dateTime
+		sourceColumn: full_date
 	column day_of_week
-		dataType: VARCHAR
+		dataType: string
+		sourceColumn: day_of_week
 	column day_name
-		dataType: VARCHAR
+		dataType: string
+		sourceColumn: day_name
 	column day_of_month
-		dataType: INTEGER
+		dataType: int64
+		sourceColumn: day_of_month
 	column day_of_year
-		dataType: INTEGER
+		dataType: int64
+		sourceColumn: day_of_year
 	column week_of_year
-		dataType: INTEGER
+		dataType: int64
+		sourceColumn: week_of_year
 	column month
-		dataType: INTEGER
+		dataType: int64
+		sourceColumn: month
 	column month_name
-		dataType: VARCHAR
+		dataType: string
+		sourceColumn: month_name
 	column quarter
-		dataType: INTEGER
+		dataType: int64
+		sourceColumn: quarter
 	column year
-		dataType: INTEGER
+		dataType: int64
+		sourceColumn: year
 	column is_weekend
-		dataType: BOOLEAN
+		dataType: boolean
+		sourceColumn: is_weekend
 	column fiscal_period
-		dataType: VARCHAR
+		dataType: string
+		sourceColumn: fiscal_period
+	partition DimDate-partition = m
+		mode: import
+		source =
+			let
+			    Source = Table.FromRecords({
+			        [date_key = 20260115, full_date = #date(2026, 1, 15), day_of_week = 4, day_name = "Thursday", day_of_month = 10, day_of_year = 10, week_of_year = 10, month = 1, month_name = "January", quarter = 1, year = 2026, is_weekend = true, fiscal_period = "Mock fiscal_period 1"],
+			        [date_key = 20260220, full_date = #date(2026, 2, 20), day_of_week = 5, day_name = "Friday", day_of_month = 20, day_of_year = 20, week_of_year = 20, month = 2, month_name = "February", quarter = 1, year = 2026, is_weekend = false, fiscal_period = "Mock fiscal_period 2"],
+			        [date_key = 20260310, full_date = #date(2026, 3, 10), day_of_week = 2, day_name = "Tuesday", day_of_month = 30, day_of_year = 30, week_of_year = 30, month = 3, month_name = "March", quarter = 1, year = 2026, is_weekend = true, fiscal_period = "Mock fiscal_period 3"],
+			        [date_key = 20260425, full_date = #date(2026, 4, 25), day_of_week = 6, day_name = "Saturday", day_of_month = 40, day_of_year = 40, week_of_year = 40, month = 4, month_name = "April", quarter = 2, year = 2026, is_weekend = false, fiscal_period = "Mock fiscal_period 4"],
+			        [date_key = 20260515, full_date = #date(2026, 5, 15), day_of_week = 5, day_name = "Friday", day_of_month = 50, day_of_year = 50, week_of_year = 50, month = 5, month_name = "May", quarter = 2, year = 2026, is_weekend = true, fiscal_period = "Mock fiscal_period 5"]
+			    }),
+			    #"Changed Type" = Table.TransformColumnTypes(Source, {
+			        {"date_key", Int64.Type},
+			        {"full_date", type date},
+			        {"day_of_week", type text},
+			        {"day_name", type text},
+			        {"day_of_month", Int64.Type},
+			        {"day_of_year", Int64.Type},
+			        {"week_of_year", Int64.Type},
+			        {"month", Int64.Type},
+			        {"month_name", type text},
+			        {"quarter", Int64.Type},
+			        {"year", Int64.Type},
+			        {"is_weekend", type logical},
+			        {"fiscal_period", type text}
+			    })
+			in
+			    #"Changed Type"
 
 relationship 'FactDetermination_DimPatient_patient_key'
 	fromTable: FactDetermination

@@ -1,14 +1,14 @@
 {
   "project_name": "CMS Organization Determinations, Appeals, and Grievances Report",
   "project_slug": "CMS_Organization_Determinations_Appeals_and_Grievances_Report",
-  "generated_at": "2026-06-08T01:22:33.255848",
+  "generated_at": "2026-06-08T01:43:34.602251",
   "pbip_spec_version": "1.0",
   "pbir_version": "1.0",
   "stats": {
     "tables_count": 9,
     "measures_count": 2,
-    "pages_count": 2,
-    "visuals_count": 5,
+    "pages_count": 3,
+    "visuals_count": 6,
     "relationships_count": 22
   },
   "contents": {
@@ -29,7 +29,8 @@
     ],
     "pages": [
       "Executive Summary",
-      "Determinations Analysis"
+      "Determinations Analysis",
+      "Detail Listing"
     ]
   }
 }

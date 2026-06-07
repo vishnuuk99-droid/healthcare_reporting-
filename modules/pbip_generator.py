@@ -361,7 +361,16 @@ def compile_pbip_project() -> dict:
             tmdl_lines.append(f"\t// Description: {tbl['description']}")
         for col in tbl.get("columns", []):
             tmdl_lines.append(f"\tcolumn {col['name']}")
-            tmdl_lines.append(f"\t\tdataType: {col['dataType']}")
+            tmdl_lines.append(f"\t\tdataType: {_map_data_type_to_bim(col['dataType'])}")
+            tmdl_lines.append(f"\t\tsourceColumn: {col['name']}")
+            
+        tmdl_lines.append(f"\tpartition {tbl['name']}-partition = m")
+        tmdl_lines.append("\t\tmode: import")
+        tmdl_lines.append("\t\tsource =")
+        
+        m_query = _compile_m_partition_query(tbl["name"], tbl["columns"])
+        for line in m_query.splitlines():
+            tmdl_lines.append(f"\t\t\t{line}")
         tmdl_lines.append("")
 
     for rel in relationships_list:
@@ -414,7 +423,7 @@ def compile_pbip_project() -> dict:
                     "mode": "import",
                     "source": {
                         "type": "m",
-                        "expression": f'let\n    Source = ""\nin\n    Source'
+                        "expression": _compile_m_partition_query(tbl["name"], tbl["columns"])
                     }
                 }
             ]
@@ -1015,6 +1024,7 @@ def _map_data_type_to_bim(data_type: str) -> str:
     dt_lower = data_type.lower()
     mapping = {
         "string": "string",
+        "varchar": "string",
         "integer": "int64",
         "int": "int64",
         "int64": "int64",
@@ -1028,3 +1038,207 @@ def _map_data_type_to_bim(data_type: str) -> str:
         "currency": "decimal",
     }
     return mapping.get(dt_lower, "string")
+
+
+def _generate_mock_table_records(table_name: str, columns: list) -> list:
+    """Generate 5 conformed mock records matching the given table's columns."""
+    records = []
+    
+    conformed_vals = {
+        "DimPatient": {
+            "patient_key": [1, 2, 3, 4, 5],
+            "patient_fhir_id": ["pat-1", "pat-2", "pat-3", "pat-4", "pat-5"],
+            "mbi": ["1EG4-TE5-MK2", "2FH5-UG6-NL3", "3GJ6-VH7-OM4", "4HK7-WI8-PN5", "5JL8-XJ9-QO6"],
+            "is_deceased": [False, False, False, False, False],
+            "gender": ["female", "male", "female", "male", "female"],
+            "birth_date": ["1975-03-12", "1988-11-23", "1962-07-04", "1995-01-30", "1954-09-18"],
+        },
+        "DimProvider": {
+            "provider_key": [1, 2, 3, 4, 5],
+            "provider_fhir_id": ["prov-1", "prov-2", "prov-3", "prov-4", "prov-5"],
+            "npi": ["NPI11111", "NPI22222", "NPI33333", "NPI44444", "NPI55555"],
+            "provider_name": ["Dr. Alice Smith", "Dr. Bob Jones", "Dr. Carol White", "Dr. David Black", "Dr. Emily Green"],
+            "qualification": ["Physician", "Specialist", "Physician", "Specialist", "Physician"],
+        },
+        "DimOrganization": {
+            "organization_key": [1, 2, 3, 4, 5],
+            "organization_fhir_id": ["org-1", "org-2", "org-3", "org-4", "org-5"],
+            "organization_name": ["HealthPlan Alpha", "HealthPlan Beta", "HealthPlan Gamma", "IRE Vendor", "Appeals Board"],
+            "organization_type": ["MAO", "MAO", "1876 Cost Plan", "IRE", "Appeals Council"],
+            "contract_number": ["H1001", "H2002", "H3003", "H4004", "H5005"],
+            "plan_benefit_package": ["001", "002", "001", "003", "002"],
+        },
+        "DimCondition": {
+            "condition_key": [1, 2, 3, 4, 5],
+            "condition_fhir_id": ["cond-1", "cond-2", "cond-3", "cond-4", "cond-5"],
+            "condition_code": ["I10", "E11.9", "M54.5", "J45.909", "Z00.00"],
+            "condition_description": ["Essential hypertension", "Type 2 diabetes mellitus", "Low back pain", "Asthma, unspecified", "Encounter for general adult medical exam"],
+        },
+        "DimDate": {
+            "date_key": [20260115, 20260220, 20260310, 20260425, 20260515],
+            "date": ["2026-01-15", "2026-02-20", "2026-03-10", "2026-04-25", "2026-05-15"],
+            "year": [2026, 2026, 2026, 2026, 2026],
+            "month": [1, 2, 3, 4, 5],
+            "month_name": ["January", "February", "March", "April", "May"],
+            "day": [15, 20, 10, 25, 15],
+            "quarter": [1, 1, 1, 2, 2],
+            "day_of_week": [4, 5, 2, 6, 5],
+            "day_name": ["Thursday", "Friday", "Tuesday", "Saturday", "Friday"],
+        },
+        "FactDetermination": {
+            "determination_key": [1, 2, 3, 4, 5],
+            "patient_key": [1, 2, 3, 4, 5],
+            "provider_key": [2, 3, 4, 5, 1],
+            "organization_key": [1, 1, 2, 2, 3],
+            "condition_key": [3, 4, 5, 1, 2],
+            "request_date_key": [20260115, 20260220, 20260310, 20260425, 20260515],
+            "decision_date_key": [20260115, 20260220, 20260310, 20260425, 20260515],
+            "claim_received_date_key": [20260115, 20260220, 20260310, 20260425, 20260515],
+            "service_start_date_key": [20260115, 20260220, 20260310, 20260425, 20260515],
+            "service_end_date_key": [20260115, 20260220, 20260310, 20260425, 20260515],
+            "disposition": ["Fully favorable", "Adverse", "Partially favorable", "Fully favorable", "Adverse"],
+            "processing_priority": ["Standard", "Expedited", "Standard", "Standard", "Expedited"],
+            "od_number": ["OD-101", "OD-102", "OD-103", "OD-104", "OD-105"],
+            "appeal_number": ["AP-201", "AP-202", "AP-203", "AP-204", "AP-205"],
+            "associated_od_number": ["OD-101", "OD-102", "OD-103", "OD-104", "OD-105"],
+            "requesting_party_code": ["01", "03", "01", "01", "03"],
+            "is_contracted_provider_referral": [True, False, True, True, False],
+            "item_service_code": ["99213", "85025", "CT001", "RX002", "99214"],
+            "item_service_description": ["Office Visit", "CBC Test", "CT Scan", "Medication Request", "Office Visit High"],
+            "is_prior_auth_required": [True, False, True, True, True],
+            "is_expedited_processing_requested": [False, True, False, False, True],
+            "decision_rationale": ["Medical Necessity", "Lack of Documentation", "Benefit Limits", "Medical Necessity", "Experimental Treatment"],
+            "were_internal_plan_criteria_applied": [True, False, True, True, False],
+            "did_third_party_vendor_participate": [False, True, False, False, True],
+            "is_approved_item_different_from_requested": [False, False, True, False, False],
+            "approved_item_service_code": ["99213", "85025", "CT002", "RX002", "99214"],
+            "service_location_zip_code": ["90210", "10001", "30301", "60601", "77001"],
+            "place_of_service_code": ["11", "81", "21", "01", "11"],
+            "is_clean_claim": [True, True, False, True, True],
+            "was_prior_approval_requested": [True, False, True, True, True],
+            "prior_approval_od_number": ["PA-901", "PA-902", "PA-903", "PA-904", "PA-905"],
+        },
+        "FactEncounter": {
+            "encounter_key": [1, 2, 3, 4, 5],
+            "patient_key": [1, 2, 3, 4, 5],
+            "provider_key": [1, 2, 3, 4, 5],
+            "date_key": [20260115, 20260220, 20260310, 20260425, 20260515],
+            "encounter_fhir_id": ["enc-1", "enc-2", "enc-3", "enc-4", "enc-5"],
+            "encounter_class": ["AMB", "IMP", "AMB", "EMER", "AMB"],
+            "encounter_type": ["Office visit", "Inpatient admission", "Office visit", "Emergency room", "Office visit"],
+        },
+        "FactProcedure": {
+            "procedure_key": [1, 2, 3, 4, 5],
+            "patient_key": [1, 2, 3, 4, 5],
+            "provider_key": [1, 2, 3, 4, 5],
+            "date_key": [20260115, 20260220, 20260310, 20260425, 20260515],
+            "procedure_fhir_id": ["proc-1", "proc-2", "proc-3", "proc-4", "proc-5"],
+            "procedure_code": ["99213", "85025", "CT001", "RX002", "99214"],
+            "procedure_description": ["Office Visit", "CBC Test", "CT Scan", "Medication Request", "Office Visit High"],
+        },
+        "FactMedication": {
+            "medication_key": [1, 2, 3, 4, 5],
+            "patient_key": [1, 2, 3, 4, 5],
+            "provider_key": [1, 2, 3, 4, 5],
+            "date_key": [20260115, 20260220, 20260310, 20260425, 20260515],
+            "medication_fhir_id": ["med-1", "med-2", "med-3", "med-4", "med-5"],
+            "medication_code": ["0001", "0002", "0003", "0004", "0005"],
+            "medication_name": ["Drug A", "Drug B", "Drug C", "Drug D", "Drug E"],
+        }
+    }
+    
+    table_vals = conformed_vals.get(table_name, {})
+    
+    for idx in range(5):
+        row = {}
+        for col in columns:
+            col_name = col["name"]
+            col_type = col.get("dataType", col.get("data_type", "string")).lower()
+            
+            if col_name in table_vals:
+                row[col_name] = table_vals[col_name][idx]
+            elif col_name.endswith("_key"):
+                ref_key = col_name
+                found = False
+                for t_name, t_vals in conformed_vals.items():
+                    if ref_key in t_vals:
+                        row[col_name] = t_vals[ref_key][idx]
+                        found = True
+                        break
+                if not found:
+                    row[col_name] = idx + 1
+            elif "date" in col_name or col_type in ("date", "datetime"):
+                row[col_name] = ["2026-01-15", "2026-02-20", "2026-03-10", "2026-04-25", "2026-05-15"][idx]
+            elif col_type in ("boolean", "bool"):
+                row[col_name] = [True, False, True, False, True][idx]
+            elif col_type in ("integer", "int", "int64"):
+                row[col_name] = (idx + 1) * 10
+            elif col_type in ("decimal", "double", "float"):
+                row[col_name] = (idx + 1) * 1.5
+            else:
+                row[col_name] = f"Mock {col_name} {idx + 1}"
+        records.append(row)
+    return records
+
+
+def _compile_m_partition_query(table_name: str, columns: list) -> str:
+    """Compile conformed mock data into a valid Power Query M query block."""
+    records = _generate_mock_table_records(table_name, columns)
+    
+    m_records = []
+    for r in records:
+        fields = []
+        for col in columns:
+            col_name = col["name"]
+            col_type = col.get("dataType", col.get("data_type", "string")).lower()
+            val = r[col_name]
+            
+            if val is None:
+                val_str = "null"
+            elif isinstance(val, bool):
+                val_str = "true" if val else "false"
+            elif isinstance(val, (int, float)):
+                val_str = str(val)
+            elif isinstance(val, str) and ("date" in col_name or col_type in ("date", "datetime")) and len(val) == 10 and val[4] == "-" and val[7] == "-":
+                parts = val.split("-")
+                val_str = f"#date({int(parts[0])}, {int(parts[1])}, {int(parts[2])})"
+            else:
+                escaped = str(val).replace('"', '""')
+                val_str = f'"{escaped}"'
+                
+            fields.append(f"{col_name} = {val_str}")
+        m_records.append("[" + ", ".join(fields) + "]")
+        
+    records_block = "{\n        " + ",\n        ".join(m_records) + "\n    }"
+    
+    type_mappings = {
+        "string": "type text",
+        "varchar": "type text",
+        "integer": "Int64.Type",
+        "int": "Int64.Type",
+        "int64": "Int64.Type",
+        "boolean": "type logical",
+        "bool": "type logical",
+        "date": "type date",
+        "datetime": "type datetime",
+        "double": "type number",
+        "float": "type number",
+        "decimal": "type number",
+        "currency": "type number",
+    }
+    
+    transform_items = []
+    for col in columns:
+        col_name = col["name"]
+        col_type = col.get("dataType", col.get("data_type", "string")).lower()
+        m_type = type_mappings.get(col_type, "type text")
+        transform_items.append(f'{{"{col_name}", {m_type}}}')
+        
+    transform_block = "{\n        " + ",\n        ".join(transform_items) + "\n    }"
+    
+    m_expr = f"""let
+    Source = Table.FromRecords({records_block}),
+    #"Changed Type" = Table.TransformColumnTypes(Source, {transform_block})
+in
+    #"Changed Type\""""
+    return m_expr

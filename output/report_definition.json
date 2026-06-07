@@ -63,6 +63,27 @@
           "business_reason": "Shows distribution of fully favorable, partially favorable, and adverse decisions."
         }
       ]
+    },
+    {
+      "page_name": "Detail Listing",
+      "purpose": "Detailed row-level audit trail for conformed determinations.",
+      "visuals": [
+        {
+          "title": "Determinations Audit List",
+          "visual_type": "table",
+          "dimensions": [
+            "FactDetermination.od_number",
+            "DimPatient.mbi",
+            "FactDetermination.processing_priority",
+            "FactDetermination.disposition",
+            "FactDetermination.decision_rationale"
+          ],
+          "measures": [
+            "Total Org Determinations Override"
+          ],
+          "business_reason": "Audit listing of individual determinations."
+        }
+      ]
     }
   ],
   "filters": [
