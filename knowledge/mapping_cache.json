@@ -814,5 +814,181 @@
     "confidence": "medium",
     "reasoning": "This describes a specific type of decision made by a plan. An Observation can represent this determination, and its code can specify it as a 'decision to vacate a dismissal'.",
     "status": "approved"
+  },
+  {
+    "concept": "Medicare Advantage (MA) organizations",
+    "fhir_resource": "Organization",
+    "fhir_field": "type",
+    "confidence": "high",
+    "reasoning": "Approved mapping. These are specific types of organizations, directly mapping to the Organization.type field which describes the kind of organization.",
+    "status": "approved"
+  },
+  {
+    "concept": "State Medicaid and Children’s Health Insurance Program (CHIP) fee-for-service (FFS) programs",
+    "fhir_resource": "Organization",
+    "fhir_field": "type",
+    "confidence": "high",
+    "reasoning": "These represent types of governmental or payer organizations responsible for FFS programs, fitting Organization.type.",
+    "status": "approved"
+  },
+  {
+    "concept": "Medicaid managed care plans",
+    "fhir_resource": "Organization",
+    "fhir_field": "type",
+    "confidence": "high",
+    "reasoning": "These are specific types of health plans/organizations, directly mapping to Organization.type.",
+    "status": "approved"
+  },
+  {
+    "concept": "CHIP managed care entities",
+    "fhir_resource": "Organization",
+    "fhir_field": "type",
+    "confidence": "high",
+    "reasoning": "These are specific types of health plans/organizations, directly mapping to Organization.type.",
+    "status": "approved"
+  },
+  {
+    "concept": "Qualified Health Plan (QHP) issuers on the Federally Facilitated Exchanges (FFEs)",
+    "fhir_resource": "Organization",
+    "fhir_field": "type",
+    "confidence": "high",
+    "reasoning": "These are specific types of health plans/organizations, directly mapping to Organization.type.",
+    "status": "approved"
+  },
+  {
+    "concept": "medical items and services",
+    "fhir_resource": "Procedure",
+    "fhir_field": "",
+    "confidence": "high",
+    "reasoning": "Approved mapping for 'service or item' is Procedure. This resource represents actions performed on or for a patient for diagnostic or therapeutic purposes.",
+    "status": "approved"
+  },
+  {
+    "concept": "prior authorization",
+    "fhir_resource": "Observation",
+    "fhir_field": "code",
+    "confidence": "medium",
+    "reasoning": "A prior authorization event or its outcome can be represented by an Observation. The 'code' field would specify that this Observation pertains to a 'prior authorization' request or decision. This aligns with how 'Initial Determinations' and 'Reconsiderations' are mapped to Observation.code.",
+    "status": "approved"
+  },
+  {
+    "concept": "Standard PA requests",
+    "fhir_resource": "Observation",
+    "fhir_field": "valueCodeableConcept",
+    "confidence": "high",
+    "reasoning": "This is a specific type/priority of a prior authorization request. The approved mapping for 'Processing Priority (Standard, Expedited)' uses Observation.valueCodeableConcept.",
+    "status": "approved"
+  },
+  {
+    "concept": "Expedited PA requests",
+    "fhir_resource": "Observation",
+    "fhir_field": "valueCodeableConcept",
+    "confidence": "high",
+    "reasoning": "This is a specific type/priority of a prior authorization request. The approved mapping for 'Processing Priority (Standard, Expedited)' uses Observation.valueCodeableConcept.",
+    "status": "approved"
+  },
+  {
+    "concept": "Percentage approved",
+    "fhir_resource": "Observation",
+    "fhir_field": "valueCodeableConcept",
+    "confidence": "high",
+    "reasoning": "'Approved' refers to the outcome of a prior authorization request. This maps to the 'Disposition' concept, which is approved to Observation.valueCodeableConcept (e.g., 'Fully favorable', 'Partially favorable'). The percentage itself is a derived metric, not a direct FHIR field.",
+    "status": "approved"
+  },
+  {
+    "concept": "Percentage denied",
+    "fhir_resource": "Observation",
+    "fhir_field": "valueCodeableConcept",
+    "confidence": "high",
+    "reasoning": "'Denied' refers to the outcome of a prior authorization request. This maps to the 'Disposition' concept, which is approved to Observation.valueCodeableConcept (e.g., 'Adverse'). The percentage itself is a derived metric, not a direct FHIR field.",
+    "status": "approved"
+  },
+  {
+    "concept": "after appeal",
+    "fhir_resource": "Observation",
+    "fhir_field": "related",
+    "confidence": "medium",
+    "reasoning": "An appeal is a subsequent event related to an initial prior authorization decision. While 'Appeal Number' maps to Observation.identifier, the *relationship* of a decision being 'after appeal' implies linking a new Observation (the appeal decision) to a previous Observation (the initial decision) using Observation.related.",
+    "status": "approved"
+  },
+  {
+    "concept": "response time",
+    "fhir_resource": "Observation",
+    "fhir_field": "effectiveDateTime",
+    "confidence": "high",
+    "reasoning": "Response time is calculated from two timestamps: 'Date Request Received' and 'Date of Decision', both approved to Observation.effectiveDateTime. The duration itself is a calculated metric, but these fields provide the necessary data points.",
+    "status": "approved"
+  },
+  {
+    "concept": "timeframe for review was extended",
+    "fhir_resource": "Observation",
+    "fhir_field": "valueBoolean",
+    "confidence": "medium",
+    "reasoning": "This is a boolean condition related to the prior authorization process. An Observation can capture such a boolean value, with a specific code defining the concept. Similar to 'Was prior authorization required? (Y/N)'.",
+    "status": "approved"
+  },
+  {
+    "concept": "Calendar year",
+    "fhir_resource": "Observation",
+    "fhir_field": "effectiveDateTime",
+    "confidence": "high",
+    "reasoning": "This is a time dimension for reporting. 'Report Period' is approved to Observation.effectiveDateTime. This field would be used to filter or group prior authorization Observation resources by year.",
+    "status": "approved"
+  },
+  {
+    "concept": "Line of business",
+    "fhir_resource": "Organization",
+    "fhir_field": "identifier",
+    "confidence": "medium",
+    "reasoning": "This refers to a specific business segment or contract level of an organization (e.g., MA contract level, plan level). This information is typically captured as an identifier or a type attribute of the Organization. Organization.identifier is a good fit for contract or plan IDs.",
+    "status": "approved"
+  },
+  {
+    "concept": "payer",
+    "fhir_resource": "Organization",
+    "fhir_field": "",
+    "confidence": "high",
+    "reasoning": "A payer is a type of organization, explicitly listed in Organization's CMS concepts.",
+    "status": "approved"
+  },
+  {
+    "concept": "provider",
+    "fhir_resource": "Practitioner",
+    "fhir_field": "",
+    "confidence": "high",
+    "reasoning": "A provider is a type of practitioner, explicitly listed in Practitioner's CMS concepts. Could also be Organization if referring to a provider organization, but Practitioner is more common for the requesting party.",
+    "status": "approved"
+  },
+  {
+    "concept": "Drugs",
+    "fhir_resource": "MedicationRequest",
+    "fhir_field": "",
+    "confidence": "high",
+    "reasoning": "Approved mapping for 'Part D drugs' and 'Part B drugs' is MedicationRequest. This concept refers to the resource type that would be excluded.",
+    "status": "approved"
+  },
+  {
+    "concept": "total requests",
+    "fhir_resource": "Observation",
+    "fhir_field": "code",
+    "confidence": "medium",
+    "reasoning": "This refers to the count of all prior authorization requests. Each request would be represented by an Observation (as per 'prior authorization' mapping). The count is a derived metric, but the underlying data points are Observation resources.",
+    "status": "approved"
+  },
+  {
+    "concept": "total appeals",
+    "fhir_resource": "Observation",
+    "fhir_field": "code",
+    "confidence": "medium",
+    "reasoning": "This refers to the count of all prior authorization appeals. Each appeal decision would be represented by an Observation (as per 'after appeal' mapping). The count is a derived metric, but the underlying data points are Observation resources.",
+    "status": "approved"
+  },
+  {
+    "concept": "medical items and services that require prior authorization",
+    "fhir_resource": "Procedure",
+    "fhir_field": "code",
+    "confidence": "medium",
+    "reasoning": "This refers to specific Procedure codes. The 'requirement' for prior authorization is a business rule associated with these procedures, which could be represented by an Observation linking to the Procedure or by metadata associated with the Procedure itself. Focusing on the 'items and services' part, Procedure.code is the most direct.",
+    "status": "approved"
   }
 ]

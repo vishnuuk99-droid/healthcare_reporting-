@@ -501,35 +501,23 @@ def compile_pbip_project() -> dict:
             pbi_visual_type = _VISUAL_TYPE_MAP.get(mapped_type, "tableEx")
 
             # Legacy visual config structure
-            visual_config = {
-                "name": visual_id,
-                "layouts": [
-                    {
-                        "position": {
-                            "x": 20 + (visual_order % 2) * 480,
-                            "y": 20 + (visual_order // 2) * 320,
-                            "width": 460,
-                            "height": 300,
-                            "z": visual_order
-                        }
-                    }
-                ],
-                "singleVisual": {
-                    "visualType": pbi_visual_type,
-                    "projections": {},
-                    "prototypeQuery": {},
-                    "vcObjects": {
-                        "title": [
-                            {
-                                "properties": {
-                                    "text": {"expr": {"Literal": {"Value": f"'{title}'"}}},
-                                    "show": {"expr": {"Literal": {"Value": "true"}}}
-                                }
-                            }
-                        ]
-                    }
-                }
+            # Compile using Report Visual Compiler
+            from modules.report_visual_compiler import compile_visual_config
+            position = {
+                "x": 20 + (visual_order % 2) * 480,
+                "y": 20 + (visual_order // 2) * 320,
+                "width": 460,
+                "height": 300,
+                "z": visual_order
             }
+            visual_config = compile_visual_config(
+                visual_id=visual_id,
+                title=title,
+                visual_type=mapped_type,
+                dimensions=visual.get("dimensions", []),
+                measures=visual.get("measures", []),
+                position=position
+            )
 
             visual_container = {
                 "x": 20 + (visual_order % 2) * 480,

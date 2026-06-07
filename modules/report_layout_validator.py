@@ -76,11 +76,34 @@ def validate_report_layout(
                 
                 v_title = title_text or v_name
                 report_visual_titles.add(v_title)
+                
+                v_type = config.get("singleVisual", {}).get("visualType", "")
                 report_visual_by_title[v_title] = {
                     "id": v_name,
-                    "type": config.get("singleVisual", {}).get("visualType", ""),
+                    "type": v_type,
                     "page": page_name
                 }
+                
+                # Check: Reject visuals with empty projections or prototypeQuery
+                if v_type not in ["textbox", "image"]:
+                    single_visual = config.get("singleVisual", {})
+                    projections = single_visual.get("projections", {})
+                    prototype_query = single_visual.get("prototypeQuery", {})
+                    
+                    if not projections:
+                        issues.append({
+                            "visual": v_title,
+                            "status": "Error",
+                            "issue": f"Visual '{v_title}' has empty projections definition.",
+                            "recommendation": "Compile the report with the Report Visual Compiler to bind fields."
+                        })
+                    if not prototype_query or not prototype_query.get("Select"):
+                        issues.append({
+                            "visual": v_title,
+                            "status": "Error",
+                            "issue": f"Visual '{v_title}' has empty prototypeQuery schema definition.",
+                            "recommendation": "Compile the report with the Report Visual Compiler to populate prototype queries."
+                        })
             except Exception:
                 pass
 

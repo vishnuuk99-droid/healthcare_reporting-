@@ -16,7 +16,7 @@
           "width": 460,
           "height": 300,
           "z": 0,
-          "config": "{\"name\": \"171cd43d-7610-5d63-9cec-decaad79a227\", \"layouts\": [{\"position\": {\"x\": 20, \"y\": 20, \"width\": 460, \"height\": 300, \"z\": 0}}], \"singleVisual\": {\"visualType\": \"card\", \"projections\": {}, \"prototypeQuery\": {}, \"vcObjects\": {\"title\": [{\"properties\": {\"text\": {\"expr\": {\"Literal\": {\"Value\": \"'Total Organization Determinations'\"}}}, \"show\": {\"expr\": {\"Literal\": {\"Value\": \"true\"}}}}}]}}}"
+          "config": "{\"name\": \"171cd43d-7610-5d63-9cec-decaad79a227\", \"layouts\": [{\"position\": {\"x\": 20, \"y\": 20, \"width\": 460, \"height\": 300, \"z\": 0}}], \"singleVisual\": {\"visualType\": \"card\", \"projections\": {\"Values\": [{\"queryRef\": \"_Measures.Total Org Determinations Override\"}]}, \"prototypeQuery\": {\"Version\": 2, \"From\": [{\"Name\": \"a\", \"Entity\": \"_Measures\"}], \"Select\": [{\"Measure\": {\"Expression\": {\"SourceRef\": {\"Source\": \"a\"}}, \"Property\": \"Total Org Determinations Override\"}, \"Name\": \"_Measures.Total Org Determinations Override\"}]}, \"vcObjects\": {\"title\": [{\"properties\": {\"text\": {\"expr\": {\"Literal\": {\"Value\": \"'Total Organization Determinations'\"}}}, \"show\": {\"expr\": {\"Literal\": {\"Value\": \"true\"}}}}}]}}}"
         },
         {
           "x": 500,
@@ -24,7 +24,7 @@
           "width": 460,
           "height": 300,
           "z": 1,
-          "config": "{\"name\": \"c38406a2-179e-5877-880b-499fb56506fe\", \"layouts\": [{\"position\": {\"x\": 500, \"y\": 20, \"width\": 460, \"height\": 300, \"z\": 1}}], \"singleVisual\": {\"visualType\": \"card\", \"projections\": {}, \"prototypeQuery\": {}, \"vcObjects\": {\"title\": [{\"properties\": {\"text\": {\"expr\": {\"Literal\": {\"Value\": \"'Adverse Decision Rate'\"}}}, \"show\": {\"expr\": {\"Literal\": {\"Value\": \"true\"}}}}}]}}}"
+          "config": "{\"name\": \"c38406a2-179e-5877-880b-499fb56506fe\", \"layouts\": [{\"position\": {\"x\": 500, \"y\": 20, \"width\": 460, \"height\": 300, \"z\": 1}}], \"singleVisual\": {\"visualType\": \"card\", \"projections\": {\"Values\": [{\"queryRef\": \"_Measures.Adverse Decision Rate\"}]}, \"prototypeQuery\": {\"Version\": 2, \"From\": [{\"Name\": \"a\", \"Entity\": \"_Measures\"}], \"Select\": [{\"Measure\": {\"Expression\": {\"SourceRef\": {\"Source\": \"a\"}}, \"Property\": \"Adverse Decision Rate\"}, \"Name\": \"_Measures.Adverse Decision Rate\"}]}, \"vcObjects\": {\"title\": [{\"properties\": {\"text\": {\"expr\": {\"Literal\": {\"Value\": \"'Adverse Decision Rate'\"}}}, \"show\": {\"expr\": {\"Literal\": {\"Value\": \"true\"}}}}}]}}}"
         },
         {
           "x": 20,
@@ -32,7 +32,7 @@
           "width": 460,
           "height": 300,
           "z": 2,
-          "config": "{\"name\": \"ca2bce16-4669-5be9-bac2-6a4a462d98a1\", \"layouts\": [{\"position\": {\"x\": 20, \"y\": 340, \"width\": 460, \"height\": 300, \"z\": 2}}], \"singleVisual\": {\"visualType\": \"lineChart\", \"projections\": {}, \"prototypeQuery\": {}, \"vcObjects\": {\"title\": [{\"properties\": {\"text\": {\"expr\": {\"Literal\": {\"Value\": \"'Monthly Determination Volume Trend'\"}}}, \"show\": {\"expr\": {\"Literal\": {\"Value\": \"true\"}}}}}]}}}"
+          "config": "{\"name\": \"ca2bce16-4669-5be9-bac2-6a4a462d98a1\", \"layouts\": [{\"position\": {\"x\": 20, \"y\": 340, \"width\": 460, \"height\": 300, \"z\": 2}}], \"singleVisual\": {\"visualType\": \"lineChart\", \"projections\": {\"Category\": [{\"queryRef\": \"DimDate.month_name\"}], \"Y\": [{\"queryRef\": \"_Measures.Total Org Determinations Override\"}]}, \"prototypeQuery\": {\"Version\": 2, \"From\": [{\"Name\": \"d\", \"Entity\": \"DimDate\"}, {\"Name\": \"a\", \"Entity\": \"_Measures\"}], \"Select\": [{\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"d\"}}, \"Property\": \"month_name\"}, \"Name\": \"DimDate.month_name\"}, {\"Measure\": {\"Expression\": {\"SourceRef\": {\"Source\": \"a\"}}, \"Property\": \"Total Org Determinations Override\"}, \"Name\": \"_Measures.Total Org Determinations Override\"}]}, \"vcObjects\": {\"title\": [{\"properties\": {\"text\": {\"expr\": {\"Literal\": {\"Value\": \"'Monthly Determination Volume Trend'\"}}}, \"show\": {\"expr\": {\"Literal\": {\"Value\": \"true\"}}}}}]}}}"
         }
       ]
     },
@@ -50,7 +50,7 @@
           "width": 460,
           "height": 300,
           "z": 0,
-          "config": "{\"name\": \"775c57bb-35cf-5c4a-854c-edfdf6e75a50\", \"layouts\": [{\"position\": {\"x\": 20, \"y\": 20, \"width\": 460, \"height\": 300, \"z\": 0}}], \"singleVisual\": {\"visualType\": \"clusteredBarChart\", \"projections\": {}, \"prototypeQuery\": {}, \"vcObjects\": {\"title\": [{\"properties\": {\"text\": {\"expr\": {\"Literal\": {\"Value\": \"'Determinations by Priority'\"}}}, \"show\": {\"expr\": {\"Literal\": {\"Value\": \"true\"}}}}}]}}}"
+          "config": "{\"name\": \"775c57bb-35cf-5c4a-854c-edfdf6e75a50\", \"layouts\": [{\"position\": {\"x\": 20, \"y\": 20, \"width\": 460, \"height\": 300, \"z\": 0}}], \"singleVisual\": {\"visualType\": \"clusteredBarChart\", \"projections\": {\"Category\": [{\"queryRef\": \"FactDetermination.processing_priority\"}], \"Y\": [{\"queryRef\": \"_Measures.Total Org Determinations Override\"}]}, \"prototypeQuery\": {\"Version\": 2, \"From\": [{\"Name\": \"f\", \"Entity\": \"FactDetermination\"}, {\"Name\": \"a\", \"Entity\": \"_Measures\"}], \"Select\": [{\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"f\"}}, \"Property\": \"processing_priority\"}, \"Name\": \"FactDetermination.processing_priority\"}, {\"Measure\": {\"Expression\": {\"SourceRef\": {\"Source\": \"a\"}}, \"Property\": \"Total Org Determinations Override\"}, \"Name\": \"_Measures.Total Org Determinations Override\"}]}, \"vcObjects\": {\"title\": [{\"properties\": {\"text\": {\"expr\": {\"Literal\": {\"Value\": \"'Determinations by Priority'\"}}}, \"show\": {\"expr\": {\"Literal\": {\"Value\": \"true\"}}}}}]}}}"
         },
         {
           "x": 500,
@@ -58,7 +58,7 @@
           "width": 460,
           "height": 300,
           "z": 1,
-          "config": "{\"name\": \"4f96104c-00aa-54d8-8657-2915ff3102ba\", \"layouts\": [{\"position\": {\"x\": 500, \"y\": 20, \"width\": 460, \"height\": 300, \"z\": 1}}], \"singleVisual\": {\"visualType\": \"clusteredBarChart\", \"projections\": {}, \"prototypeQuery\": {}, \"vcObjects\": {\"title\": [{\"properties\": {\"text\": {\"expr\": {\"Literal\": {\"Value\": \"'Decisions by Disposition'\"}}}, \"show\": {\"expr\": {\"Literal\": {\"Value\": \"true\"}}}}}]}}}"
+          "config": "{\"name\": \"4f96104c-00aa-54d8-8657-2915ff3102ba\", \"layouts\": [{\"position\": {\"x\": 500, \"y\": 20, \"width\": 460, \"height\": 300, \"z\": 1}}], \"singleVisual\": {\"visualType\": \"clusteredBarChart\", \"projections\": {\"Category\": [{\"queryRef\": \"FactDetermination.disposition\"}], \"Y\": [{\"queryRef\": \"_Measures.Total Org Determinations Override\"}]}, \"prototypeQuery\": {\"Version\": 2, \"From\": [{\"Name\": \"f\", \"Entity\": \"FactDetermination\"}, {\"Name\": \"a\", \"Entity\": \"_Measures\"}], \"Select\": [{\"Column\": {\"Expression\": {\"SourceRef\": {\"Source\": \"f\"}}, \"Property\": \"disposition\"}, \"Name\": \"FactDetermination.disposition\"}, {\"Measure\": {\"Expression\": {\"SourceRef\": {\"Source\": \"a\"}}, \"Property\": \"Total Org Determinations Override\"}, \"Name\": \"_Measures.Total Org Determinations Override\"}]}, \"vcObjects\": {\"title\": [{\"properties\": {\"text\": {\"expr\": {\"Literal\": {\"Value\": \"'Decisions by Disposition'\"}}}, \"show\": {\"expr\": {\"Literal\": {\"Value\": \"true\"}}}}}]}}}"
         }
       ]
     }
