@@ -77,6 +77,18 @@ class OrgDecision(BaseModel):
         default="",
         description="ISO-8601 timestamp of when the decision was made.",
     )
+    author: str = Field(
+        default="SME",
+        description="Who made or last modified this decision.",
+    )
+    version: int = Field(
+        default=1,
+        description="Current version number of this decision.",
+    )
+    change_history: list[dict] = Field(
+        default_factory=list,
+        description="Versioned history of changes to this decision.",
+    )
 
 
 class SMEChatResponse(BaseModel):
@@ -467,4 +479,80 @@ class DAXSet(BaseModel):
         description="List of generated DAX measures.",
     )
 
+
+# ── FRS (Functional Requirements Specification) Models ───────────────
+
+class FRSKPIDefinition(BaseModel):
+    """A KPI definition extracted from the FRS."""
+    name: str = Field(description="KPI name.")
+    definition: str = Field(default="", description="Business definition of the KPI.")
+    formula: str = Field(default="", description="Calculation formula or rule.")
+    target: str = Field(default="", description="Target or threshold value.")
+    visual_type: str = Field(default="", description="Expected visualization type.")
+
+
+class FRSPageExpectation(BaseModel):
+    """An expected report page from the FRS."""
+    page_name: str = Field(description="Expected page/tab name.")
+    purpose: str = Field(default="", description="What this page should show.")
+    expected_visuals: list[str] = Field(default_factory=list, description="Expected visual types on this page.")
+    expected_kpis: list[str] = Field(default_factory=list, description="KPIs expected on this page.")
+
+
+class FRSRequirements(BaseModel):
+    """Structured requirements extracted from a Functional Requirements Specification."""
+    business_definitions: list[dict] = Field(
+        default_factory=list,
+        description="Business terms and their definitions from the FRS.",
+    )
+    kpi_definitions: list[FRSKPIDefinition] = Field(
+        default_factory=list,
+        description="KPI definitions extracted from the FRS.",
+    )
+    page_expectations: list[FRSPageExpectation] = Field(
+        default_factory=list,
+        description="Expected report pages and their contents.",
+    )
+    visualization_expectations: list[dict] = Field(
+        default_factory=list,
+        description="Expected visualization types and configurations.",
+    )
+    filters: list[str] = Field(
+        default_factory=list,
+        description="Expected report filters from the FRS.",
+    )
+    dimensions: list[str] = Field(
+        default_factory=list,
+        description="Expected dimensions / slicing axes from the FRS.",
+    )
+    drillthrough_requirements: list[str] = Field(
+        default_factory=list,
+        description="Drillthrough page requirements.",
+    )
+    user_expectations: list[str] = Field(
+        default_factory=list,
+        description="User-facing interaction expectations.",
+    )
+
+
+class MergeConflict(BaseModel):
+    """A conflict between CMS and FRS requirements."""
+    field: str = Field(description="The field or concept with a conflict.")
+    cms_value: str = Field(default="", description="Value from CMS requirement.")
+    frs_value: str = Field(default="", description="Value from FRS requirement.")
+    conflict_type: str = Field(default="", description="Type: definition_mismatch, missing_in_cms, missing_in_frs.")
+    resolution: str = Field(default="", description="How the conflict was resolved, if at all.")
+    resolved: bool = Field(default=False, description="Whether this conflict has been resolved.")
+
+
+class MergedRequirementModel(BaseModel):
+    """Merged model combining CMS + FRS requirements."""
+    cms_requirements: dict = Field(default_factory=dict, description="Original CMS requirements.")
+    frs_requirements: dict = Field(default_factory=dict, description="Original FRS requirements.")
+    merged_metrics: list[str] = Field(default_factory=list, description="Unified metric list.")
+    merged_dimensions: list[str] = Field(default_factory=list, description="Unified dimension list.")
+    merged_filters: list[str] = Field(default_factory=list, description="Unified filter list.")
+    merged_business_rules: list[str] = Field(default_factory=list, description="Unified business rules.")
+    conflicts: list[MergeConflict] = Field(default_factory=list, description="Detected conflicts.")
+    assumptions: list[dict] = Field(default_factory=list, description="Assumptions made during merge.")
 

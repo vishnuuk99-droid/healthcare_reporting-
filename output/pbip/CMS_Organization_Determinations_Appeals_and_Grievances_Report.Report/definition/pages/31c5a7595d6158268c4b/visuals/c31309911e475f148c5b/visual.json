@@ -28,7 +28,8 @@
                 }
               },
               "queryRef": "_Measures.Data Quality Score",
-              "nativeQueryRef": "Data Quality Score"
+              "nativeQueryRef": "Data Quality Score",
+              "active": true
             }
           ]
         }

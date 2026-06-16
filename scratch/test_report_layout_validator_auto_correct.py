@@ -31,27 +31,27 @@ def test_auto_correct():
 
     try:
         # Introduce a stale reference on purpose:
-        # 1. Change FactDetermination to FactObservation in report_definition.json
+        # 1. Change FactObservation to FactObservationStale in report_definition.json
         with open(report_def_path, "r", encoding="utf-8") as f:
             data = json.load(f)
         
-        # Change FactDetermination.disposition -> FactObservation.disposition
+        # Change FactObservation.disposition -> FactObservationStale.disposition
         for p in data.get("pages", []):
             for v in p.get("visuals", []):
                 dims = v.get("dimensions", [])
-                new_dims = [d.replace("FactDetermination", "FactObservation") for d in dims]
+                new_dims = [d.replace("FactObservation", "FactObservationStale") for d in dims]
                 v["dimensions"] = new_dims
 
         with open(report_def_path, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2)
 
-        # 2. Change FactDetermination to FactObservation in measures.json source_tables
+        # 2. Change FactObservation to FactObservationStale in measures.json source_tables
         with open(measures_path, "r", encoding="utf-8") as f:
             meas_data = json.load(f)
         
         for m in meas_data:
-            if "FactObservation" not in m.get("source_tables", []):
-                m["source_tables"] = ["FactObservation"]
+            if "FactObservationStale" not in m.get("source_tables", []):
+                m["source_tables"] = ["FactObservationStale"]
 
         with open(measures_path, "w", encoding="utf-8") as f:
             json.dump(meas_data, f, indent=2)
@@ -67,17 +67,17 @@ def test_auto_correct():
         with open(report_def_path, "r", encoding="utf-8") as f:
             corrected_data = json.load(f)
         
-        # Verify FactObservation was renamed to FactDetermination
+        # Verify FactObservationStale was renamed to FactObservation
         for p in corrected_data.get("pages", []):
             for v in p.get("visuals", []):
                 for d in v.get("dimensions", []):
-                    assert "FactObservation" not in d, f"Expected FactObservation to be remapped in {v['title']}"
+                    assert "FactObservationStale" not in d, f"Expected FactObservationStale to be remapped in {v['title']}"
 
         with open(measures_path, "r", encoding="utf-8") as f:
             corrected_meas = json.load(f)
 
         for m in corrected_meas:
-            assert "FactObservation" not in m.get("source_tables", []), "Expected source_tables to be remapped in measures.json"
+            assert "FactObservationStale" not in m.get("source_tables", []), "Expected source_tables to be remapped in measures.json"
 
         print("\nAuto-correction and remapping validation passed successfully!")
 

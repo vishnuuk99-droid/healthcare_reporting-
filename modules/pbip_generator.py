@@ -50,6 +50,12 @@ _DAX_ARTIFACTS_FILE = OUTPUT_DIR / "dax_artifacts.json"
 _PBIP_DIR = OUTPUT_DIR / "pbip"
 _ZIP_FILE = OUTPUT_DIR / "pbip_project.zip"
 
+class PBIPValidationError(Exception):
+    """Exception raised when PBIP validation fails."""
+    def __init__(self, errors: list[str]):
+        self.errors = errors
+        super().__init__("; ".join(errors))
+
 # ── Official PBIP required file manifest ─────────────────────────────
 # Dynamically defined based on current report definition.
 project_slug_temp = "Healthcare_Reporting_AI"
@@ -132,15 +138,52 @@ def translate_to_pbir_visual(legacy_config: dict) -> dict:
     query_state = {}
     legacy_projections = sv.get("projections", {})
     
+    # Load analytics model schema to validate entities/fields
+    tables_dict = {}
+    measures_set = set()
+    if _ANALYTICS_MODEL_FILE.exists():
+        try:
+            with open(_ANALYTICS_MODEL_FILE, "r", encoding="utf-8") as f:
+                model_data = json.load(f)
+            for t in model_data.get("fact_tables", []) + model_data.get("dimension_tables", []):
+                t_name = t.get("name", "")
+                tables_dict[t_name] = {col.get("name", "") for col in t.get("columns", [])}
+                for m in t.get("measures", []):
+                    measures_set.add(m.get("name", ""))
+            # Also read measures from dax_artifacts.json if available
+            if _DAX_ARTIFACTS_FILE.exists():
+                with open(_DAX_ARTIFACTS_FILE, "r", encoding="utf-8") as f:
+                    dax_data = json.load(f)
+                    for dax in dax_data:
+                        measures_set.add(dax.get("measure_name", ""))
+        except Exception:
+            pass
+
     def build_pbir_field(qref: str):
         if "[" in qref and qref.endswith("]"):
             ent, prp = qref[:-1].split("[", 1)
         elif "." in qref:
             ent, prp = qref.split(".", 1)
         else:
-            ent = "_Measures" if "total" in qref.lower() or "rate" in qref.lower() or "score" in qref.lower() or "average" in qref.lower() or "count" in qref.lower() else "DimPatient"
-            prp = qref
-            
+            ent, prp = "", qref
+
+        # Model-aware resolution if entity is not specified or table does not exist
+        if not ent or (ent not in tables_dict and ent != "_Measures"):
+            if prp in measures_set:
+                ent = "_Measures"
+            else:
+                found = False
+                for t_name, cols in tables_dict.items():
+                    if prp in cols:
+                        ent = t_name
+                        found = True
+                        break
+                if not found:
+                    if "total" in prp.lower() or "rate" in prp.lower() or "score" in prp.lower() or "average" in prp.lower() or "count" in prp.lower():
+                        ent = "_Measures"
+                    else:
+                        ent = "DimPatient"
+
         field_type = "Measure" if ent == "_Measures" else "Column"
         return {
             "field": {
@@ -157,9 +200,20 @@ def translate_to_pbir_visual(legacy_config: dict) -> dict:
             "nativeQueryRef": prp
         }
 
-    role_mapping = {
-        "Values": "Data" if pbir_type == "cardVisual" else "Values"
-    }
+    # Determine the role mapping based on the visual type
+    role_mapping = {}
+    if pbir_type == "cardVisual":
+        role_mapping = {"Values": "Data", "Measures": "Data"}
+    elif pbir_type == "kpi":
+        role_mapping = {"Values": "Indicator", "Measures": "Indicator", "Indicator": "Indicator", "TrendValues": "TrendValues"}
+    elif pbir_type in ["barChart", "columnChart", "lineChart", "pieChart", "donutChart"]:
+        role_mapping = {"Values": "Y", "Measures": "Y", "Category": "Category", "Dimensions": "Category", "Y": "Y"}
+    elif pbir_type == "tableEx":
+        role_mapping = {"Values": "Values", "Measures": "Values", "Dimensions": "Values"}
+    elif pbir_type == "pivotTable":
+        role_mapping = {"Rows": "Rows", "Columns": "Columns", "Values": "Values"}
+    elif pbir_type == "slicer":
+        role_mapping = {"Values": "Values", "Category": "Values", "Dimensions": "Values"}
 
     for leg_role, leg_proj_list in legacy_projections.items():
         pbir_role = role_mapping.get(leg_role, leg_role)
@@ -170,7 +224,7 @@ def translate_to_pbir_visual(legacy_config: dict) -> dict:
             qref = item.get("queryRef", "")
             if qref:
                 f_obj = build_pbir_field(qref)
-                if pbir_role in ["Category", "Values"] and pbir_type in ["slicer", "barChart", "columnChart", "lineChart", "pieChart", "donutChart"]:
+                if pbir_role in ["Category", "Values", "Y", "Data", "Indicator"] and pbir_type in ["slicer", "barChart", "columnChart", "lineChart", "pieChart", "donutChart", "kpi", "cardVisual", "gauge"]:
                     if pbir_type != "tableEx":
                         f_obj["active"] = True
                 query_state[pbir_role]["projections"].append(f_obj)
@@ -331,6 +385,15 @@ def translate_to_pbir_visual(legacy_config: dict) -> dict:
         title_text = title_item.get("properties", {}).get("text", {}).get("expr", {}).get("Literal", {}).get("Value", "")
         title_text = title_text.strip("'\"")
     
+    if not title_text:
+        title_text = legacy_config.get("title", "") or legacy_config.get("name", "") or "Visual"
+        if "_" in title_text:
+            parts = title_text.split("_")
+            if len(parts) > 1:
+                title_text = " ".join(parts[1:])
+            else:
+                title_text = title_text.replace("_", " ")
+
     if title_text:
         title_properties = {
             "text": {
@@ -1176,6 +1239,9 @@ def compile_pbip_project() -> dict:
 
     # ── Run Validations ──────────────────────────────────────────────
     validation_result = validate_pbip_project()
+    
+    if validation_result.get("errors"):
+        raise PBIPValidationError(validation_result["errors"])
 
     return {
         "is_valid": validation_result["is_valid"],

@@ -7,3 +7,5 @@ __pycache__/
 .pytest_cache/
 .vscode/
 .idea/
+projects/
+scratch/initialize_demo_session.py

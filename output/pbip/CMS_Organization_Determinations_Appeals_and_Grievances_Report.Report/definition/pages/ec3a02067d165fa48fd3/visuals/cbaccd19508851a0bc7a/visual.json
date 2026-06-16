@@ -28,7 +28,8 @@
                 }
               },
               "queryRef": "_Measures.Average Turnaround Time",
-              "nativeQueryRef": "Average Turnaround Time"
+              "nativeQueryRef": "Average Turnaround Time",
+              "active": true
             }
           ]
         }

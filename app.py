@@ -8,6 +8,7 @@ mapping CMS concepts to FHIR US Core R4 resources.
 """
 
 import json
+from pathlib import Path
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -20,8 +21,19 @@ from modules.file_manager import (
     list_stored_files,
     OUTPUT_DIR,
     KNOWLEDGE_DIR,
+    get_output_dir,
+    get_knowledge_dir,
 )
 from modules.pdf_extractor import extract_text_from_pdf, get_pdf_metadata
+from modules.pipeline_manager import PipelineState, StageStatus, PIPELINE_STAGES
+from modules.session_manager import (
+    create_project_session,
+    list_project_sessions,
+    load_project_session,
+    get_session_pipeline_state_path,
+    clear_session_state_for_new_report,
+)
+from modules.audit_trail import log_artifact_generation, get_audit_log
 
 # ── Page Configuration ───────────────────────────────────────────────
 st.set_page_config(
@@ -33,6 +45,122 @@ st.set_page_config(
 
 # Create project directories on first run
 ensure_directories()
+
+# ── Session & Pipeline Initialization ────────────────────────────────
+if "active_session_id" not in st.session_state:
+    st.session_state["active_session_id"] = None
+    st.session_state["active_session_meta"] = None
+
+
+def _get_active_output_dir() -> Path:
+    """Get the output dir for the active session."""
+    sid = st.session_state.get("active_session_id")
+    if sid:
+        return get_output_dir(str(Path("projects") / sid / "output"))
+    raise ValueError("No active project session selected.")
+
+
+def _get_active_knowledge_dir() -> Path:
+    """Get the knowledge dir for the active session."""
+    sid = st.session_state.get("active_session_id")
+    if sid:
+        return get_knowledge_dir(str(Path("projects") / sid / "knowledge"))
+    raise ValueError("No active project session selected.")
+
+
+def _get_pipeline_state() -> PipelineState:
+    """Get or create the pipeline state for the active session."""
+    if "pipeline_state" not in st.session_state:
+        sid = st.session_state.get("active_session_id")
+        if sid:
+            state_path = get_session_pipeline_state_path(sid)
+            st.session_state["pipeline_state"] = PipelineState(state_path)
+        else:
+            st.session_state["pipeline_state"] = PipelineState(None)
+    return st.session_state["pipeline_state"]
+
+
+def _init_active_session():
+    """Dynamically set the output and knowledge directory overrides for all modules."""
+    sid = st.session_state.get("active_session_id")
+    if not sid:
+        return
+
+    active_output_dir = get_output_dir(str(Path("projects") / sid / "output"))
+    active_knowledge_dir = get_knowledge_dir(str(Path("projects") / sid / "knowledge"))
+
+    import modules.fhir_mapper as fm
+    import modules.analytics_generator as ag
+    import modules.intent_classifier as ic
+    import modules.report_generator as rg
+    import modules.data_dictionary_generator as ddg
+    import modules.measure_generator as mg
+    import modules.dax_generator as dg
+    import modules.pbip_generator as pg
+    import modules.report_intelligence_engine as rie
+    import modules.report_layout_validator as rlv
+    import modules.star_schema_enforcer as sse
+    import modules.decision_store as ds
+
+    fm._CATALOG_FILE = KNOWLEDGE_DIR / "fhir_catalog.json"
+    fm._MAPPING_CACHE_FILE = active_knowledge_dir / "mapping_cache.json"
+
+    ag._MAPPING_CACHE_FILE = active_knowledge_dir / "mapping_cache.json"
+    ag._ANALYTICS_OUTPUT = active_output_dir / "analytics_model.json"
+
+    ic._ANALYTICS_MODEL_FILE = active_output_dir / "analytics_model.json"
+    ic._INTENT_OUTPUT_FILE = active_output_dir / "reporting_intent.json"
+
+    rg._ANALYTICS_MODEL_FILE = active_output_dir / "analytics_model.json"
+    rg._REPORT_DEFINITION_FILE = active_output_dir / "report_definition.json"
+
+    ddg._ANALYTICS_MODEL_FILE = active_output_dir / "analytics_model.json"
+    ddg._INTENT_FILE = active_output_dir / "reporting_intent.json"
+    ddg._MAPPING_CACHE_FILE = active_knowledge_dir / "mapping_cache.json"
+    ddg._DATA_DICTIONARY_FILE = active_output_dir / "data_dictionary.json"
+
+    req_path = active_output_dir / "conformed_requirements.json"
+    if not req_path.exists():
+        req_path = active_output_dir / "requirements.json"
+
+    mg._REPORT_DEFINITION_FILE = active_output_dir / "report_definition.json"
+    mg._DATA_DICTIONARY_FILE = active_output_dir / "data_dictionary.json"
+    mg._ANALYTICS_MODEL_FILE = active_output_dir / "analytics_model.json"
+    mg._INTENT_FILE = active_output_dir / "reporting_intent.json"
+    mg._REQUIREMENTS_FILE = req_path
+    mg._MEASURES_OUTPUT = active_output_dir / "measures.json"
+
+    dg._ANALYTICS_MODEL_FILE = active_output_dir / "analytics_model.json"
+    dg._MEASURES_FILE = active_output_dir / "measures.json"
+    dg._DAX_OUTPUT = active_output_dir / "dax_artifacts.json"
+
+    pg._ANALYTICS_MODEL_FILE = active_output_dir / "analytics_model.json"
+    pg._REPORT_DEFINITION_FILE = active_output_dir / "report_definition.json"
+    pg._INTENT_FILE = active_output_dir / "reporting_intent.json"
+    pg._DATA_DICTIONARY_FILE = active_output_dir / "data_dictionary.json"
+    pg._MEASURES_FILE = active_output_dir / "measures.json"
+    pg._DAX_ARTIFACTS_FILE = active_output_dir / "dax_artifacts.json"
+    pg._PBIP_DIR = active_output_dir / "pbip"
+    pg._ZIP_FILE = active_output_dir / "pbip_project.zip"
+
+    rie._REQUIREMENTS_FILE = req_path
+    rie._REPORT_DEFINITION_FILE = active_output_dir / "report_definition.json"
+    rie._ANALYTICS_MODEL_FILE = active_output_dir / "analytics_model.json"
+    rie._MEASURES_FILE = active_output_dir / "measures.json"
+    rie._DAX_ARTIFACTS_FILE = active_output_dir / "dax_artifacts.json"
+    rie._REPORT_LAYOUT_FILE = active_output_dir / "report_layout.json"
+    rie._REPORT_VISUALS_FILE = active_output_dir / "report_visuals.json"
+
+    rlv.OUTPUT_DIR = active_output_dir
+    rlv.KNOWLEDGE_DIR = active_knowledge_dir
+
+    sse._ANALYTICS_MODEL_FILE = active_output_dir / "analytics_model.json"
+
+    ds._DECISIONS_FILE = active_knowledge_dir / "org_decisions.json"
+
+
+# Run initialization on every script execution
+_init_active_session()
 
 
 # ── Custom Download Helper ───────────────────────────────────────────
@@ -432,6 +560,61 @@ st.markdown(
 )
 
 # ── Helpers / Component Renderers ────────────────────────────────────
+def _get_stage_status_icon(stage_id: str) -> str:
+    """Get a status icon for a pipeline stage."""
+    ps = _get_pipeline_state()
+    status = ps.get_status(stage_id)
+    icons = {
+        StageStatus.PENDING: "⏳",
+        StageStatus.IN_PROGRESS: "🔄",
+        StageStatus.COMPLETED: "✅",
+        StageStatus.FAILED: "❌",
+    }
+    return icons.get(status, "⏳")
+
+
+# Map pipeline group labels to their constituent stage IDs
+_STAGE_GROUP_MAP = {
+    "📂 Data Ingestion": ["requirement_extraction", "frs_processing", "requirement_merge"],
+    "💬 Collaboration": ["sme_review"],
+    "🔗 Mapping & Modeling": ["fhir_mapping", "analytics_model"],
+    "🛡️ Validation & Compliance": ["reporting_intent"],
+    "📐 Report Generation": ["report_definition", "data_dictionary", "measures", "dax_generation", "pbip_generation"],
+}
+
+
+def _get_group_status_icon(group_label: str) -> str:
+    """Get a summary status icon for a pipeline group."""
+    ps = _get_pipeline_state()
+    stage_ids = _STAGE_GROUP_MAP.get(group_label, [])
+    if not stage_ids:
+        return "⏳"
+    
+    # Optional stages shouldn't block group completion if they are pending
+    from modules.pipeline_manager import PIPELINE_STAGES
+    optional_stages = {s["id"] for s in PIPELINE_STAGES if s.get("optional")}
+    
+    statuses = []
+    for sid in stage_ids:
+        status = ps.get_status(sid)
+        if sid in optional_stages and status == StageStatus.PENDING:
+            continue
+        statuses.append(status)
+
+    if not statuses:
+        return "⏳"
+
+    if all(s == StageStatus.COMPLETED for s in statuses):
+        return "✅"
+    if any(s == StageStatus.FAILED for s in statuses):
+        return "❌"
+    if any(s == StageStatus.IN_PROGRESS for s in statuses):
+        return "🔄"
+    if any(s == StageStatus.COMPLETED for s in statuses):
+        return "🔄"
+    return "⏳"
+
+
 def draw_pipeline_banner(current_stage: str):
     stages = [
         ("📂 Ingestion", "📂 Data Ingestion"),
@@ -441,10 +624,23 @@ def draw_pipeline_banner(current_stage: str):
         ("📐 Generation", "📐 Report Generation")
     ]
     
+    # Show active session banner if one exists
+    session_meta = st.session_state.get("active_session_meta")
+    if session_meta:
+        st.markdown(
+            f'<div style="background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.3);'
+            f'border-radius:10px;padding:8px 16px;margin-bottom:12px;font-size:0.82rem;">'
+            f'📋 <strong>Active Project:</strong> {session_meta.get("report_name", "Unnamed")} '
+            f'<span style="color:#94a3b8;margin-left:12px;">ID: {session_meta.get("report_id", "—")[:8]}</span>'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
+
     html = '<div class="pipeline-container">'
     for label, stage_name in stages:
         active_class = "pipeline-item-active" if stage_name == current_stage else "pipeline-item-inactive"
-        html += f'<div class="pipeline-item {active_class}">{label}</div>'
+        status_icon = _get_group_status_icon(stage_name)
+        html += f'<div class="pipeline-item {active_class}">{status_icon} {label}</div>'
         if label != stages[-1][0]:
             html += '<div class="pipeline-connector"></div>'
     html += '</div>'
@@ -455,6 +651,33 @@ def draw_pipeline_banner(current_stage: str):
 # ── Sidebar ──────────────────────────────────────────────────────────
 with st.sidebar:
     st.markdown("## 🏥 Healthcare Reporting AI")
+
+    # ── Project Selector ─────────────────────────────────────────────
+    sessions = list_project_sessions()
+    if sessions:
+        with st.expander("🗂️ Project Sessions", expanded=False):
+            session_labels = [
+                f"{s.get('report_name', 'Unnamed')[:30]} ({s.get('report_id', '')[:8]})"
+                for s in sessions
+            ]
+            selected_idx = st.selectbox(
+                "Select project",
+                range(len(session_labels)),
+                format_func=lambda i: session_labels[i],
+                label_visibility="collapsed",
+                key="session_selector",
+            )
+            if selected_idx is not None:
+                selected_session = sessions[selected_idx]
+                if st.session_state.get("active_session_id") != selected_session["report_id"]:
+                    if st.button("📂 Switch to this project", use_container_width=True):
+                        clear_session_state_for_new_report(st.session_state)
+                        st.session_state["active_session_id"] = selected_session["report_id"]
+                        st.session_state["active_session_meta"] = selected_session
+                        st.session_state.pop("pipeline_state", None)
+                        st.rerun()
+
+    st.markdown("---")
     
     stage = st.selectbox(
         "Select Pipeline Stage",
@@ -471,7 +694,7 @@ with st.sidebar:
     if stage == "📂 Data Ingestion":
         page = st.radio(
             "Go to",
-            ["📄 Upload & Extract", "📂 Stored Documents"],
+            ["📄 Upload & Extract", "🔀 Requirement Merge", "📂 Stored Documents"],
             label_visibility="collapsed"
         )
     elif stage == "💬 Collaboration":
@@ -510,20 +733,68 @@ with st.sidebar:
             ],
             label_visibility="collapsed"
         )
-        
+
+    # ── Pipeline Stage Status Overview ────────────────────────────────
+    st.divider()
+    with st.expander("📊 Pipeline Status", expanded=False):
+        ps = _get_pipeline_state()
+        for stage_def in PIPELINE_STAGES:
+            sid = stage_def["id"]
+            if stage_def.get("optional"):
+                continue
+            icon = _get_stage_status_icon(sid)
+            st.markdown(f"{icon} {stage_def['label']}", unsafe_allow_html=True)
+
     st.divider()
     st.markdown(
-        "**Healthcare Reporting AI** v1.0  \n"
-        "Upload → Extract → Collaborate → Map → Model → Intent → Report → Dict → Measures → DAX → PBIP."
+        "**Healthcare Reporting AI** v2.0  \n"
+        "Upload → FRS → Merge → SME → Map → Model → Intent → Report → Dict → Measures → DAX → PBIP."
     )
 
 # Draw the pipeline banner globally at the top of the content area
 draw_pipeline_banner(stage)
 
 
-# ── Helpers ──────────────────────────────────────────────────────────
+# ── Active Session Verification ──────────────────────────────────────
+report_specific_pages = [
+    "🔀 Requirement Merge",
+    "💬 SME Workspace",
+    "🔗 FHIR Mapping",
+    "📊 Analytics Model",
+    "🛡️ Model Validator",
+    "🎨 Report Layout Validator",
+    "✅ PBIP Validation",
+    "🔧 Dependency Diagnostics",
+    "🎯 Reporting Intent",
+    "📝 Report Definition",
+    "📖 Data Dictionary",
+    "📐 Measure Generator",
+    "🔢 DAX Generator",
+    "📦 PBIP Generator"
+]
+
+if page in report_specific_pages and st.session_state.get("active_session_id") is None:
+    st.markdown(
+        """
+        <div style="background-color: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); padding: 24px; border-radius: 8px; margin-top: 20px;">
+            <h3 style="color: #ef4444; margin-top: 0; font-family: sans-serif;">🗂️ No Active Project Workspace Selected</h3>
+            <p style="font-family: sans-serif; font-size: 0.95rem;">You must select or create a project workspace before viewing report-specific details.</p>
+            <p style="font-family: sans-serif; font-size: 0.95rem;">Please perform one of the following actions:</p>
+            <ul style="font-family: sans-serif; font-size: 0.95rem; line-height: 1.6;">
+                <li>Create a new project workspace by going to <strong>📂 Data Ingestion ➜ 📄 Upload & Extract</strong>.</li>
+                <li>Select and reopen an existing project using the <strong>🗂️ Project Sessions</strong> expander in the sidebar.</li>
+            </ul>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    st.stop()
+
+
+
+
 def _load_requirements() -> dict | None:
-    req_path = OUTPUT_DIR / "requirements.json"
+    req_path = _get_active_output_dir() / "requirements.json"
     if req_path.exists():
         with open(req_path, "r", encoding="utf-8") as f:
             return json.load(f)
@@ -531,7 +802,7 @@ def _load_requirements() -> dict | None:
 
 
 def _load_decisions() -> list[dict]:
-    dec_path = KNOWLEDGE_DIR / "org_decisions.json"
+    dec_path = _get_active_knowledge_dir() / "org_decisions.json"
     if dec_path.exists():
         with open(dec_path, "r", encoding="utf-8") as f:
             return json.load(f)
@@ -562,138 +833,275 @@ def _confidence_badge(level: str) -> str:
 # =====================================================================
 if page == "📄 Upload & Extract":
     st.markdown('<p class="main-title">Upload & Extract PDF</p>', unsafe_allow_html=True)
-    st.caption("Upload a CMS PDF document to extract and display its text content.")
+    st.caption("Upload a CMS PDF document to extract and display its text content, with optional FRS enrichment.")
 
-    uploaded_file = st.file_uploader(
-        "Choose a PDF file",
-        type=["pdf"],
-        help="Supported format: PDF (.pdf)",
-    )
+    # 1. Project name input
+    project_name = st.text_input("Project / Report Name", placeholder="e.g. Appeals & Grievances Daily Report")
 
-    if uploaded_file is not None:
-        with st.spinner("Saving file…"):
-            saved_path = save_uploaded_file(uploaded_file)
+    # 2. Ingestion Files Columns
+    u1, u2 = st.columns(2)
+    with u1:
+        st.markdown("##### 📄 CMS Regulation Document (Required)")
+        uploaded_file = st.file_uploader(
+            "Choose CMS PDF",
+            type=["pdf"],
+            help="Supported format: PDF (.pdf)",
+            key="cms_uploader",
+        )
+    with u2:
+        st.markdown("##### 📋 FRS Specification Document (Optional)")
+        frs_file = st.file_uploader(
+            "Choose FRS PDF or TXT",
+            type=["pdf", "txt"],
+            help="Supported formats: PDF (.pdf), Text (.txt)",
+            key="frs_uploader",
+        )
 
-        st.success(f"✅ Saved to `{saved_path}`")
+    # Display status badges
+    badge_cols = st.columns(2)
+    with badge_cols[0]:
+        if uploaded_file:
+            st.success("✅ CMS Document Selected")
+        else:
+            st.info("ℹ️ Please upload CMS Document")
+    with badge_cols[1]:
+        if frs_file:
+            st.success("✅ FRS Document Selected")
+        else:
+            st.info("ℹ️ FRS Document Not Provided (Optional)")
 
-        metadata = get_pdf_metadata(saved_path)
+    if uploaded_file is not None and project_name.strip() != "":
+        # We can extract text from CMS PDF immediately to let the user review it
+        with st.spinner("Processing CMS PDF..."):
+            cms_temp_path = save_uploaded_file(uploaded_file, Path("projects/temp"))
+            extracted_text = extract_text_from_pdf(cms_temp_path)
+            metadata = get_pdf_metadata(cms_temp_path)
 
         st.markdown("### 📋 Document Metadata")
-        col1, col2, col3, col4 = st.columns(4)
+        col1, col2, col3 = st.columns(3)
         col1.metric("Pages", metadata["page_count"])
-        col2.metric("Title", metadata["title"][:30] if metadata["title"] != "N/A" else "—")
-        col3.metric("Author", metadata["author"][:30] if metadata["author"] != "N/A" else "—")
-        col4.metric("Subject", metadata["subject"][:30] if metadata["subject"] != "N/A" else "—")
+        col2.metric("Title", metadata.get("title", "—")[:30] if metadata.get("title") != "N/A" else "—")
+        col3.metric("Author", metadata.get("author", "—")[:30] if metadata.get("author") != "N/A" else "—")
 
-        st.markdown("### 📝 Extracted Text")
-        with st.spinner("Extracting text…"):
-            extracted_text = extract_text_from_pdf(saved_path)
+        with st.expander("View extracted CMS text", expanded=False):
+            st.text_area(
+                "Full CMS text",
+                value=extracted_text,
+                height=300,
+                label_visibility="collapsed",
+            )
 
-        if extracted_text.strip():
-            st.session_state["extracted_text"] = extracted_text
-
-            with st.expander("View extracted text", expanded=False):
+        frs_text = ""
+        if frs_file is not None:
+            with st.spinner("Processing FRS Document..."):
+                if frs_file.name.endswith(".pdf"):
+                    frs_temp_path = save_uploaded_file(frs_file, Path("projects/temp"))
+                    frs_text = extract_text_from_pdf(frs_temp_path)
+                else:
+                    frs_text = frs_file.getvalue().decode("utf-8")
+            
+            with st.expander("View extracted FRS text", expanded=False):
                 st.text_area(
-                    "Full document text",
-                    value=extracted_text,
-                    height=400,
+                    "Full FRS text",
+                    value=frs_text,
+                    height=300,
                     label_visibility="collapsed",
                 )
 
-            st.markdown("---")
-            st.markdown("### 🤖 Requirement Extraction")
-            st.caption(
-                "Send the extracted text to Gemini to identify structured "
-                "reporting requirements from the CMS document."
-            )
+        st.markdown("---")
+        st.markdown("### 🤖 Pipeline Trigger")
+        st.caption("Click below to initialize the project session, extract requirements, and merge with FRS.")
 
-            if st.button("🚀 Extract Requirements", type="primary", use_container_width=True):
-                try:
-                    from modules.gemini_client import extract_requirements, save_requirements
+        if st.button("🚀 Initialize Workspace & Run Extraction", type="primary", use_container_width=True):
+            try:
+                from modules.gemini_client import extract_requirements, save_requirements
+                from modules.frs_processor import extract_frs_requirements, save_frs_requirements
+                from modules.requirement_merger import merge_requirements, save_merged_requirements
 
-                    with st.spinner("Analyzing document with Gemini…"):
-                        requirements = extract_requirements(extracted_text)
+                # 1. Clear old state
+                clear_session_state_for_new_report(st.session_state)
 
-                    output_path = OUTPUT_DIR / "requirements.json"
-                    saved_json_path = save_requirements(requirements, output_path)
+                # 2. Create the project session folder
+                session = create_project_session(project_name, uploaded_file.name)
+                st.session_state["active_session_id"] = session["report_id"]
+                st.session_state["active_session_meta"] = session["meta"]
+                st.session_state.pop("pipeline_state", None) # force reload
 
-                    st.success(f"✅ Requirements extracted and saved to `{saved_json_path}`")
-                    st.session_state["requirements_json"] = requirements.model_dump()
+                # Initialize directory override variables immediately for this execution
+                _init_active_session()
+                active_out = Path(session["output_dir"])
+                active_know = Path(session["knowledge_dir"])
 
-                except EnvironmentError as env_err:
-                    st.error(f"⚠️ Configuration error: {env_err}")
-                except Exception as exc:
-                    st.error(f"❌ Gemini extraction failed: {exc}")
+                # 3. Save CMS PDF to project knowledge folder
+                saved_cms_path = save_uploaded_file(uploaded_file, active_know)
 
-            if "requirements_json" in st.session_state:
-                req = st.session_state["requirements_json"]
+                # 4. Extract CMS Requirements
+                with st.spinner("Extracting CMS requirements with Gemini..."):
+                    cms_reqs = extract_requirements(extracted_text)
+                    save_requirements(cms_reqs, active_out / "requirements.json")
+                    st.session_state["requirements_json"] = cms_reqs.model_dump()
+                    
+                    ps = _get_pipeline_state()
+                    ps.mark_completed("requirement_extraction", str(active_out / "requirements.json"))
+                    log_artifact_generation(
+                        stage="requirement_extraction",
+                        artifact_path=str(active_out / "requirements.json"),
+                        inputs_used=[saved_cms_path],
+                        project_dir=session["project_dir"]
+                    )
 
-                st.markdown("#### 📊 Extracted Requirements")
+                # 5. Extract FRS if provided
+                frs_reqs_dict = None
+                inputs_used_for_merge = [str(active_out / "requirements.json")]
+                if frs_text:
+                    with st.spinner("Extracting FRS requirements with Gemini..."):
+                        # Save FRS document
+                        saved_frs_path = save_uploaded_file(frs_file, active_know)
+                        inputs_used_for_merge.append(saved_frs_path)
+                        
+                        frs_reqs = extract_frs_requirements(frs_text)
+                        save_frs_requirements(frs_reqs, active_out / "frs_requirements.json")
+                        frs_reqs_dict = frs_reqs.model_dump()
+                        st.session_state["frs_requirements"] = frs_reqs_dict
+                        st.session_state["frs_text"] = frs_text
+                        
+                        ps.mark_completed("frs_processing", str(active_out / "frs_requirements.json"))
+                        log_artifact_generation(
+                            stage="frs_processing",
+                            artifact_path=str(active_out / "frs_requirements.json"),
+                            inputs_used=[saved_frs_path],
+                            project_dir=session["project_dir"]
+                        )
 
-                m1, m2, m3, m4 = st.columns(4)
-                m1.metric("Metrics", len(req.get("metrics", [])))
-                m2.metric("Business Rules", len(req.get("business_rules", [])))
-                m3.metric("Dimensions", len(req.get("dimensions", [])))
-                m4.metric("Exclusions", len(req.get("exclusions", [])))
+                # 6. Run merge engine
+                with st.spinner("Merging requirements..."):
+                    merged = merge_requirements(cms_reqs.model_dump(), frs_reqs_dict)
+                    save_merged_requirements(merged, active_out / "merged_requirements.json")
+                    st.session_state["merged_requirements"] = merged.model_dump()
+                    
+                    ps.mark_completed("requirement_merge", str(active_out / "merged_requirements.json"))
+                    log_artifact_generation(
+                        stage="requirement_merge",
+                        artifact_path=str(active_out / "merged_requirements.json"),
+                        inputs_used=inputs_used_for_merge,
+                        project_dir=session["project_dir"]
+                    )
 
-                tab_json, tab_details = st.tabs(["📄 Raw JSON", "📋 Details"])
+                st.success(f"🎉 Workspace initialized for project '{project_name}'! Stage: Ingestion Complete.")
+                st.rerun()
 
-                with tab_json:
-                    st.json(req)
+            except EnvironmentError as env_err:
+                st.error(f"⚠️ Configuration error: {env_err}")
+            except Exception as exc:
+                st.error(f"❌ Ingestion failed: {exc}")
 
-                with tab_details:
-                    col_left, col_right = st.columns(2)
+        # Show preview of completed extraction if we have active session
+        req = st.session_state.get("requirements_json") or _load_requirements()
+        if req:
+            st.session_state["requirements_json"] = req
+            st.markdown("#### 📊 Current Session Requirements Preview")
+            m1, m2, m3, m4 = st.columns(4)
+            m1.metric("Metrics", len(req.get("metrics", [])))
+            m2.metric("Business Rules", len(req.get("business_rules", [])))
+            m3.metric("Dimensions", len(req.get("dimensions", [])))
+            m4.metric("Exclusions", len(req.get("exclusions", [])))
+            st.json(req)
 
-                    with col_left:
-                        st.markdown(f"**Report Name:** {req.get('report_name', '—')}")
-                        st.markdown(f"**Report Type:** {req.get('report_type', '—')}")
-                        st.markdown(f"**Frequency:** {req.get('reporting_frequency', '—')}")
+    elif uploaded_file is None:
+        st.info("👋 Upload a CMS PDF regulation document above to begin.")
+    else:
+        st.warning("⚠️ Please provide a Project / Report Name before initializing.")
 
-                        if req.get("reporting_entities"):
-                            st.markdown("**Reporting Entities:**")
-                            for entity in req["reporting_entities"]:
-                                st.markdown(f"  - {entity}")
 
-                        if req.get("metrics"):
-                            st.markdown("**Metrics:**")
-                            for metric in req["metrics"]:
-                                st.markdown(f"  - {metric}")
+# =====================================================================
+# PAGE: Requirement Merge
+# =====================================================================
+elif page == "🔀 Requirement Merge":
+    st.markdown('<p class="main-title">Requirement Merge Engine</p>', unsafe_allow_html=True)
+    st.caption("Review CMS regulatory requirements and FRS clarifications, resolve conflicting definitions, and approve the conformed model.")
 
-                        if req.get("dimensions"):
-                            st.markdown("**Dimensions:**")
-                            for dim in req["dimensions"]:
-                                st.markdown(f"  - {dim}")
+    from modules.requirement_merger import load_merged_requirements, save_merged_requirements, resolve_conflict
+    active_out = _get_active_output_dir()
+    
+    merged = load_merged_requirements(active_out)
+    
+    if not merged:
+        st.info("ℹ️ No merged requirements found. Please upload CMS and optional FRS files on the Ingestion page first.")
+        st.stop()
 
-                    with col_right:
-                        if req.get("filters"):
-                            st.markdown("**Filters:**")
-                            for flt in req["filters"]:
-                                st.markdown(f"  - {flt}")
+    # If CMS only (no FRS)
+    if not merged.frs_requirements:
+        st.success("✅ Using authoritative CMS Requirements directly. No FRS document was uploaded, so no merging or conflict resolution is required.")
+        st.json(merged.cms_requirements)
+        st.stop()
 
-                        if req.get("business_rules"):
-                            st.markdown("**Business Rules:**")
-                            for rule in req["business_rules"]:
-                                st.markdown(f"  - {rule}")
+    # Show stats
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Total Merged Metrics", len(merged.merged_metrics))
+    unresolved = [c for c in merged.conflicts if not c.resolved]
+    col2.metric("Pending Conflicts", len(unresolved))
+    col3.metric("Merge Assumptions", len(merged.assumptions))
 
-                        if req.get("exclusions"):
-                            st.markdown("**Exclusions:**")
-                            for exc_item in req["exclusions"]:
-                                st.markdown(f"  - {exc_item}")
+    if merged.assumptions:
+        with st.expander("📝 Merge Engine Assumptions", expanded=False):
+            for a in merged.assumptions:
+                st.markdown(f"**Assumption:** {a.get('assumption', '—')}  \n*Reason:* {a.get('reason', '—')}")
 
-                        if req.get("notes"):
-                            st.markdown("**Notes:**")
-                            for note in req["notes"]:
-                                st.markdown(f"  - {note}")
+    # Conflict Resolution
+    st.markdown("### ⚠️ Merge Conflicts")
+    if not unresolved:
+        st.success("✅ All conflicts have been resolved! Downstream pipeline stages will consume this conformed requirements model.")
+    else:
+        st.warning(f"Please resolve the remaining {len(unresolved)} conflict(s) below to continue the pipeline.")
+        
+        for idx, conflict in enumerate(unresolved):
+            st.markdown(f'<div style="background:rgba(255,255,255,0.03);padding:16px;border-radius:10px;border:1px solid rgba(255,255,255,0.05);margin-bottom:16px;">', unsafe_allow_html=True)
+            st.markdown(f"##### 🔍 Conflict on Field: `{conflict.field}`")
+            st.markdown(f"**Conflict Type:** `{conflict.conflict_type}`")
+            
+            c1, c2 = st.columns(2)
+            with c1:
+                st.markdown('<div style="background:rgba(99,102,241,0.1);padding:12px;border-radius:8px;border:1px solid rgba(99,102,241,0.3);min-height:140px;">', unsafe_allow_html=True)
+                st.markdown("**🏛️ CMS Value (Authoritative):**")
+                st.write(conflict.cms_value)
+                st.markdown('</div>', unsafe_allow_html=True)
+            with c2:
+                st.markdown('<div style="background:rgba(139,92,246,0.1);padding:12px;border-radius:8px;border:1px solid rgba(139,92,246,0.3);min-height:140px;">', unsafe_allow_html=True)
+                st.markdown("**📋 FRS Value (Clarification):**")
+                st.write(conflict.frs_value)
+                st.markdown('</div>', unsafe_allow_html=True)
 
-                render_download_button(
-                    label="⬇️ Download requirements.json",
-                    data=json.dumps(req, indent=2),
-                    file_name="requirements.json",
-                    mime="application/json",
-                )
+            # Resolution Options
+            options = ["Keep CMS Value", "Use FRS Value", "Enter Custom Resolution"]
+            choice = st.radio(f"Resolve conflict for {conflict.field}", options, key=f"choice_{conflict.field}_{idx}", horizontal=True)
+            
+            resolution_text = ""
+            if choice == "Keep CMS Value":
+                resolution_text = str(conflict.cms_value)
+            elif choice == "Use FRS Value":
+                resolution_text = str(conflict.frs_value)
+            else:
+                resolution_text = st.text_area("Custom Resolution Text", key=f"custom_{conflict.field}_{idx}", placeholder="Enter conformed definition...")
 
-        else:
-            st.warning("No text could be extracted. The PDF may be image-based or empty.")
+            if st.button("Resolve Conflict", key=f"btn_resolve_{conflict.field}_{idx}", type="secondary"):
+                if choice == "Enter Custom Resolution" and not resolution_text.strip():
+                    st.error("Please enter a custom resolution text.")
+                else:
+                    updated_model = resolve_conflict(merged, conflict.field, resolution_text)
+                    save_merged_requirements(updated_model, active_out / "merged_requirements.json")
+                    st.success(f"Resolved conflict for `{conflict.field}`!")
+                    st.rerun()
+            st.markdown('</div>', unsafe_allow_html=True)
+
+    # Merged Requirements Explorer
+    st.markdown("### 🗺️ Conformed Requirements Model Explorer")
+    t1, t2, t3 = st.tabs(["📊 Merged Metrics", "⚙️ Merged Business Rules", "📄 Complete Merged JSON"])
+    with t1:
+        st.json(merged.merged_metrics)
+    with t2:
+        st.json(merged.merged_business_rules)
+    with t3:
+        st.json(merged.model_dump())
 
 
 # =====================================================================
@@ -772,6 +1180,7 @@ elif page == "💬 SME Workspace":
                         source_term=response.source_term,
                         mapped_term=response.mapped_term,
                         description=response.decision_description,
+                        author="AI Assistant",
                     )
                     badge = _type_badge(response.decision_type)
                     reply_text = (
@@ -815,7 +1224,19 @@ elif page == "💬 SME Workspace":
                 ):
                     st.markdown(badge_html, unsafe_allow_html=True)
                     st.markdown(f"**Description:** {dec.description}")
-                    st.caption(f"ID: {dec.decision_id} · {dec.timestamp}")
+                    st.caption(f"**Version:** {dec.version} · **Author:** {dec.author} · **ID:** {dec.decision_id} · {dec.timestamp}")
+                    
+                    if dec.change_history:
+                        with st.expander("📜 Decision History", expanded=False):
+                            for h_idx, h in enumerate(reversed(dec.change_history)):
+                                timestamp_str = h.get('timestamp', '')[:19].replace('T', ' ')
+                                st.markdown(f"**{timestamp_str}** · *{h.get('author', 'Unknown')}*")
+                                st.markdown(f"- **Action**: {h.get('change', '')}")
+                                prev = h.get("previous_values", {})
+                                if prev:
+                                    st.markdown(f"  - *Previous values*: `{prev}`")
+                                if h_idx < len(dec.change_history) - 1:
+                                    st.markdown("---")
 
                     edit_col, del_col = st.columns(2)
 
@@ -1838,7 +2259,7 @@ elif page == "🎨 Report Layout Validator":
     from modules.file_manager import OUTPUT_DIR
 
     # Load report definition
-    report_def_path = OUTPUT_DIR / "report_definition.json"
+    report_def_path = _get_active_output_dir() / "report_definition.json"
     if not report_def_path.exists():
         st.warning("⚠️ No report definition found. Please complete the **📝 Report Definition** page first.")
         st.stop()
@@ -3359,10 +3780,10 @@ elif page == "🔢 DAX Generator":
 
     # Check inputs
     import os as _dax_os
-    if not (OUTPUT_DIR / "measures.json").exists():
+    if not (_get_active_output_dir() / "measures.json").exists():
         st.warning("⚠️ **Measures missing:** Please generate and approve measures on the **Measure Generator** page first.")
         st.stop()
-    if not (OUTPUT_DIR / "analytics_model.json").exists():
+    if not (_get_active_output_dir() / "analytics_model.json").exists():
         st.warning("⚠️ **Analytics Model missing:** Please generate and approve the model on the **Analytics Model** page first.")
         st.stop()
 
@@ -3579,7 +4000,7 @@ elif page == "📦 PBIP Generator":
     ]
     missing = []
     for fname, label in required_inputs:
-        if not (OUTPUT_DIR / fname).exists():
+        if not (_get_active_output_dir() / fname).exists():
             missing.append(label)
 
     if missing:
@@ -3588,7 +4009,7 @@ elif page == "📦 PBIP Generator":
 
     # Load PBIP stats or trigger compilation
     if "pbip_results" not in st.session_state:
-        if (OUTPUT_DIR / "pbip_project.zip").exists() and (OUTPUT_DIR / "pbip").exists():
+        if (_get_active_output_dir() / "pbip_project.zip").exists() and (_get_active_output_dir() / "pbip").exists():
             try:
                 st.session_state["pbip_results"] = compile_pbip_project()
             except Exception:
@@ -3709,7 +4130,7 @@ elif page == "✅ PBIP Validation":
     importlib.reload(_pbip_val_mod)
     from modules.pbip_generator import validate_pbip_project as _validate_pbip, PBIP_REQUIRED_FILES as _PBIP_REQ
 
-    pbip_dir_exists = (OUTPUT_DIR / "pbip").exists()
+    pbip_dir_exists = (_get_active_output_dir() / "pbip").exists()
 
     if not pbip_dir_exists:
         st.warning("⚠️ No PBIP project found. Please compile the project on the **📦 PBIP Generator** page first.")
@@ -3903,73 +4324,75 @@ elif page == "🔧 Dependency Diagnostics":
     from pathlib import Path as _DiagPath
 
     # ── Define all artifacts and their dependencies ──────────────────
+    active_out = _get_active_output_dir()
+    active_know = _get_active_knowledge_dir()
     _artifacts = [
         {
             "name": "requirements.json",
-            "expected_path": str(OUTPUT_DIR / "requirements.json"),
+            "expected_path": str(active_out / "requirements.json"),
             "stage": "Upload & Extract",
             "produced_by": "📄 Upload & Extract",
             "consumed_by": ["💬 SME Workspace", "🔗 FHIR Mapping", "📊 Analytics Model", "🎯 Reporting Intent", "📝 Report Definition", "📖 Data Dictionary"],
         },
         {
             "name": "org_decisions.json",
-            "expected_path": str(KNOWLEDGE_DIR / "org_decisions.json"),
+            "expected_path": str(active_know / "org_decisions.json"),
             "stage": "SME Workspace",
             "produced_by": "💬 SME Workspace",
             "consumed_by": ["🔗 FHIR Mapping", "📊 Analytics Model", "🎯 Reporting Intent", "📝 Report Definition", "📖 Data Dictionary", "📐 Measure Generator"],
         },
         {
             "name": "mapping_cache.json",
-            "expected_path": str(KNOWLEDGE_DIR / "mapping_cache.json"),
+            "expected_path": str(active_know / "mapping_cache.json"),
             "stage": "FHIR Mapping",
             "produced_by": "🔗 FHIR Mapping",
             "consumed_by": ["📊 Analytics Model", "📖 Data Dictionary"],
         },
         {
             "name": "analytics_model.json",
-            "expected_path": str(OUTPUT_DIR / "analytics_model.json"),
+            "expected_path": str(active_out / "analytics_model.json"),
             "stage": "Analytics Model",
             "produced_by": "📊 Analytics Model",
             "consumed_by": ["🎯 Reporting Intent", "📝 Report Definition", "📖 Data Dictionary", "📐 Measure Generator", "🔢 DAX Generator", "📦 PBIP Generator"],
         },
         {
             "name": "reporting_intent.json",
-            "expected_path": str(OUTPUT_DIR / "reporting_intent.json"),
+            "expected_path": str(active_out / "reporting_intent.json"),
             "stage": "Reporting Intent",
             "produced_by": "🎯 Reporting Intent",
             "consumed_by": ["📖 Data Dictionary", "📐 Measure Generator", "📦 PBIP Generator"],
         },
         {
             "name": "report_definition.json",
-            "expected_path": str(OUTPUT_DIR / "report_definition.json"),
+            "expected_path": str(active_out / "report_definition.json"),
             "stage": "Report Definition",
             "produced_by": "📝 Report Definition",
             "consumed_by": ["📐 Measure Generator", "📦 PBIP Generator"],
         },
         {
             "name": "data_dictionary.json",
-            "expected_path": str(OUTPUT_DIR / "data_dictionary.json"),
+            "expected_path": str(active_out / "data_dictionary.json"),
             "stage": "Data Dictionary",
             "produced_by": "📖 Data Dictionary",
             "consumed_by": ["📐 Measure Generator", "🔢 DAX Generator", "📦 PBIP Generator"],
         },
         {
             "name": "measures.json",
-            "expected_path": str(OUTPUT_DIR / "measures.json"),
+            "expected_path": str(active_out / "measures.json"),
             "stage": "Measure Generator",
             "produced_by": "📐 Measure Generator",
             "consumed_by": ["🔢 DAX Generator", "📦 PBIP Generator"],
         },
         {
             "name": "dax_artifacts.json",
-            "expected_path": str(OUTPUT_DIR / "dax_artifacts.json"),
+            "expected_path": str(active_out / "dax_artifacts.json"),
             "stage": "DAX Generator",
             "produced_by": "🔢 DAX Generator",
             "consumed_by": ["📦 PBIP Generator"],
         },
         {
             "name": "pbip_project.zip",
-            "expected_path": str(OUTPUT_DIR / "pbip_project.zip"),
+            "expected_path": str(active_out / "pbip_project.zip"),
             "stage": "PBIP Generator",
             "produced_by": "📦 PBIP Generator",
             "consumed_by": [],

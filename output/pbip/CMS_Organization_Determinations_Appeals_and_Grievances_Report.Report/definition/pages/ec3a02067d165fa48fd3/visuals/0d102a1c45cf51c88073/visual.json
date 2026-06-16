@@ -28,7 +28,8 @@
                 }
               },
               "queryRef": "_Measures.Clean Claim Rate",
-              "nativeQueryRef": "Clean Claim Rate"
+              "nativeQueryRef": "Clean Claim Rate",
+              "active": true
             }
           ]
         }

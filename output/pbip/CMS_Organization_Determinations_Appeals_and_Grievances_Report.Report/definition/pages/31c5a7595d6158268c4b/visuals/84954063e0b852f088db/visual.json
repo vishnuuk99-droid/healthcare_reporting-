@@ -28,7 +28,8 @@
                 }
               },
               "queryRef": "_Measures.Validation Errors",
-              "nativeQueryRef": "Validation Errors"
+              "nativeQueryRef": "Validation Errors",
+              "active": true
             }
           ]
         }

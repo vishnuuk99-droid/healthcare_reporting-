@@ -644,7 +644,11 @@ def auto_correct_report_layout() -> Tuple[List[Dict[str, str]], Dict[str, Any]]:
     with open(report_def_path, "w", encoding="utf-8") as f:
         json.dump(report_def, f, indent=2)
 
-    compile_result = compile_pbip_project()
+    try:
+        from modules.pbip_generator import PBIPValidationError
+        compile_result = compile_pbip_project()
+    except PBIPValidationError as e:
+        compile_result = {"is_valid": False, "errors": e.errors}
 
     # Rerun validation
     new_issues = validate_report_layout_from_files()

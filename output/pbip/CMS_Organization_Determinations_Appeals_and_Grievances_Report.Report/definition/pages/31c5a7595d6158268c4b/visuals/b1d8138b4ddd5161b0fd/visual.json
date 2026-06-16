@@ -28,7 +28,8 @@
                 }
               },
               "queryRef": "_Measures.Missing Data %",
-              "nativeQueryRef": "Missing Data %"
+              "nativeQueryRef": "Missing Data %",
+              "active": true
             }
           ]
         }

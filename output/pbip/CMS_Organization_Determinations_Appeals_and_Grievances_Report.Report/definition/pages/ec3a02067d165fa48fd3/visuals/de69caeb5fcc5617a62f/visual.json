@@ -28,7 +28,8 @@
                 }
               },
               "queryRef": "_Measures.Adverse Decision Rate",
-              "nativeQueryRef": "Adverse Decision Rate"
+              "nativeQueryRef": "Adverse Decision Rate",
+              "active": true
             }
           ]
         }

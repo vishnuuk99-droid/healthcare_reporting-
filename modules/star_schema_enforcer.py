@@ -286,7 +286,11 @@ def enforce_and_regenerate() -> Dict[str, Any]:
         json.dump(corrected_model, f, indent=2)
 
     # Compile the PBIP project (this regenerates model.bim, model.tmdl, report.json, etc.)
-    compile_result = compile_pbip_project()
+    try:
+        from modules.pbip_generator import PBIPValidationError
+        compile_result = compile_pbip_project()
+    except PBIPValidationError as e:
+        compile_result = {"is_valid": False, "errors": e.errors}
 
     # Re-run validation
     val_result = validate_pbip_project()

@@ -28,7 +28,8 @@
                 }
               },
               "queryRef": "_Measures.Total Org Determinations Override",
-              "nativeQueryRef": "Total Org Determinations Override"
+              "nativeQueryRef": "Total Org Determinations Override",
+              "active": true
             }
           ]
         }

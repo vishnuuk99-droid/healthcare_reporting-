@@ -47,7 +47,8 @@
                 }
               },
               "queryRef": "_Measures.Quality Trend",
-              "nativeQueryRef": "Quality Trend"
+              "nativeQueryRef": "Quality Trend",
+              "active": true
             }
           ]
         }
