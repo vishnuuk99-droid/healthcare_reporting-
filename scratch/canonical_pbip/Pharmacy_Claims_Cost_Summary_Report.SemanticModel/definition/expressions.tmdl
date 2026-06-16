@@ -1,0 +1,23 @@
+expression 'Errors in Pharmacy Claims' =
+		let
+		Source = #"Pharmacy Claims",
+		  #"Detected Type Mismatches" = let
+		    tableWithOnlyPrimitiveTypes = Table.SelectColumns(Source, Table.ColumnsOfType(Source, {type nullable number, type nullable text, type nullable logical, type nullable date, type nullable datetime, type nullable datetimezone, type nullable time, type nullable duration})),
+		    recordTypeFields = Type.RecordFields(Type.TableRow(Value.Type(tableWithOnlyPrimitiveTypes))),
+		    fieldNames = Record.FieldNames(recordTypeFields),
+		    fieldTypes = List.Transform(Record.ToList(recordTypeFields), each [Type]),
+		    pairs = List.Transform(List.Positions(fieldNames), (i) => {fieldNames{i}, (v) => if v = null or Value.Is(v, fieldTypes{i}) then v else error [Message = "The type of the value does not match the type of the column.", Detail = v], fieldTypes{i}})
+		in
+		    Table.TransformColumns(Source, pairs),
+		  #"Added Index" = Table.AddIndexColumn(#"Detected Type Mismatches", "Row Number" ,1),
+		  #"Kept Errors" = Table.SelectRowsWithErrors(#"Added Index", {"Pharmacy_Claim_Id", "Member_Claim_Id", "Presciber_Id", "NDC", "Therapeutic_Class", "Drug_Name", "Drug_Brand", "Billed_Amount", "Paid_Amount", "Copay_Paid", "Co_insurance", "Deductible_total_amount", "Patient_Paid_Amount", "Medication_Dispensed_Date", "Amount_Paid_Date"}),
+		  #"Reordered Columns" = Table.ReorderColumns(#"Kept Errors", {"Row Number", "Pharmacy_Claim_Id", "Member_Claim_Id", "Presciber_Id", "NDC", "Therapeutic_Class", "Drug_Name", "Drug_Brand", "Billed_Amount", "Paid_Amount", "Copay_Paid", "Co_insurance", "Deductible_total_amount", "Patient_Paid_Amount", "Medication_Dispensed_Date", "Amount_Paid_Date"})
+		in
+		  #"Reordered Columns"
+	lineageTag: 9b6da641-fbb9-4e83-8b25-3003f8ee08c2
+	queryGroup: 'Query Errors - 01-06-2026 12:41:24'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

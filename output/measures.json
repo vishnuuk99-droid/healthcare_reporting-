@@ -3,8 +3,224 @@
     "measure_name": "Total Org Determinations Override",
     "measure_type": "Count",
     "classification": "Base Measure",
-    "business_definition": "Total count of unique Organization Determinations.",
-    "formula_description": "COUNT(DISTINCT od_number)",
+    "business_definition": "The total count of organization determinations and appeals recorded in the system, serving as the primary volume metric for CMS reporting.",
+    "formula_description": "COUNTROWS(FactObservation)",
+    "source_tables": [
+      "FactObservation"
+    ],
+    "source_fields": [
+      "observation_key"
+    ],
+    "dependencies": [],
+    "report_pages": [
+      "Executive Summary",
+      "Determinations Analysis",
+      "CMS Submission Dataset"
+    ],
+    "visuals_used_in": [
+      "Total Organization Determinations",
+      "Monthly Determination Volume Trend",
+      "Outcome Distribution",
+      "Determinations by Provider",
+      "Determinations by Organization",
+      "Decisions by Disposition",
+      "Trend Analysis",
+      "CMS Submission Matrix",
+      "CMS Submission Detail Table"
+    ]
+  },
+  {
+    "measure_name": "Total Standard Requests",
+    "measure_type": "Count",
+    "classification": "Base Measure",
+    "business_definition": "The total count of standard priority organization determinations received.",
+    "formula_description": "CALCULATE(COUNTROWS(FactObservation), FactObservation[processing_priority] = \"Standard\")",
+    "source_tables": [
+      "FactObservation"
+    ],
+    "source_fields": [
+      "processing_priority"
+    ],
+    "dependencies": [],
+    "report_pages": [
+      "Determinations Analysis"
+    ],
+    "visuals_used_in": [
+      "Trend Analysis"
+    ]
+  },
+  {
+    "measure_name": "Total Expedited Requests",
+    "measure_type": "Count",
+    "classification": "Base Measure",
+    "business_definition": "The total count of expedited priority organization determinations received.",
+    "formula_description": "CALCULATE(COUNTROWS(FactObservation), FactObservation[processing_priority] = \"Expedited\")",
+    "source_tables": [
+      "FactObservation"
+    ],
+    "source_fields": [
+      "processing_priority"
+    ],
+    "dependencies": [],
+    "report_pages": [
+      "Determinations Analysis"
+    ],
+    "visuals_used_in": [
+      "Trend Analysis"
+    ]
+  },
+  {
+    "measure_name": "Total Adverse Decisions",
+    "measure_type": "Count",
+    "classification": "Base Measure",
+    "business_definition": "The total count of determinations resulting in an Adverse disposition.",
+    "formula_description": "CALCULATE(COUNTROWS(FactObservation), FactObservation[disposition] = \"Adverse\")",
+    "source_tables": [
+      "FactObservation"
+    ],
+    "source_fields": [
+      "disposition"
+    ],
+    "dependencies": [],
+    "report_pages": [
+      "Executive Summary",
+      "Determinations Analysis"
+    ],
+    "visuals_used_in": [
+      "Outcome Distribution",
+      "Decisions by Disposition"
+    ]
+  },
+  {
+    "measure_name": "Total Standard Adverse Decisions",
+    "measure_type": "Count",
+    "classification": "Base Measure",
+    "business_definition": "The total count of standard determinations resulting in an Adverse disposition.",
+    "formula_description": "CALCULATE(COUNTROWS(FactObservation), FactObservation[processing_priority] = \"Standard\", FactObservation[disposition] = \"Adverse\")",
+    "source_tables": [
+      "FactObservation"
+    ],
+    "source_fields": [
+      "processing_priority",
+      "disposition"
+    ],
+    "dependencies": [],
+    "report_pages": [
+      "Determinations Analysis"
+    ],
+    "visuals_used_in": [
+      "Decisions by Disposition"
+    ]
+  },
+  {
+    "measure_name": "Total Expedited Adverse Decisions",
+    "measure_type": "Count",
+    "classification": "Base Measure",
+    "business_definition": "The total count of expedited determinations resulting in an Adverse disposition.",
+    "formula_description": "CALCULATE(COUNTROWS(FactObservation), FactObservation[processing_priority] = \"Expedited\", FactObservation[disposition] = \"Adverse\")",
+    "source_tables": [
+      "FactObservation"
+    ],
+    "source_fields": [
+      "processing_priority",
+      "disposition"
+    ],
+    "dependencies": [],
+    "report_pages": [
+      "Determinations Analysis"
+    ],
+    "visuals_used_in": [
+      "Decisions by Disposition"
+    ]
+  },
+  {
+    "measure_name": "Total Appeals",
+    "measure_type": "Count",
+    "classification": "Base Measure",
+    "business_definition": "The total count of appeals (reconsiderations) submitted.",
+    "formula_description": "CALCULATE(COUNTROWS(FactObservation), FactObservation[code] = \"Reconsideration\")",
+    "source_tables": [
+      "FactObservation"
+    ],
+    "source_fields": [
+      "code"
+    ],
+    "dependencies": [],
+    "report_pages": [
+      "CMS Submission Dataset"
+    ],
+    "visuals_used_in": [
+      "CMS Submission Matrix"
+    ]
+  },
+  {
+    "measure_name": "Total Standard Appeals",
+    "measure_type": "Count",
+    "classification": "Base Measure",
+    "business_definition": "The total count of standard priority appeals.",
+    "formula_description": "CALCULATE(COUNTROWS(FactObservation), FactObservation[code] = \"Reconsideration\", FactObservation[processing_priority] = \"Standard\")",
+    "source_tables": [
+      "FactObservation"
+    ],
+    "source_fields": [
+      "code",
+      "processing_priority"
+    ],
+    "dependencies": [],
+    "report_pages": [
+      "CMS Submission Dataset"
+    ],
+    "visuals_used_in": [
+      "CMS Submission Matrix"
+    ]
+  },
+  {
+    "measure_name": "Total Expedited Appeals",
+    "measure_type": "Count",
+    "classification": "Base Measure",
+    "business_definition": "The total count of expedited priority appeals.",
+    "formula_description": "CALCULATE(COUNTROWS(FactObservation), FactObservation[code] = \"Reconsideration\", FactObservation[processing_priority] = \"Expedited\")",
+    "source_tables": [
+      "FactObservation"
+    ],
+    "source_fields": [
+      "code",
+      "processing_priority"
+    ],
+    "dependencies": [],
+    "report_pages": [
+      "CMS Submission Dataset"
+    ],
+    "visuals_used_in": [
+      "CMS Submission Matrix"
+    ]
+  },
+  {
+    "measure_name": "Validation Errors",
+    "measure_type": "Count",
+    "classification": "Base Measure",
+    "business_definition": "Total count of validation warnings or errors in data, proxied by records where internal plan criteria were not applied.",
+    "formula_description": "CALCULATE(COUNTROWS(FactObservation), FactObservation[were_internal_plan_criteria_applied] = FALSE)",
+    "source_tables": [
+      "FactObservation"
+    ],
+    "source_fields": [
+      "were_internal_plan_criteria_applied"
+    ],
+    "dependencies": [],
+    "report_pages": [
+      "Data Quality"
+    ],
+    "visuals_used_in": [
+      "Validation Errors"
+    ]
+  },
+  {
+    "measure_name": "Total Missing OD Number Records",
+    "measure_type": "Count",
+    "classification": "Base Measure",
+    "business_definition": "Total count of records missing the Organization Determination (OD) number.",
+    "formula_description": "CALCULATE(COUNTROWS(FactObservation), ISBLANK(FactObservation[od_number]))",
     "source_tables": [
       "FactObservation"
     ],
@@ -13,32 +229,27 @@
     ],
     "dependencies": [],
     "report_pages": [
-      "Executive Summary",
-      "Determinations Analysis"
+      "Data Quality"
     ],
     "visuals_used_in": [
-      "Total Organization Determinations",
-      "Monthly Determination Volume Trend",
-      "Determinations by Priority",
-      "Decisions by Disposition"
-    ],
-    "aggregation": ""
+      "Missing Data %"
+    ]
   },
   {
     "measure_name": "Adverse Decision Rate",
     "measure_type": "Percentage",
     "classification": "Derived Measure",
-    "business_definition": "Percentage of determinations that resulted in adverse decisions.",
-    "formula_description": "DIVIDE(COUNT(disposition = 'Adverse'), COUNT(od_number))",
+    "business_definition": "The proportion of determinations resulting in an adverse outcome.",
+    "formula_description": "DIVIDE([Total Adverse Decisions], [Total Org Determinations Override], 0)",
     "source_tables": [
       "FactObservation"
     ],
     "source_fields": [
-      "disposition",
-      "od_number"
+      "disposition"
     ],
     "dependencies": [
-      "Total Organization Determinations"
+      "Total Adverse Decisions",
+      "Total Org Determinations Override"
     ],
     "report_pages": [
       "Executive Summary"
@@ -49,114 +260,299 @@
   },
   {
     "measure_name": "Average Turnaround Time",
-    "measure_type": "Count",
-    "classification": "Base Measure",
-    "business_definition": "Average turnaround time for organization determinations in days.",
-    "formula_description": "DIVIDE(SUM(determination_key), 2, 0)",
+    "measure_type": "Average",
+    "classification": "Derived Measure",
+    "business_definition": "Average response time in hours elapsed between request receipt and decision.",
+    "formula_description": "AVERAGE(FactObservation[response_time_hours])",
     "source_tables": [
-      "FactDetermination"
+      "FactObservation"
     ],
     "source_fields": [
-      "determination_key"
+      "response_time_hours"
     ],
     "dependencies": [],
     "report_pages": [
-      "Executive Summary",
-      "Data Quality"
+      "Executive Summary"
     ],
-    "visuals_used_in": []
+    "visuals_used_in": [
+      "Average Turnaround Time"
+    ]
   },
   {
     "measure_name": "Clean Claim Rate",
     "measure_type": "Percentage",
     "classification": "Derived Measure",
-    "business_definition": "Percentage of clean claims submitted.",
-    "formula_description": "DIVIDE(COUNT(is_clean_claim = TRUE), COUNT(od_number))",
+    "business_definition": "Percentage of determinations where internal plan criteria were successfully applied.",
+    "formula_description": "DIVIDE(CALCULATE(COUNTROWS(FactObservation), FactObservation[were_internal_plan_criteria_applied] = TRUE), [Total Org Determinations Override], 0)",
     "source_tables": [
-      "FactDetermination"
+      "FactObservation"
     ],
     "source_fields": [
-      "is_clean_claim"
+      "were_internal_plan_criteria_applied"
     ],
-    "dependencies": [],
+    "dependencies": [
+      "Total Org Determinations Override"
+    ],
     "report_pages": [
-      "Executive Summary",
-      "Data Quality"
+      "Executive Summary"
     ],
-    "visuals_used_in": []
+    "visuals_used_in": [
+      "Clean Claim Rate"
+    ]
   },
   {
     "measure_name": "Missing Data %",
     "measure_type": "Percentage",
     "classification": "Derived Measure",
-    "business_definition": "Percentage of records missing key identifying fields.",
-    "formula_description": "DIVIDE(COUNT(ISBLANK(od_number)), COUNT(od_number))",
+    "business_definition": "Percentage of records missing key identifying fields (OD Number).",
+    "formula_description": "DIVIDE([Total Missing OD Number Records], [Total Org Determinations Override], 0)",
     "source_tables": [
-      "FactDetermination"
+      "FactObservation"
     ],
     "source_fields": [
       "od_number"
     ],
-    "dependencies": [],
+    "dependencies": [
+      "Total Missing OD Number Records",
+      "Total Org Determinations Override"
+    ],
     "report_pages": [
-      "Executive Summary",
       "Data Quality"
     ],
-    "visuals_used_in": []
-  },
-  {
-    "measure_name": "Validation Errors",
-    "measure_type": "Count",
-    "classification": "Derived Measure",
-    "business_definition": "Total count of validation warnings or errors in data.",
-    "formula_description": "COUNT(were_internal_plan_criteria_applied = FALSE)",
-    "source_tables": [
-      "FactDetermination"
-    ],
-    "source_fields": [
-      "were_internal_plan_criteria_applied"
-    ],
-    "dependencies": [],
-    "report_pages": [
-      "Executive Summary",
-      "Data Quality"
-    ],
-    "visuals_used_in": []
+    "visuals_used_in": [
+      "Missing Data %"
+    ]
   },
   {
     "measure_name": "Data Quality Score",
     "measure_type": "Percentage",
     "classification": "Derived Measure",
     "business_definition": "Composite score representing data completeness and validation rate.",
-    "formula_description": "0.98 - DIVIDE(ValidationErrors, COUNTROWS)",
+    "formula_description": "0.98 - DIVIDE([Validation Errors], [Total Org Determinations Override], 0)",
     "source_tables": [
-      "FactDetermination"
+      "FactObservation"
     ],
     "source_fields": [
       "were_internal_plan_criteria_applied"
     ],
-    "dependencies": [],
+    "dependencies": [
+      "Validation Errors",
+      "Total Org Determinations Override"
+    ],
     "report_pages": [
-      "Executive Summary",
       "Data Quality"
     ],
-    "visuals_used_in": []
+    "visuals_used_in": [
+      "Data Quality Score"
+    ]
   },
   {
     "measure_name": "Quality Trend",
-    "measure_type": "Percentage",
+    "measure_type": "Trend",
     "classification": "Derived Measure",
-    "business_definition": "Historical data quality score trend.",
-    "formula_description": "DataQualityScore",
+    "business_definition": "Historical data quality score trend over time.",
+    "formula_description": "[Data Quality Score]",
     "source_tables": [
-      "FactDetermination"
+      "FactObservation"
     ],
-    "source_fields": [],
-    "dependencies": [],
+    "source_fields": [
+      "were_internal_plan_criteria_applied"
+    ],
+    "dependencies": [
+      "Data Quality Score"
+    ],
     "report_pages": [
-      "Executive Summary",
       "Data Quality"
     ],
-    "visuals_used_in": []
+    "visuals_used_in": [
+      "Quality Trend"
+    ]
+  },
+  {
+    "measure_name": "Standard PA Approval Rate",
+    "measure_type": "Percentage",
+    "classification": "KPI",
+    "business_definition": "Percentage of standard prior authorization requests approved in the calendar year.",
+    "formula_description": "DIVIDE(CALCULATE(COUNTROWS(FactObservation), FactObservation[processing_priority] = \"Standard\", FactObservation[disposition] IN {\"Fully favorable\", \"Partially favorable\"}), [Total Standard Requests], 0)",
+    "source_tables": [
+      "FactObservation"
+    ],
+    "source_fields": [
+      "processing_priority",
+      "disposition"
+    ],
+    "dependencies": [
+      "Total Standard Requests"
+    ],
+    "report_pages": [
+      "Executive Summary"
+    ],
+    "visuals_used_in": [
+      "Outcome Distribution"
+    ]
+  },
+  {
+    "measure_name": "Standard PA Denial Rate",
+    "measure_type": "Percentage",
+    "classification": "KPI",
+    "business_definition": "Percentage of standard prior authorization requests denied in the calendar year.",
+    "formula_description": "DIVIDE([Total Standard Adverse Decisions], [Total Standard Requests], 0)",
+    "source_tables": [
+      "FactObservation"
+    ],
+    "source_fields": [
+      "processing_priority",
+      "disposition"
+    ],
+    "dependencies": [
+      "Total Standard Adverse Decisions",
+      "Total Standard Requests"
+    ],
+    "report_pages": [
+      "Executive Summary"
+    ],
+    "visuals_used_in": [
+      "Outcome Distribution"
+    ]
+  },
+  {
+    "measure_name": "Standard PA Approval Rate After Appeal",
+    "measure_type": "Percentage",
+    "classification": "KPI",
+    "business_definition": "Percentage of standard prior authorization requests approved in the calendar year after appeal.",
+    "formula_description": "DIVIDE(CALCULATE(COUNTROWS(FactObservation), FactObservation[processing_priority] = \"Standard\", FactObservation[code] = \"Reconsideration\", FactObservation[disposition] IN {\"Fully favorable\", \"Partially favorable\"}), [Total Standard Appeals], 0)",
+    "source_tables": [
+      "FactObservation"
+    ],
+    "source_fields": [
+      "processing_priority",
+      "code",
+      "disposition"
+    ],
+    "dependencies": [
+      "Total Standard Appeals"
+    ],
+    "report_pages": [
+      "CMS Submission Dataset"
+    ],
+    "visuals_used_in": [
+      "CMS Submission Matrix"
+    ]
+  },
+  {
+    "measure_name": "Expedited PA Approval Rate",
+    "measure_type": "Percentage",
+    "classification": "KPI",
+    "business_definition": "Percentage of expedited prior authorization requests approved in the calendar year.",
+    "formula_description": "DIVIDE(CALCULATE(COUNTROWS(FactObservation), FactObservation[processing_priority] = \"Expedited\", FactObservation[disposition] IN {\"Fully favorable\", \"Partially favorable\"}), [Total Expedited Requests], 0)",
+    "source_tables": [
+      "FactObservation"
+    ],
+    "source_fields": [
+      "processing_priority",
+      "disposition"
+    ],
+    "dependencies": [
+      "Total Expedited Requests"
+    ],
+    "report_pages": [
+      "Executive Summary"
+    ],
+    "visuals_used_in": [
+      "Outcome Distribution"
+    ]
+  },
+  {
+    "measure_name": "Expedited PA Denial Rate",
+    "measure_type": "Percentage",
+    "classification": "KPI",
+    "business_definition": "Percentage of expedited prior authorization requests denied in the calendar year.",
+    "formula_description": "DIVIDE([Total Expedited Adverse Decisions], [Total Expedited Requests], 0)",
+    "source_tables": [
+      "FactObservation"
+    ],
+    "source_fields": [
+      "processing_priority",
+      "disposition"
+    ],
+    "dependencies": [
+      "Total Expedited Adverse Decisions",
+      "Total Expedited Requests"
+    ],
+    "report_pages": [
+      "Executive Summary"
+    ],
+    "visuals_used_in": [
+      "Outcome Distribution"
+    ]
+  },
+  {
+    "measure_name": "Extended Timeframe Approval Rate",
+    "measure_type": "Percentage",
+    "classification": "KPI",
+    "business_definition": "Percentage of requests where the timeframe for review was extended per programmatic rules and the request was approved.",
+    "formula_description": "DIVIDE(CALCULATE(COUNTROWS(FactObservation), FactObservation[timeframe_extended] = TRUE, FactObservation[disposition] IN {\"Fully favorable\", \"Partially favorable\"}), CALCULATE(COUNTROWS(FactObservation), FactObservation[timeframe_extended] = TRUE), 0)",
+    "source_tables": [
+      "FactObservation"
+    ],
+    "source_fields": [
+      "timeframe_extended",
+      "disposition"
+    ],
+    "dependencies": [],
+    "report_pages": [
+      "Executive Summary"
+    ],
+    "visuals_used_in": [
+      "Outcome Distribution"
+    ]
+  },
+  {
+    "measure_name": "Standard Approved Within 7 Days Rate",
+    "measure_type": "Percentage",
+    "classification": "KPI",
+    "business_definition": "Percentage of standard requests approved within the regulatory 7-day (168 hours) threshold.",
+    "formula_description": "DIVIDE(CALCULATE(COUNTROWS(FactObservation), FactObservation[processing_priority] = \"Standard\", FactObservation[disposition] IN {\"Fully favorable\", \"Partially favorable\"}, FactObservation[response_time_hours] <= 168), [Total Standard Requests], 0)",
+    "source_tables": [
+      "FactObservation"
+    ],
+    "source_fields": [
+      "processing_priority",
+      "disposition",
+      "response_time_hours"
+    ],
+    "dependencies": [
+      "Total Standard Requests"
+    ],
+    "report_pages": [
+      "Executive Summary"
+    ],
+    "visuals_used_in": [
+      "Average Turnaround Time"
+    ]
+  },
+  {
+    "measure_name": "Expedited Approved Within 72 Hours Rate",
+    "measure_type": "Percentage",
+    "classification": "KPI",
+    "business_definition": "Percentage of expedited requests approved within the regulatory 72-hour threshold.",
+    "formula_description": "DIVIDE(CALCULATE(COUNTROWS(FactObservation), FactObservation[processing_priority] = \"Expedited\", FactObservation[disposition] IN {\"Fully favorable\", \"Partially favorable\"}, FactObservation[response_time_hours] <= 72), [Total Expedited Requests], 0)",
+    "source_tables": [
+      "FactObservation"
+    ],
+    "source_fields": [
+      "processing_priority",
+      "disposition",
+      "response_time_hours"
+    ],
+    "dependencies": [
+      "Total Expedited Requests"
+    ],
+    "report_pages": [
+      "Executive Summary"
+    ],
+    "visuals_used_in": [
+      "Average Turnaround Time"
+    ]
   }
 ]

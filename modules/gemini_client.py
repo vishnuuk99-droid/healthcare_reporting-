@@ -72,7 +72,7 @@ def extract_requirements(document_text: str) -> CMSRequirements:
     client = _get_client()
 
     response = client.models.generate_content(
-        model="gemini-2.5-flash",
+        model="gemini-3.5-flash",
         contents=document_text,
         config=types.GenerateContentConfig(
             system_instruction=_SYSTEM_INSTRUCTION,

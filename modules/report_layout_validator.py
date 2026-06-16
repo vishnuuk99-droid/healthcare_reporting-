@@ -89,7 +89,7 @@ def validate_report_layout(
                     seen_visual_ids.add(v_name)
 
                 # Check: Invalid Visual Type
-                valid_pbi_types = {"card", "kpi", "gauge", "lineChart", "clusteredBarChart", "pieChart", "donutChart", "tableEx", "pivotTable", "clusteredColumnChart", "map", "textbox", "image"}
+                valid_pbi_types = {"card", "kpi", "gauge", "lineChart", "clusteredBarChart", "pieChart", "donutChart", "tableEx", "pivotTable", "clusteredColumnChart", "map", "textbox", "image", "slicer", "cardVisual", "barChart", "columnChart", "azureMap"}
                 if v_type and v_type not in valid_pbi_types:
                     issues.append({
                         "visual": v_title,
@@ -97,6 +97,7 @@ def validate_report_layout(
                         "issue": f"Invalid Power BI visual type '{v_type}' detected.",
                         "recommendation": f"Use one of conformed types: {list(valid_pbi_types)}"
                     })
+
 
                 # Check: Reject visuals with empty projections or prototypeQuery
                 if v_type not in ["textbox", "image"]:
@@ -646,16 +647,8 @@ def auto_correct_report_layout() -> Tuple[List[Dict[str, str]], Dict[str, Any]]:
     compile_result = compile_pbip_project()
 
     # Rerun validation
-    project_slug = get_project_slug()
-    report_json_path = OUTPUT_DIR / "pbip" / f"{project_slug}.Report" / "report.json"
-    model_bim_path = OUTPUT_DIR / "pbip" / f"{project_slug}.SemanticModel" / "model.bim"
+    new_issues = validate_report_layout_from_files()
 
-    with open(report_json_path, "r", encoding="utf-8") as f:
-        corrected_report = json.load(f)
-    with open(model_bim_path, "r", encoding="utf-8") as f:
-        corrected_model = json.load(f)
-
-    new_issues = validate_report_layout(corrected_report, corrected_model, report_def)
 
     return applied_fixes, {
         "status": "Success" if not new_issues else "Warning",
@@ -727,28 +720,155 @@ def validate_report_layout_from_files() -> List[Dict[str, str]]:
         with open(model_bim_path, "r", encoding="utf-8") as f:
             model_data = json.load(f)
 
-    if not report_json_path.exists():
-        report_data = {"sections": []}
-        for p in report_def.get("pages", []):
-            vc = []
-            for v in p.get("visuals", []):
-                vc.append({
-                    "config": json.dumps({
-                        "name": v.get("title", ""),
-                        "singleVisual": {
-                            "visualType": v.get("visual_type", "table"),
-                            "vcObjects": {
-                                "title": [{"properties": {"text": {"expr": {"Literal": {"Value": f"'{v.get('title', '')}'"}}}}}]
-                            }
+    report_dir = OUTPUT_DIR / "pbip" / f"{project_slug}.Report"
+    pages_json_path = report_dir / "definition" / "pages" / "pages.json"
+    
+    report_data = None
+    if pages_json_path.exists():
+        try:
+            with open(pages_json_path, "r", encoding="utf-8") as f:
+                pages_meta = json.load(f)
+            
+            sections = []
+            for page_folder in pages_meta.get("pageOrder", []):
+                page_path = report_dir / "definition" / "pages" / page_folder / "page.json"
+                if not page_path.exists():
+                    continue
+                with open(page_path, "r", encoding="utf-8") as f:
+                    page_meta = json.load(f)
+                
+                visuals_dir = report_dir / "definition" / "pages" / page_folder / "visuals"
+                visual_containers = []
+                if visuals_dir.exists():
+                    for visual_folder in visuals_dir.iterdir():
+                        if not visual_folder.is_dir():
+                            continue
+                        visual_path = visual_folder / "visual.json"
+                        if not visual_path.exists():
+                            continue
+                        with open(visual_path, "r", encoding="utf-8") as f:
+                            visual_meta = json.load(f)
+                        
+                        pos = visual_meta.get("position", {})
+                        v_name = visual_meta.get("name", "")
+                        v_data = visual_meta.get("visual", {})
+                        pbir_type = v_data.get("visualType", "")
+                        
+                        type_map_rev = {
+                            "cardVisual": "card",
+                            "barChart": "clusteredBarChart",
+                            "columnChart": "clusteredColumnChart",
+                            "azureMap": "map",
+                            "tableEx": "tableEx",
+                            "pivotTable": "pivotTable",
+                            "textbox": "textbox",
+                            "slicer": "slicer",
+                            "kpi": "kpi",
+                            "gauge": "gauge",
+                            "lineChart": "lineChart",
+                            "pieChart": "pieChart",
+                            "donutChart": "donutChart"
                         }
-                    })
+                        legacy_type = type_map_rev.get(pbir_type, pbir_type)
+                        
+                        legacy_single_visual = {
+                            "visualType": legacy_type,
+                            "projections": {},
+                            "prototypeQuery": {"Select": []}
+                        }
+                        
+                        query_state = v_data.get("query", {}).get("queryState", {})
+                        role_map_rev = {
+                            "Data": "Values"
+                        }
+                        for role, content in query_state.items():
+                            leg_role = role_map_rev.get(role, role)
+                            legacy_single_visual["projections"][leg_role] = []
+                            for p in content.get("projections", []):
+                                qref = p.get("queryRef", "")
+                                if "." in qref and not "[" in qref:
+                                    tbl, prop = qref.split(".", 1)
+                                    qref_bracket = f"{tbl}[{prop}]"
+                                else:
+                                    qref_bracket = qref
+                                    
+                                legacy_single_visual["projections"][leg_role].append({
+                                    "queryRef": qref_bracket
+                                })
+                                
+                                field_data = p.get("field", {})
+                                if "Column" in field_data:
+                                    legacy_single_visual["prototypeQuery"]["Select"].append({
+                                        "Name": qref_bracket,
+                                        "Column": {
+                                            "Expression": { "SourceRef": { "Source": "x" } },
+                                            "Property": field_data["Column"].get("Property", "")
+                                        }
+                                    })
+                                elif "Measure" in field_data:
+                                    legacy_single_visual["prototypeQuery"]["Select"].append({
+                                        "Name": qref_bracket,
+                                        "Measure": {
+                                            "Expression": { "SourceRef": { "Source": "x" } },
+                                            "Property": field_data["Measure"].get("Property", "")
+                                        }
+                                    })
+                                    
+                        vc_objects = {}
+                        title_objs = v_data.get("visualContainerObjects", {}).get("title", [])
+                        if title_objs:
+                            vc_objects["title"] = title_objs
+                        legacy_single_visual["vcObjects"] = vc_objects
+                        
+                        visual_container = {
+                            "x": pos.get("x", 20),
+                            "y": pos.get("y", 20),
+                            "width": pos.get("width", 280),
+                            "height": pos.get("height", 150),
+                            "z": pos.get("z", 0),
+                            "config": json.dumps({
+                                "name": v_name,
+                                "singleVisual": legacy_single_visual
+                            }, ensure_ascii=False)
+                        }
+                        visual_containers.append(visual_container)
+                        
+                sections.append({
+                    "displayName": page_meta.get("displayName", ""),
+                    "name": page_meta.get("name", ""),
+                    "visualContainers": visual_containers
                 })
-            report_data["sections"].append({
-                "displayName": p["page_name"],
-                "visualContainers": vc
-            })
-    else:
-        with open(report_json_path, "r", encoding="utf-8") as f:
-            report_data = json.load(f)
+            
+            report_data = {
+                "sections": sections
+            }
+        except Exception as e:
+            report_data = None
+            
+    if report_data is None:
+        if report_json_path.exists():
+            with open(report_json_path, "r", encoding="utf-8") as f:
+                report_data = json.load(f)
+        else:
+            report_data = {"sections": []}
+            for p in report_def.get("pages", []):
+                vc = []
+                for v in p.get("visuals", []):
+                    vc.append({
+                        "config": json.dumps({
+                            "name": v.get("title", ""),
+                            "singleVisual": {
+                                "visualType": v.get("visual_type", "table"),
+                                "vcObjects": {
+                                    "title": [{"properties": {"text": {"expr": {"Literal": {"Value": f"'{v.get('title', '')}'"}}}}}]
+                                }
+                            }
+                        })
+                    })
+                report_data["sections"].append({
+                    "displayName": p["page_name"],
+                    "visualContainers": vc
+                })
 
     return validate_report_layout(report_data, model_data, report_def)
+

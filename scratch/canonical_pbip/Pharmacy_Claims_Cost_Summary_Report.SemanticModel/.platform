@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "Pharmacy_Claims_Cost_Summary_Report"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "565b4fa2-2529-4d9b-84f9-3abd6b640fd5"
+  }
+}

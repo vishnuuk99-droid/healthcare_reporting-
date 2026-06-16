@@ -1,4 +1,5 @@
 {
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/pbip/pbipProperties/1.0.0/schema.json",
   "version": "1.0",
   "artifacts": [
     {
@@ -6,5 +7,8 @@
         "path": "CMS_Organization_Determinations_Appeals_and_Grievances_Report.Report"
       }
     }
-  ]
+  ],
+  "settings": {
+    "enableAutoRecovery": true
+  }
 }

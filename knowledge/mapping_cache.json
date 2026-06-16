@@ -816,43 +816,11 @@
     "status": "approved"
   },
   {
-    "concept": "Medicare Advantage (MA) organizations",
-    "fhir_resource": "Organization",
-    "fhir_field": "type",
-    "confidence": "high",
-    "reasoning": "Approved mapping. These are specific types of organizations, directly mapping to the Organization.type field which describes the kind of organization.",
-    "status": "approved"
-  },
-  {
     "concept": "State Medicaid and Children’s Health Insurance Program (CHIP) fee-for-service (FFS) programs",
     "fhir_resource": "Organization",
     "fhir_field": "type",
     "confidence": "high",
     "reasoning": "These represent types of governmental or payer organizations responsible for FFS programs, fitting Organization.type.",
-    "status": "approved"
-  },
-  {
-    "concept": "Medicaid managed care plans",
-    "fhir_resource": "Organization",
-    "fhir_field": "type",
-    "confidence": "high",
-    "reasoning": "These are specific types of health plans/organizations, directly mapping to Organization.type.",
-    "status": "approved"
-  },
-  {
-    "concept": "CHIP managed care entities",
-    "fhir_resource": "Organization",
-    "fhir_field": "type",
-    "confidence": "high",
-    "reasoning": "These are specific types of health plans/organizations, directly mapping to Organization.type.",
-    "status": "approved"
-  },
-  {
-    "concept": "Qualified Health Plan (QHP) issuers on the Federally Facilitated Exchanges (FFEs)",
-    "fhir_resource": "Organization",
-    "fhir_field": "type",
-    "confidence": "high",
-    "reasoning": "These are specific types of health plans/organizations, directly mapping to Organization.type.",
     "status": "approved"
   },
   {
@@ -912,59 +880,11 @@
     "status": "approved"
   },
   {
-    "concept": "response time",
-    "fhir_resource": "Observation",
-    "fhir_field": "effectiveDateTime",
-    "confidence": "high",
-    "reasoning": "Response time is calculated from two timestamps: 'Date Request Received' and 'Date of Decision', both approved to Observation.effectiveDateTime. The duration itself is a calculated metric, but these fields provide the necessary data points.",
-    "status": "approved"
-  },
-  {
-    "concept": "timeframe for review was extended",
-    "fhir_resource": "Observation",
-    "fhir_field": "valueBoolean",
-    "confidence": "medium",
-    "reasoning": "This is a boolean condition related to the prior authorization process. An Observation can capture such a boolean value, with a specific code defining the concept. Similar to 'Was prior authorization required? (Y/N)'.",
-    "status": "approved"
-  },
-  {
     "concept": "Calendar year",
     "fhir_resource": "Observation",
     "fhir_field": "effectiveDateTime",
     "confidence": "high",
     "reasoning": "This is a time dimension for reporting. 'Report Period' is approved to Observation.effectiveDateTime. This field would be used to filter or group prior authorization Observation resources by year.",
-    "status": "approved"
-  },
-  {
-    "concept": "Line of business",
-    "fhir_resource": "Organization",
-    "fhir_field": "identifier",
-    "confidence": "medium",
-    "reasoning": "This refers to a specific business segment or contract level of an organization (e.g., MA contract level, plan level). This information is typically captured as an identifier or a type attribute of the Organization. Organization.identifier is a good fit for contract or plan IDs.",
-    "status": "approved"
-  },
-  {
-    "concept": "payer",
-    "fhir_resource": "Organization",
-    "fhir_field": "",
-    "confidence": "high",
-    "reasoning": "A payer is a type of organization, explicitly listed in Organization's CMS concepts.",
-    "status": "approved"
-  },
-  {
-    "concept": "provider",
-    "fhir_resource": "Practitioner",
-    "fhir_field": "",
-    "confidence": "high",
-    "reasoning": "A provider is a type of practitioner, explicitly listed in Practitioner's CMS concepts. Could also be Organization if referring to a provider organization, but Practitioner is more common for the requesting party.",
-    "status": "approved"
-  },
-  {
-    "concept": "Drugs",
-    "fhir_resource": "MedicationRequest",
-    "fhir_field": "",
-    "confidence": "high",
-    "reasoning": "Approved mapping for 'Part D drugs' and 'Part B drugs' is MedicationRequest. This concept refers to the resource type that would be excluded.",
     "status": "approved"
   },
   {
@@ -984,11 +904,243 @@
     "status": "approved"
   },
   {
+    "concept": "Medicare Advantage (MA) organizations",
+    "fhir_resource": "Organization",
+    "fhir_field": "type",
+    "confidence": "high",
+    "reasoning": "Approved mapping. These are specific types of organizations, directly mapping to the Organization.type field which describes the kind of organization.",
+    "status": "approved"
+  },
+  {
+    "concept": "State Medicaid fee-for-service (FFS) programs",
+    "fhir_resource": "Organization",
+    "fhir_field": "type",
+    "confidence": "high",
+    "reasoning": "These represent types of governmental or payer organizations responsible for FFS programs, fitting Organization.type. This aligns with the approved mapping for State Medicaid and CHIP FFS programs.",
+    "status": "approved"
+  },
+  {
+    "concept": "State Children’s Health Insurance Program (CHIP) fee-for-service (FFS) programs",
+    "fhir_resource": "Organization",
+    "fhir_field": "type",
+    "confidence": "high",
+    "reasoning": "These represent types of governmental or payer organizations responsible for FFS programs, fitting Organization.type. This aligns with the approved mapping for State Medicaid and CHIP FFS programs.",
+    "status": "approved"
+  },
+  {
+    "concept": "Medicaid managed care plans",
+    "fhir_resource": "Organization",
+    "fhir_field": "type",
+    "confidence": "high",
+    "reasoning": "Approved mapping. These are specific types of health plans/organizations, directly mapping to Organization.type.",
+    "status": "approved"
+  },
+  {
+    "concept": "CHIP managed care entities",
+    "fhir_resource": "Organization",
+    "fhir_field": "type",
+    "confidence": "high",
+    "reasoning": "Approved mapping. These are specific types of health plans/organizations, directly mapping to Organization.type.",
+    "status": "approved"
+  },
+  {
+    "concept": "Qualified Health Plan (QHP) issuers on the Federally Facilitated Exchanges (FFEs)",
+    "fhir_resource": "Organization",
+    "fhir_field": "type",
+    "confidence": "high",
+    "reasoning": "Approved mapping. These are specific types of health plans/organizations, directly mapping to Organization.type.",
+    "status": "approved"
+  },
+  {
     "concept": "medical items and services that require prior authorization",
     "fhir_resource": "Procedure",
     "fhir_field": "code",
     "confidence": "medium",
-    "reasoning": "This refers to specific Procedure codes. The 'requirement' for prior authorization is a business rule associated with these procedures, which could be represented by an Observation linking to the Procedure or by metadata associated with the Procedure itself. Focusing on the 'items and services' part, Procedure.code is the most direct.",
+    "reasoning": "Approved mapping. This refers to specific Procedure codes. The requirement for prior authorization is a business rule associated with these procedures.",
+    "status": "approved"
+  },
+  {
+    "concept": "standard prior authorization requests",
+    "fhir_resource": "Observation",
+    "fhir_field": "valueCodeableConcept",
+    "confidence": "high",
+    "reasoning": "Aligns with approved mapping for 'Standard PA requests' and 'Processing Priority (Standard, Expedited)' which maps to Observation.valueCodeableConcept.",
+    "status": "approved"
+  },
+  {
+    "concept": "expedited prior authorization requests",
+    "fhir_resource": "Observation",
+    "fhir_field": "valueCodeableConcept",
+    "confidence": "high",
+    "reasoning": "Aligns with approved mapping for 'Expedited PA requests' and 'Processing Priority (Standard, Expedited)' which maps to Observation.valueCodeableConcept.",
+    "status": "approved"
+  },
+  {
+    "concept": "response time",
+    "fhir_resource": "Observation",
+    "fhir_field": "effectiveDateTime",
+    "confidence": "high",
+    "reasoning": "Approved mapping. Response time is calculated from two timestamps: 'Date Request Received' and 'Date of Decision', both approved to Observation.effectiveDateTime.",
+    "status": "approved"
+  },
+  {
+    "concept": "timeframe for review was extended",
+    "fhir_resource": "Observation",
+    "fhir_field": "valueBoolean",
+    "confidence": "medium",
+    "reasoning": "Approved mapping. This is a boolean condition related to the prior authorization process, captured as a boolean value in Observation.",
+    "status": "approved"
+  },
+  {
+    "concept": "Urgency type",
+    "fhir_resource": "Observation",
+    "fhir_field": "valueCodeableConcept",
+    "confidence": "medium",
+    "reasoning": "This is a coded value describing the priority of the determination process (Standard vs. Expedited), which maps to Observation.valueCodeableConcept.",
+    "status": "approved"
+  },
+  {
+    "concept": "Time period",
+    "fhir_resource": "Observation",
+    "fhir_field": "effectiveDateTime",
+    "confidence": "high",
+    "reasoning": "Aligns with approved mapping for 'Calendar year' and 'Report Period', which use Observation.effectiveDateTime for filtering.",
+    "status": "approved"
+  },
+  {
+    "concept": "Line of business",
+    "fhir_resource": "Organization",
+    "fhir_field": "identifier",
+    "confidence": "medium",
+    "reasoning": "Approved mapping. This refers to a specific business segment or contract level of an organization, typically captured as an identifier of the Organization.",
+    "status": "approved"
+  },
+  {
+    "concept": "payer",
+    "fhir_resource": "Organization",
+    "fhir_field": "type",
+    "confidence": "high",
+    "reasoning": "Approved mapping. A payer is a type of organization, explicitly listed in Organization's CMS concepts.",
+    "status": "approved"
+  },
+  {
+    "concept": "provider",
+    "fhir_resource": "Practitioner",
+    "fhir_field": "identifier",
+    "confidence": "high",
+    "reasoning": "Approved mapping. A provider is represented by the Practitioner resource, and identified by their NPI in Practitioner.identifier.",
+    "status": "approved"
+  },
+  {
+    "concept": "Drugs",
+    "fhir_resource": "MedicationRequest",
+    "fhir_field": "medicationCodeableConcept",
+    "confidence": "high",
+    "reasoning": "Approved mapping. This refers to the MedicationRequest resource type and its medication code, which are excluded from this report.",
+    "status": "approved"
+  },
+  {
+    "concept": "appeal",
+    "fhir_resource": "Observation",
+    "fhir_field": "related",
+    "confidence": "medium",
+    "reasoning": "Aligns with approved mapping for 'after appeal'. An appeal is represented as a related Observation linked to the initial determination.",
+    "status": "approved"
+  },
+  {
+    "concept": "Total number of grievances",
+    "fhir_resource": "Observation",
+    "fhir_field": "code",
+    "confidence": "medium",
+    "reasoning": "Grievances represent operational quality events. In FHIR, these administrative events are tracked as Observations where the code field specifies the grievance category or event type.",
+    "status": "approved"
+  },
+  {
+    "concept": "expedited grievances",
+    "fhir_resource": "Observation",
+    "fhir_field": "valueCodeableConcept",
+    "confidence": "medium",
+    "reasoning": "Expedited status represents the priority or urgency of the grievance, which aligns with the approved mapping for processing priority using Observation.valueCodeableConcept.",
+    "status": "approved"
+  },
+  {
+    "concept": "Employer Group Plan Sponsor",
+    "fhir_resource": "Organization",
+    "fhir_field": "type",
+    "confidence": "high",
+    "reasoning": "An Employer Group Plan Sponsor is a specific type of organization involved in administering health benefits, mapping directly to Organization.type.",
+    "status": "approved"
+  },
+  {
+    "concept": "initial HRAs completed",
+    "fhir_resource": "Observation",
+    "fhir_field": "code",
+    "confidence": "high",
+    "reasoning": "A Health Risk Assessment (HRA) is a clinical and operational screening tool. It maps to the Observation resource (category: survey) with the specific assessment type identified in Observation.code.",
+    "status": "approved"
+  },
+  {
+    "concept": "reassessments completed",
+    "fhir_resource": "Observation",
+    "fhir_field": "code",
+    "confidence": "high",
+    "reasoning": "Reassessments are periodic clinical/operational assessments tracked via the Observation resource, with the specific reassessment type defined in Observation.code.",
+    "status": "approved"
+  },
+  {
+    "concept": "voluntary disenrollment transactions",
+    "fhir_resource": "Patient",
+    "fhir_field": "active",
+    "confidence": "medium",
+    "reasoning": "Disenrollment directly impacts the active status of the member/beneficiary within the plan, which is represented by the Patient.active boolean field.",
+    "status": "approved"
+  },
+  {
+    "concept": "Payments to Providers",
+    "fhir_resource": "Observation",
+    "fhir_field": "valueQuantity",
+    "confidence": "medium",
+    "reasoning": "While payments are financial, aggregate operational reporting of payment amounts is represented as an Observation with a valueQuantity containing the monetary value.",
+    "status": "approved"
+  },
+  {
+    "concept": "value-based payment categories",
+    "fhir_resource": "Observation",
+    "fhir_field": "valueCodeableConcept",
+    "confidence": "medium",
+    "reasoning": "The specific category of value-based payment (Category 1, 2, 3, or 4) is a coded classification of the payment arrangement, mapped to Observation.valueCodeableConcept.",
+    "status": "approved"
+  },
+  {
+    "concept": "hospital and SNF admissions",
+    "fhir_resource": "Encounter",
+    "fhir_field": "class",
+    "confidence": "high",
+    "reasoning": "Hospital and SNF admissions represent inpatient interactions, which map directly to Encounter.class (e.g., inpatient, SNF).",
+    "status": "approved"
+  },
+  {
+    "concept": "State",
+    "fhir_resource": "Patient",
+    "fhir_field": "address.state",
+    "confidence": "high",
+    "reasoning": "The state dimension for reporting typically refers to the state of residence of the beneficiary, mapping to the state component of the Patient.address field.",
+    "status": "approved"
+  },
+  {
+    "concept": "out-of-pocket costs",
+    "fhir_resource": "Observation",
+    "fhir_field": "valueQuantity",
+    "confidence": "medium",
+    "reasoning": "Out-of-pocket costs represent a financial metric/value, which can be captured as an Observation with a valueQuantity for reporting purposes.",
+    "status": "approved"
+  },
+  {
+    "concept": "D-SNP Enrollee Advisory Committee (EAC)",
+    "fhir_resource": "Organization",
+    "fhir_field": "type",
+    "confidence": "medium",
+    "reasoning": "The EAC is a committee or organizational entity within the D-SNP structure, mapping to Organization.type.",
     "status": "approved"
   }
 ]

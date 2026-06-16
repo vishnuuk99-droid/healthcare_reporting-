@@ -1,7 +1,7 @@
 {
   "project_name": "CMS Organization Determinations, Appeals, and Grievances Report",
   "project_slug": "CMS_Organization_Determinations_Appeals_and_Grievances_Report",
-  "generated_at": "2026-06-08T02:10:34.816278",
+  "generated_at": "2026-06-16T18:23:29.758417",
   "pbip_spec_version": "1.0",
   "pbir_version": "1.0",
   "stats": {
@@ -9,11 +9,11 @@
     "measures_count": 8,
     "pages_count": 4,
     "visuals_count": 16,
-    "relationships_count": 22
+    "relationships_count": 16
   },
   "contents": {
     "tables": [
-      "FactDetermination",
+      "FactObservation",
       "FactEncounter",
       "FactProcedure",
       "FactMedication",

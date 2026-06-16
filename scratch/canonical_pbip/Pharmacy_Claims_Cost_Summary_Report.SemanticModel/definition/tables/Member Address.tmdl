@@ -1,0 +1,105 @@
+table 'Member Address'
+	lineageTag: a595c3bf-d59b-4510-bc36-2aa5ae68466d
+
+	column Member_Id
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: a9ff280a-8125-4838-bcf1-772160560b34
+		summarizeBy: none
+		sourceColumn: Member_Id
+
+		annotation SummarizationSetBy = Automatic
+
+	column City
+		dataType: string
+		lineageTag: d4ca7bc0-45a9-4fba-adb3-ec52b9b7e8ef
+		dataCategory: City
+		summarizeBy: none
+		sourceColumn: City
+
+		annotation SummarizationSetBy = Automatic
+
+	column STATE
+		dataType: string
+		lineageTag: fc5ecf66-191a-4954-ba69-7de0e849de1c
+		dataCategory: StateOrProvince
+		summarizeBy: none
+		sourceColumn: STATE
+
+		annotation SummarizationSetBy = Automatic
+
+	column ZIP
+		dataType: int64
+		formatString: 0
+		lineageTag: f66814aa-8084-47a9-9cac-dd176f45737b
+		dataCategory: PostalCode
+		summarizeBy: none
+		sourceColumn: ZIP
+
+		annotation SummarizationSetBy = Automatic
+
+	column date_of_birth
+		dataType: dateTime
+		isHidden
+		formatString: Long Date
+		lineageTag: 27b125e7-7049-45d5-844f-4ce042810194
+		summarizeBy: none
+		sourceColumn: date_of_birth
+
+		variation Variation
+			isDefault
+			relationship: afe4ad22-5c0e-499b-9088-9d960900e691
+			defaultHierarchy: LocalDateTable_8af95df4-344a-4e09-8bf9-d6edc45c554f.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	/// Age group based on date_of_birth. Handles DOB=1900 as Unknown.
+	column 'Age Group' =
+			VAR _age = DATEDIFF('Member Address'[date_of_birth], TODAY(), YEAR)
+			RETURN
+			    IF(
+			        'Member Address'[date_of_birth] = DATE(1900,1,1), "Unknown",
+			        IF(_age <= 17,  "Child (0-17)",
+			        IF(_age <= 35,  "Young Adult (18-35)",
+			        IF(_age <= 50,  "Adult (36-50)",
+			        IF(_age <= 64,  "Middle Aged (51-64)",
+			        "Senior (65+)"))))
+			    )
+		dataType: string
+		displayFolder: Demographics
+		lineageTag: ec5ae168-2617-4fd7-99d7-fabedb3d5222
+		summarizeBy: none
+
+	/// Sort order for Age Group column so it sorts correctly in visuals.
+	column 'Age Group Sort' =
+			SWITCH(
+			    'Member Address'[Age Group],
+			    "Child (0-17)",        1,
+			    "Young Adult (18-35)", 2,
+			    "Adult (36-50)",       3,
+			    "Middle Aged (51-64)", 4,
+			    "Senior (65+)",        5,
+			    "Unknown",             6
+			)
+		dataType: int64
+		isHidden
+		displayFolder: Demographics
+		lineageTag: e6faf07d-046a-4f77-9abf-b30bbd7e6d2c
+		summarizeBy: none
+
+	partition 'Sheet1 (3)' = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("C:\Users\uvishnu\OneDrive - ZeOmega\Desktop\Member_Address.xlsx"), null, true),
+				    Sheet1_Sheet = Source{[Item="Sheet1",Kind="Sheet"]}[Data],
+				    #"Promoted Headers" = Table.PromoteHeaders(Sheet1_Sheet, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"Member_Id", Int64.Type}, {"City", type text}, {"STATE", type text}, {"ZIP", Int64.Type}, {"date_of_birth", type date}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

@@ -65,7 +65,9 @@ PBIP_REQUIRED_FILES = [
     (f"{project_slug_temp}.pbip", "Project entry point"),
     ("metadata.json", "Generation metadata"),
     (f"{project_slug_temp}.Report/definition.pbir", "Report config – links to semantic model"),
-    (f"{project_slug_temp}.Report/report.json", "Report layout metadata (legacy format)"),
+    (f"{project_slug_temp}.Report/definition/report.json", "Report base settings"),
+    (f"{project_slug_temp}.Report/definition/version.json", "Report layout version metadata"),
+    (f"{project_slug_temp}.Report/definition/pages/pages.json", "Pages order index file"),
     (f"{project_slug_temp}.SemanticModel/definition.pbism", "Semantic model configuration"),
     (f"{project_slug_temp}.SemanticModel/model.bim", "Semantic model (TMSL/TOM format)"),
     (f"{project_slug_temp}.SemanticModel/definition/model.tmdl", "Model definition (TMDL format)"),
@@ -80,6 +82,339 @@ def _slugify(name: str) -> str:
     slug = re.sub(r"[^\w\s-]", "", name).strip()
     slug = re.sub(r"[\s]+", "_", slug)
     return slug or "unnamed"
+
+
+def _get_clean_id(name: str) -> str:
+    """Generate a stable 20-character hex ID from a string using namespace UUID."""
+    uid = str(uuid.uuid5(uuid.NAMESPACE_DNS, name)).replace("-", "")
+    return uid[:20]
+
+
+def translate_to_pbir_visual(legacy_config: dict) -> dict:
+    """Translate legacy monolithic visual configuration into modern PBIR visual.json format."""
+    name = legacy_config.get("name", "")
+    clean_visual_id = name.replace("-", "")[:20] if name else ""
+
+    layouts = legacy_config.get("layouts", [])
+    pos = {}
+    if layouts:
+        pos = layouts[0].get("position", {})
+    
+    x = pos.get("x", 20)
+    y = pos.get("y", 20)
+    width = pos.get("width", 460)
+    height = pos.get("height", 300)
+    z = pos.get("z", 0)
+
+    sv = legacy_config.get("singleVisual", {})
+    legacy_type = sv.get("visualType", "tableEx")
+    
+    type_map = {
+        "card": "cardVisual",
+        "kpi": "kpi",
+        "gauge": "gauge",
+        "lineChart": "lineChart",
+        "clusteredBarChart": "barChart",
+        "barChart": "barChart",
+        "pieChart": "pieChart",
+        "donutChart": "donutChart",
+        "tableEx": "tableEx",
+        "pivotTable": "pivotTable",
+        "clusteredColumnChart": "columnChart",
+        "columnChart": "columnChart",
+        "map": "azureMap",
+        "azureMap": "azureMap",
+        "textbox": "textbox",
+        "slicer": "slicer"
+    }
+    pbir_type = type_map.get(legacy_type, legacy_type)
+
+    query_state = {}
+    legacy_projections = sv.get("projections", {})
+    
+    def build_pbir_field(qref: str):
+        if "[" in qref and qref.endswith("]"):
+            ent, prp = qref[:-1].split("[", 1)
+        elif "." in qref:
+            ent, prp = qref.split(".", 1)
+        else:
+            ent = "_Measures" if "total" in qref.lower() or "rate" in qref.lower() or "score" in qref.lower() or "average" in qref.lower() or "count" in qref.lower() else "DimPatient"
+            prp = qref
+            
+        field_type = "Measure" if ent == "_Measures" else "Column"
+        return {
+            "field": {
+                field_type: {
+                    "Expression": {
+                        "SourceRef": {
+                            "Entity": ent
+                        }
+                    },
+                    "Property": prp
+                }
+            },
+            "queryRef": f"{ent}.{prp}",
+            "nativeQueryRef": prp
+        }
+
+    role_mapping = {
+        "Values": "Data" if pbir_type == "cardVisual" else "Values"
+    }
+
+    for leg_role, leg_proj_list in legacy_projections.items():
+        pbir_role = role_mapping.get(leg_role, leg_role)
+        query_state[pbir_role] = {
+            "projections": []
+        }
+        for item in leg_proj_list:
+            qref = item.get("queryRef", "")
+            if qref:
+                f_obj = build_pbir_field(qref)
+                if pbir_role in ["Category", "Values"] and pbir_type in ["slicer", "barChart", "columnChart", "lineChart", "pieChart", "donutChart"]:
+                    if pbir_type != "tableEx":
+                        f_obj["active"] = True
+                query_state[pbir_role]["projections"].append(f_obj)
+
+    sort_def = {}
+    sorting = sv.get("sorting", {})
+    implicit = sorting.get("implicit", {})
+    sort_by = implicit.get("sortBy", {})
+    sort_qref = sort_by.get("queryRef", "")
+    
+    if sort_qref:
+        sort_field = build_pbir_field(sort_qref)
+        sort_dir = "Ascending" if implicit.get("sortDirection") == 1 else "Descending"
+        sort_def = {
+            "sort": [
+                {
+                    "field": sort_field["field"],
+                    "direction": sort_dir
+                }
+            ],
+            "isDefaultSort": True
+        }
+    elif query_state:
+        sort_field = None
+        for role in ["Category", "Values", "Data", "Y"]:
+            if role in query_state and query_state[role]["projections"]:
+                sort_field = query_state[role]["projections"][0]
+                break
+        if sort_field:
+            sort_def = {
+                "sort": [
+                    {
+                        "field": sort_field["field"],
+                        "direction": "Descending" if sort_field["field"].get("Measure") else "Ascending"
+                    }
+                ],
+                "isDefaultSort": True
+            }
+
+    objects = {}
+    if pbir_type == "slicer":
+        objects = {
+            "data": [
+                {
+                    "properties": {
+                        "mode": {
+                            "expr": {
+                                "Literal": {
+                                    "Value": "'Dropdown'"
+                                }
+                            }
+                        }
+                    }
+                }
+            ],
+            "selection": [
+                {
+                    "properties": {
+                        "selectAllCheckboxEnabled": {
+                            "expr": {
+                                "Literal": {
+                                    "Value": "true"
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    elif pbir_type in ["barChart", "columnChart", "lineChart", "pieChart", "donutChart"]:
+        objects = {
+            "labels": [
+                {
+                    "properties": {
+                        "show": {
+                            "expr": {
+                                "Literal": {
+                                    "Value": "true"
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+        if pbir_type in ["pieChart", "donutChart"]:
+            objects["legend"] = [
+                {
+                    "properties": {
+                        "position": {
+                            "expr": {
+                                "Literal": {
+                                    "Value": "'TopCenter'"
+                                }
+                            }
+                        },
+                        "show": {
+                            "expr": {
+                                "Literal": {
+                                    "Value": "true"
+                                }
+                            }
+                        },
+                        "fontSize": {
+                            "expr": {
+                                "Literal": {
+                                    "Value": "8D"
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+            if pbir_type == "donutChart":
+                objects["labels"][0]["properties"]["position"] = {
+                    "expr": {
+                        "Literal": {
+                            "Value": "'outside'"
+                        }
+                    }
+                }
+
+    vc_objects = {}
+    legacy_vc_objects = sv.get("vcObjects", {})
+    
+    if "border" in legacy_vc_objects:
+        vc_objects["border"] = legacy_vc_objects["border"]
+    else:
+        vc_objects["border"] = [
+            {
+                "properties": {
+                    "show": {
+                        "expr": {
+                            "Literal": {
+                                "Value": "true"
+                            }
+                        }
+                    },
+                    "color": {
+                        "solid": {
+                            "color": {
+                                "expr": {
+                                    "ThemeDataColor": {
+                                        "ColorId": 0,
+                                        "Percent": -0.5
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        ]
+
+    title_text = ""
+    if "title" in legacy_vc_objects and legacy_vc_objects["title"]:
+        title_item = legacy_vc_objects["title"][0]
+        title_text = title_item.get("properties", {}).get("text", {}).get("expr", {}).get("Literal", {}).get("Value", "")
+        title_text = title_text.strip("'\"")
+    
+    if title_text:
+        title_properties = {
+            "text": {
+                "expr": {
+                    "Literal": {
+                        "Value": f"'{title_text}'"
+                    }
+                }
+            }
+        }
+        if pbir_type in ["barChart", "columnChart", "lineChart", "pieChart", "donutChart"]:
+            title_properties["alignment"] = {
+                "expr": {
+                    "Literal": {
+                        "Value": "'center'"
+                    }
+                }
+            }
+            title_properties["fontSize"] = {
+                "expr": {
+                    "Literal": {
+                        "Value": "15D"
+                    }
+                }
+            }
+            
+        vc_objects["title"] = [
+            {
+                "properties": title_properties
+            }
+        ]
+
+    visual_json = {
+        "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+        "name": clean_visual_id,
+        "position": {
+            "x": x,
+            "y": y,
+            "z": z,
+            "width": width,
+            "height": height,
+            "tabOrder": z
+        },
+        "visual": {
+            "visualType": pbir_type,
+            "drillFilterOtherVisuals": True
+        }
+    }
+
+    if pbir_type == "textbox":
+        paragraphs = []
+        paragraphs.append({
+            "textRuns": [
+                {
+                    "value": title_text or "Textbox",
+                    "textStyle": {
+                        "fontWeight": "bold",
+                        "fontSize": "36pt"
+                    }
+                }
+            ]
+        })
+        visual_json["visual"]["objects"] = {
+            "general": [
+                {
+                    "properties": {
+                        "paragraphs": paragraphs
+                    }
+                }
+            ]
+        }
+    else:
+        visual_json["visual"]["query"] = {
+            "queryState": query_state
+        }
+        if sort_def:
+            visual_json["visual"]["query"]["sortDefinition"] = sort_def
+        if objects:
+            visual_json["visual"]["objects"] = objects
+        if vc_objects:
+            visual_json["visual"]["visualContainerObjects"] = vc_objects
+
+    return visual_json
+
 
 
 def get_project_slug() -> str:
@@ -111,7 +446,9 @@ def get_required_files(project_slug: str) -> list[tuple[str, str]]:
         (f"{project_slug}.pbip", "Project entry point"),
         ("metadata.json", "Generation metadata"),
         (f"{project_slug}.Report/definition.pbir", "Report config – links to semantic model"),
-        (f"{project_slug}.Report/report.json", "Report layout metadata (legacy format)"),
+        (f"{project_slug}.Report/definition/report.json", "Report base settings"),
+        (f"{project_slug}.Report/definition/version.json", "Report layout version metadata"),
+        (f"{project_slug}.Report/definition/pages/pages.json", "Pages order index file"),
         (f"{project_slug}.SemanticModel/definition.pbism", "Semantic model configuration"),
         (f"{project_slug}.SemanticModel/model.bim", "Semantic model (TMSL/TOM format)"),
         (f"{project_slug}.SemanticModel/definition/model.tmdl", "Model definition (TMDL format)"),
@@ -119,6 +456,7 @@ def get_required_files(project_slug: str) -> list[tuple[str, str]]:
         (f"{project_slug}.SemanticModel/.pbi/localSettings.json", "Semantic model local settings"),
         (f"{project_slug}.SemanticModel/.pbi/version.json", "Semantic model version metadata"),
     ]
+
 
 
 def map_visual_type(raw_type: str, intent: str = "") -> str:
@@ -212,18 +550,21 @@ def compile_pbip_project() -> dict:
     # Create all required sub-directories
     report_dir = _PBIP_DIR / f"{project_slug}.Report"
     report_pbi_dir = report_dir / ".pbi"
+    report_definition_dir = report_dir / "definition"
+    report_pages_dir = report_definition_dir / "pages"
     sm_dir = _PBIP_DIR / f"{project_slug}.SemanticModel"
     sm_def_dir = sm_dir / "definition"
     sm_tables_dir = sm_def_dir / "tables"
     sm_pbi_dir = sm_dir / ".pbi"
 
-    for d in [_PBIP_DIR, report_dir, report_pbi_dir, sm_dir, sm_def_dir, sm_tables_dir, sm_pbi_dir]:
+    for d in [_PBIP_DIR, report_dir, report_pbi_dir, report_definition_dir, report_pages_dir, sm_dir, sm_def_dir, sm_tables_dir, sm_pbi_dir]:
         d.mkdir(parents=True, exist_ok=True)
 
     file_paths = {}  # logical name -> absolute Path
 
     # ── 1. <ProjectName>.pbip (project root) ─────────────────────────
     pbip_data = {
+        "$schema": "https://developer.microsoft.com/json-schemas/fabric/pbip/pbipProperties/1.0.0/schema.json",
         "version": "1.0",
         "artifacts": [
             {
@@ -231,7 +572,10 @@ def compile_pbip_project() -> dict:
                     "path": f"{project_slug}.Report"
                 }
             }
-        ]
+        ],
+        "settings": {
+            "enableAutoRecovery": True
+        }
     }
     pbip_path = _PBIP_DIR / f"{project_slug}.pbip"
     _write_json(pbip_path, pbip_data)
@@ -239,17 +583,18 @@ def compile_pbip_project() -> dict:
 
     # ── 2. <ProjectName>.Report/definition.pbir ──────────────────────
     pbir_data = {
-        "version": "1.0",
+        "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definitionProperties/2.0.0/schema.json",
+        "version": "4.0",
         "datasetReference": {
             "byPath": {
                 "path": f"../{project_slug}.SemanticModel"
-            },
-            "byConnection": None
+            }
         }
     }
     pbir_path = report_dir / "definition.pbir"
     _write_json(pbir_path, pbir_data)
     file_paths[f"{project_slug}.Report/definition.pbir"] = pbir_path
+
 
     # ── 2b. <ProjectName>.Report/.pbi/localSettings.json & version.json ─
     report_local_settings = {
@@ -484,9 +829,8 @@ def compile_pbip_project() -> dict:
     _write_text(dax_measures_path, "\n".join(dax_tmdl_lines))
     file_paths[f"{project_slug}.SemanticModel/definition/tables/_Measures.tmdl"] = dax_measures_path
 
-    # ── 8. Build report pages and serialize to legacy report.json ────
+    # ── 8. Build report pages and serialize to PBIR split format ────
     pages_list = []
-    sections_list = []
 
     # Check reporting intents to map visual bindings or export tags
     export_pages = []
@@ -514,15 +858,52 @@ def compile_pbip_project() -> dict:
         for page in report_layout_data.get("pages", []):
             page_name = page["page_name"]
             page_slug = _slugify(page_name)
-            page_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, page_name))
+            page_id = _get_clean_id(page_name)
+
+            # Create page folder & visuals folder
+            page_dir = report_pages_dir / page_id
+            page_visuals_dir = page_dir / "visuals"
+            page_dir.mkdir(parents=True, exist_ok=True)
+            page_visuals_dir.mkdir(parents=True, exist_ok=True)
+
+            # Write page.json
+            page_json_data = {
+                "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
+                "name": page_id,
+                "displayName": page_name,
+                "displayOption": "FitToPage",
+                "height": report_layout_data.get("canvas_size", {}).get("height", 720),
+                "width": report_layout_data.get("canvas_size", {}).get("width", 1280),
+                "objects": {
+                    "outspace": [
+                        {
+                            "properties": {
+                                "color": {
+                                    "solid": {
+                                        "color": {
+                                            "expr": {
+                                                "ThemeDataColor": {
+                                                    "ColorId": 0,
+                                                    "Percent": 0
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+            page_json_path = page_dir / "page.json"
+            _write_json(page_json_path, page_json_data)
+            file_paths[f"{project_slug}.Report/definition/pages/{page_id}/page.json"] = page_json_path
 
             visuals_meta = []
             visual_order = 0
-            visual_containers = []
-
             for visual in page.get("visuals", []):
                 title = visual.get("title", "")
-                visual_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, f"{page_name}_{title}"))
+                visual_id = _get_clean_id(f"{page_name}_{title}")
                 visual_config = report_visuals_data.get(visual_id)
                 pos = visual.get("position", {})
 
@@ -537,20 +918,20 @@ def compile_pbip_project() -> dict:
                         position=pos
                     )
 
-                visual_container = {
-                    "x": pos.get("x", 20),
-                    "y": pos.get("y", 20),
-                    "width": pos.get("width", 280),
-                    "height": pos.get("height", 150),
-                    "z": visual_order,
-                    "config": json.dumps(visual_config, ensure_ascii=False)
-                }
-                visual_containers.append(visual_container)
+                pbir_visual_data = translate_to_pbir_visual(visual_config)
+
+                # Create visual folder
+                visual_dir = page_visuals_dir / visual_id
+                visual_dir.mkdir(parents=True, exist_ok=True)
+
+                visual_json_path = visual_dir / "visual.json"
+                _write_json(visual_json_path, pbir_visual_data)
+                file_paths[f"{project_slug}.Report/definition/pages/{page_id}/visuals/{visual_id}/visual.json"] = visual_json_path
 
                 visuals_meta.append({
                     "title": title,
                     "visual_type": visual.get("visual_type", "table"),
-                    "pbi_visual_type": visual_config.get("singleVisual", {}).get("visualType", "tableEx"),
+                    "pbi_visual_type": pbir_visual_data.get("visual", {}).get("visualType", "tableEx"),
                     "visual_id": visual_id,
                     "bindings": {
                         "measures": visual.get("measures", []),
@@ -559,43 +940,6 @@ def compile_pbip_project() -> dict:
                     "business_reason": title
                 })
                 visual_order += 1
-
-            # Build page config with drillthrough if it is a detail/submission page
-            page_config = {}
-            page_name_lower = page_name.lower()
-            if "detail" in page_name_lower or "submission" in page_name_lower or "dataset" in page_name_lower:
-                page_config = {
-                    "drillthroughStatus": {
-                        "isEnabled": True
-                    },
-                    "drillthroughFilters": [
-                        {
-                            "expression": {
-                                "Column": {
-                                    "Expression": {
-                                        "SourceRef": {
-                                            "Source": "f"
-                                        }
-                                    },
-                                    "Property": "od_number"
-                                }
-                            },
-                            "filterType": 1
-                        }
-                    ]
-                }
-
-            # Section page
-            section = {
-                "name": f"Section_{page_id}",
-                "displayName": page_name,
-                "width": report_layout_data.get("canvas_size", {}).get("width", 1280),
-                "height": report_layout_data.get("canvas_size", {}).get("height", 720),
-                "config": json.dumps(page_config),
-                "filters": "[]",
-                "visualContainers": visual_containers
-            }
-            sections_list.append(section)
 
             pages_list.append({
                 "page_name": page_name,
@@ -612,15 +956,52 @@ def compile_pbip_project() -> dict:
         for page in report_def.get("pages", []):
             page_name = page["page_name"]
             page_slug = _slugify(page_name)
-            page_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, page_name))
+            page_id = _get_clean_id(page_name)
+
+            # Create page folder & visuals folder
+            page_dir = report_pages_dir / page_id
+            page_visuals_dir = page_dir / "visuals"
+            page_dir.mkdir(parents=True, exist_ok=True)
+            page_visuals_dir.mkdir(parents=True, exist_ok=True)
+
+            # Write page.json
+            page_json_data = {
+                "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
+                "name": page_id,
+                "displayName": page_name,
+                "displayOption": "FitToPage",
+                "height": 720,
+                "width": 1280,
+                "objects": {
+                    "outspace": [
+                        {
+                            "properties": {
+                                "color": {
+                                    "solid": {
+                                        "color": {
+                                            "expr": {
+                                                "ThemeDataColor": {
+                                                    "ColorId": 0,
+                                                    "Percent": 0
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+            page_json_path = page_dir / "page.json"
+            _write_json(page_json_path, page_json_data)
+            file_paths[f"{project_slug}.Report/definition/pages/{page_id}/page.json"] = page_json_path
 
             visuals_meta = []
             visual_order = 0
-            visual_containers = []
-
             for visual in page.get("visuals", []):
                 title = visual.get("title", "")
-                visual_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, f"{page_name}_{title}_{visual_order}"))
+                visual_id = _get_clean_id(f"{page_name}_{title}_{visual_order}")
                 mapped_type = map_visual_type(visual.get("visual_type", ""))
                 pbi_visual_type = _VISUAL_TYPE_MAP.get(mapped_type, "tableEx")
 
@@ -641,20 +1022,20 @@ def compile_pbip_project() -> dict:
                     position=position
                 )
 
-                visual_container = {
-                    "x": 20 + (visual_order % 2) * 480,
-                    "y": 20 + (visual_order // 2) * 320,
-                    "width": 460,
-                    "height": 300,
-                    "z": visual_order,
-                    "config": json.dumps(visual_config, ensure_ascii=False)
-                }
-                visual_containers.append(visual_container)
+                pbir_visual_data = translate_to_pbir_visual(visual_config)
+
+                # Create visual folder
+                visual_dir = page_visuals_dir / visual_id
+                visual_dir.mkdir(parents=True, exist_ok=True)
+
+                visual_json_path = visual_dir / "visual.json"
+                _write_json(visual_json_path, pbir_visual_data)
+                file_paths[f"{project_slug}.Report/definition/pages/{page_id}/visuals/{visual_id}/visual.json"] = visual_json_path
 
                 visuals_meta.append({
                     "title": title,
                     "visual_type": mapped_type,
-                    "pbi_visual_type": pbi_visual_type,
+                    "pbi_visual_type": pbir_visual_data.get("visual", {}).get("visualType", "tableEx"),
                     "visual_id": visual_id,
                     "bindings": {
                         "measures": visual.get("measures", []),
@@ -663,42 +1044,6 @@ def compile_pbip_project() -> dict:
                     "business_reason": visual.get("business_reason", "")
                 })
                 visual_order += 1
-
-            # Build page config with drillthrough if it is a detail/submission page
-            page_config = {}
-            page_name_lower = page_name.lower()
-            if "detail" in page_name_lower or "submission" in page_name_lower or "dataset" in page_name_lower:
-                page_config = {
-                    "drillthroughStatus": {
-                        "isEnabled": True
-                    },
-                    "drillthroughFilters": [
-                        {
-                            "expression": {
-                                "Column": {
-                                    "Expression": {
-                                        "SourceRef": {
-                                            "Source": "f"
-                                        }
-                                    },
-                                    "Property": "od_number"
-                                }
-                            },
-                            "filterType": 1
-                        }
-                    ]
-                }
-
-            section = {
-                "name": f"Section_{page_id}",
-                "displayName": page_name,
-                "width": 1280,
-                "height": 720,
-                "config": json.dumps(page_config),
-                "filters": "[]",
-                "visualContainers": visual_containers
-            }
-            sections_list.append(section)
 
             pages_list.append({
                 "page_name": page_name,
@@ -710,15 +1055,92 @@ def compile_pbip_project() -> dict:
             })
             page_order += 1
 
-    # Write report.json directly under <ProjectName>.Report/
-    report_layout = {
-        "config": json.dumps({"settings": {}}),
-        "layoutOptimization": 0,
-        "sections": sections_list
+    # Write report.json, version.json, and pages.json
+    report_json_data = {
+        "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/report/3.3.0/schema.json",
+        "themeCollection": {
+            "baseTheme": {
+                "name": "CY26SU05",
+                "reportVersionAtImport": {
+                    "visual": "2.9.0",
+                    "report": "3.3.0",
+                    "page": "2.3.1"
+                },
+                "type": "SharedResources"
+            }
+        },
+        "objects": {
+            "section": [
+                {
+                    "properties": {
+                        "verticalAlignment": {
+                            "expr": {
+                                "Literal": {
+                                    "Value": "'Top'"
+                                }
+                            }
+                        }
+                    }
+                }
+            ],
+            "outspacePane": [
+                {
+                    "properties": {
+                        "expanded": {
+                            "expr": {
+                                "Literal": {
+                                    "Value": "false"
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "resourcePackages": [
+            {
+                "name": "SharedResources",
+                "type": "SharedResources",
+                "items": [
+                    {
+                        "name": "CY26SU05",
+                        "path": "BaseThemes/CY26SU05.json",
+                        "type": "BaseTheme"
+                    }
+                ]
+            }
+        ],
+        "settings": {
+            "useStylableVisualContainerHeader": True,
+            "exportDataMode": "AllowSummarized",
+            "defaultDrillFilterOtherVisuals": True,
+            "allowChangeFilterTypes": True,
+            "useEnhancedTooltips": True,
+            "useDefaultAggregateDisplayName": True
+        }
     }
-    report_json_path = report_dir / "report.json"
-    _write_json(report_json_path, report_layout)
-    file_paths[f"{project_slug}.Report/report.json"] = report_json_path
+    report_json_path = report_definition_dir / "report.json"
+    _write_json(report_json_path, report_json_data)
+    file_paths[f"{project_slug}.Report/definition/report.json"] = report_json_path
+
+    version_json_data = {
+        "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/versionMetadata/1.0.0/schema.json",
+        "version": "2.0.0"
+    }
+    version_json_path = report_definition_dir / "version.json"
+    _write_json(version_json_path, version_json_data)
+    file_paths[f"{project_slug}.Report/definition/version.json"] = version_json_path
+
+    page_order_ids = [p["page_id"] for p in pages_list]
+    pages_json_data = {
+        "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/pagesMetadata/1.1.0/schema.json",
+        "pageOrder": page_order_ids,
+        "activePageName": page_order_ids[0] if page_order_ids else ""
+    }
+    pages_json_path = report_pages_dir / "pages.json"
+    _write_json(pages_json_path, pages_json_data)
+    file_paths[f"{project_slug}.Report/definition/pages/pages.json"] = pages_json_path
+
 
     # ── 9. metadata.json (project root) ──────────────────────────────
     metadata = {
@@ -931,49 +1353,57 @@ def validate_pbip_project() -> dict:
         except Exception as e:
             errors.append(f"Failed to validate TMDL syntax in `_Measures.tmdl`: {str(e)}")
 
-    # ── 5. report.json Structure Validation ──────────────────────────
-    report_json = _PBIP_DIR / f"{project_slug}.Report" / "report.json"
-    if report_json.exists():
+    # ── 5. PBIR Pages and Visuals Structure Validation ────────────────
+    report_dir = _PBIP_DIR / f"{project_slug}.Report"
+    pages_json_path = report_dir / "definition" / "pages" / "pages.json"
+    if pages_json_path.exists():
         try:
-            layout = json.loads(report_json.read_text(encoding="utf-8"))
-            if "sections" not in layout:
-                errors.append("`report.json` is missing the `sections` page array property.")
-                recommended_fixes.append("Add a `sections` array to `report.json` to define pages.")
+            pages_meta = json.loads(pages_json_path.read_text(encoding="utf-8"))
+            if "pageOrder" not in pages_meta:
+                errors.append("`pages.json` is missing the `pageOrder` property.")
+                recommended_fixes.append("Add a `pageOrder` array to `pages.json` to define report pages.")
             else:
-                sections = layout["sections"]
-                if not isinstance(sections, list):
-                    errors.append("`sections` property in `report.json` must be an array.")
-                    recommended_fixes.append("Change `sections` in `report.json` to be a valid JSON array.")
+                page_order = pages_meta["pageOrder"]
+                if not isinstance(page_order, list):
+                    errors.append("`pageOrder` in `pages.json` must be an array.")
+                    recommended_fixes.append("Change `pageOrder` in `pages.json` to be a valid JSON array.")
                 else:
-                    for s_idx, sec in enumerate(sections):
-                        sec_name = sec.get("displayName", f"Page {s_idx + 1}")
-                        if "name" not in sec:
-                            errors.append(f"Page '{sec_name}' is missing the unique `name` GUID property in `report.json`.")
-                            recommended_fixes.append(f"Add unique `name` property to Page '{sec_name}' in `report.json`.")
-                        if "visualContainers" not in sec:
-                            errors.append(f"Page '{sec_name}' is missing `visualContainers` array.")
-                            recommended_fixes.append(f"Add `visualContainers` array to Page '{sec_name}' in `report.json`.")
+                    for page_id in page_order:
+                        page_folder = report_dir / "definition" / "pages" / page_id
+                        page_json = page_folder / "page.json"
+                        if not page_json.exists():
+                            errors.append(f"Page folder for ID '{page_id}' is missing its `page.json` file.")
+                            recommended_fixes.append(f"Create `page.json` in the folder: {page_folder.name}")
                         else:
-                            vcontainers = sec["visualContainers"]
-                            if not isinstance(vcontainers, list):
-                                errors.append(f"`visualContainers` for Page '{sec_name}' must be an array.")
-                            else:
-                                for v_idx, vc in enumerate(vcontainers):
-                                    if "config" not in vc:
-                                        errors.append(f"Visual index {v_idx} on Page '{sec_name}' is missing `config` string.")
-                                        recommended_fixes.append(f"Add serialized `config` string to Visual index {v_idx} on Page '{sec_name}'.")
-                                    else:
-                                        try:
-                                            json.loads(vc["config"])
-                                        except json.JSONDecodeError:
-                                            errors.append(f"Visual index {v_idx} config on Page '{sec_name}' is not valid serialized JSON.")
-                                            recommended_fixes.append(f"Ensure the visual `config` string on Page '{sec_name}' is a valid JSON-encoded string.")
-            logs.append("REPORT: report.json structure validated")
+                            try:
+                                p_data = json.loads(page_json.read_text(encoding="utf-8"))
+                                if p_data.get("name") != page_id:
+                                    errors.append(f"Page '{page_id}' name property in `page.json` does not match folder ID.")
+                            except Exception as e:
+                                errors.append(f"Failed to read/parse `page.json` for Page '{page_id}': {str(e)}")
+                        
+                        visuals_dir = page_folder / "visuals"
+                        if visuals_dir.exists():
+                            for v_folder in visuals_dir.iterdir():
+                                if not v_folder.is_dir():
+                                    continue
+                                v_json = v_folder / "visual.json"
+                                if not v_json.exists():
+                                    errors.append(f"Visual folder '{v_folder.name}' on page '{page_id}' is missing `visual.json`.")
+                                else:
+                                    try:
+                                        v_data = json.loads(v_json.read_text(encoding="utf-8"))
+                                        if v_data.get("name") != v_folder.name:
+                                            errors.append(f"Visual '{v_folder.name}' name property in `visual.json` does not match folder name.")
+                                    except Exception as e:
+                                        errors.append(f"Failed to parse `visual.json` for visual '{v_folder.name}': {str(e)}")
+            logs.append("REPORT: PBIR split pages and visuals structure validated")
         except json.JSONDecodeError:
-            errors.append("`report.json` is not valid JSON.")
-            recommended_fixes.append("Ensure `report.json` contains valid JSON layout syntax.")
+            errors.append("`pages.json` is not valid JSON.")
+            recommended_fixes.append("Ensure `pages.json` contains valid JSON layout syntax.")
         except Exception as e:
-            errors.append(f"Failed to read/parse `report.json`: {str(e)}")
+            errors.append(f"Failed to read/parse `pages.json`: {str(e)}")
+
 
     # ── 6. Semantic Model References Validation ──────────────────────
     if pbir_path.exists():

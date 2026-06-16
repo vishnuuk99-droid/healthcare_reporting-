@@ -1,0 +1,86 @@
+table Date
+	lineageTag: 9b163c7d-59d2-46f8-aa29-dd4ad3e1218a
+	dataCategory: Time
+
+	column Date
+		lineageTag: a1ce9b52-d742-492c-ad5d-fc43382d1fa2
+		isNameInferred
+		sourceColumn: [Date]
+
+	column Year
+		lineageTag: 737bd6bd-17fa-4d7d-aedf-bcf7cf706f0c
+		isNameInferred
+		sourceColumn: [Year]
+
+	column Quarter
+		lineageTag: a736b665-3da2-4510-840d-5fdc890a93b5
+		isNameInferred
+		sourceColumn: [Quarter]
+
+	column 'Quarter Number'
+		lineageTag: 1e98f859-3f6f-4105-86e6-79b49a6691ff
+		isNameInferred
+		sourceColumn: [Quarter Number]
+
+	column 'Month Number'
+		lineageTag: c6ba74f0-1878-4036-a689-253d6031e28a
+		isNameInferred
+		sourceColumn: [Month Number]
+
+	column 'Month Name'
+		lineageTag: 83102a21-cf5f-4078-b5c5-aae12a84d6f8
+		isNameInferred
+		sourceColumn: [Month Name]
+		sortByColumn: 'Month Number'
+
+	column 'Month Short'
+		lineageTag: d122641e-d581-417a-beb1-76385a969793
+		isNameInferred
+		sourceColumn: [Month Short]
+		sortByColumn: 'Month Number'
+
+	column 'Week Number'
+		lineageTag: 9c89f0ea-f737-4ae9-87fb-3796ddd556d9
+		isNameInferred
+		sourceColumn: [Week Number]
+
+	column 'Day of Week'
+		lineageTag: ec08843f-e840-4524-a60d-4c6709848992
+		isNameInferred
+		sourceColumn: [Day of Week]
+
+	column 'Day Name'
+		lineageTag: 4ae880c1-246f-499c-b14d-e5eb59a9f769
+		isNameInferred
+		sourceColumn: [Day Name]
+		sortByColumn: 'Day of Week'
+
+	column Year-Month
+		lineageTag: df4a706d-ba11-4753-8220-bdda18278c72
+		isNameInferred
+		sourceColumn: [Year-Month]
+		sortByColumn: 'Month Number'
+
+	column Year-Quarter
+		lineageTag: a2bfc831-a747-42bf-ba01-a44080b99830
+		isNameInferred
+		sourceColumn: [Year-Quarter]
+
+	partition Date = calculated
+		mode: import
+		source =
+				ADDCOLUMNS(
+				    CALENDARAUTO(),
+				    "Year", YEAR([Date]),
+				    "Quarter", "Q" & QUARTER([Date]),
+				    "Quarter Number", QUARTER([Date]),
+				    "Month Number", MONTH([Date]),
+				    "Month Name", FORMAT([Date], "MMMM"),
+				    "Month Short", FORMAT([Date], "MMM"),
+				    "Week Number", WEEKNUM([Date]),
+				    "Day of Week", WEEKDAY([Date], 2),
+				    "Day Name", FORMAT([Date], "dddd"),
+				    "Year-Month", FORMAT([Date], "YYYY-MM"),
+				    "Year-Quarter", YEAR([Date]) & "-Q" & QUARTER([Date])
+				)
+

@@ -1,0 +1,39 @@
+/// Disconnected table for Cost Responsibility donut chart on Executive Summary page
+table 'Cost Breakdown'
+	lineageTag: d7caa29b-c6ee-4d56-839d-96392edbafde
+
+	measure 'Top Member by Spend' =
+			CALCULATE(
+			    MAX('Member Names'[Member_Name]),
+			    TOPN(1,
+			        VALUES('Member Names'[Member_Name]),
+			        [Total Paid Amount],
+			        DESC
+			    )
+			)
+		lineageTag: c5c127ae-ae10-4adf-b6f3-0b2850126028
+
+	column 'Cost Type'
+		lineageTag: 340769a1-4a74-4be6-a448-ad77fdb15698
+		isNameInferred
+		sourceColumn: [Cost Type]
+
+	column 'Sort Order'
+		lineageTag: 6003690b-c15f-46bc-a341-cd830287dfd5
+		isNameInferred
+		sourceColumn: [Sort Order]
+
+	partition 'Cost Breakdown' = calculated
+		mode: import
+		source =
+				DATATABLE(
+				    "Cost Type", STRING,
+				    "Sort Order", INTEGER,
+				    {
+				        {"Plan Paid", 1},
+				        {"Copay", 2},
+				        {"Co-insurance", 3},
+				        {"Deductible", 4}
+				    }
+				)
+

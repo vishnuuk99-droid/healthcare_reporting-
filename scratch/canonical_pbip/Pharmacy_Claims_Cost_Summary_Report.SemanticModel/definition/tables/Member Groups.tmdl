@@ -1,0 +1,49 @@
+table 'Member Groups'
+	lineageTag: 0199a790-9ff9-4b8d-9234-32dba14602b9
+
+	column 'Member ID'
+		dataType: int64
+		formatString: 0
+		lineageTag: 7945b7f6-da0f-4862-86e0-0410913da394
+		summarizeBy: none
+		sourceColumn: Member ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'CLIENT NAME'
+		dataType: string
+		lineageTag: 08cd193b-130d-4644-a4ef-974095b975de
+		summarizeBy: none
+		sourceColumn: CLIENT NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'EMPLOYER NAME'
+		dataType: string
+		lineageTag: 516c7767-af2e-418f-9190-2814ec9e87c6
+		summarizeBy: none
+		sourceColumn: EMPLOYER NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'GROUP NAME'
+		dataType: string
+		lineageTag: d5b37a80-3fa2-4eba-810f-e9db9c76c1d1
+		summarizeBy: none
+		sourceColumn: GROUP NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Sheet1 (2)' = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("C:\Users\uvishnu\OneDrive - ZeOmega\Desktop\CEG.xlsx"), null, true),
+				    Sheet1_Sheet = Source{[Item="Sheet1",Kind="Sheet"]}[Data],
+				    #"Promoted Headers" = Table.PromoteHeaders(Sheet1_Sheet, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"Member ID", Int64.Type}, {"CLIENT NAME", type text}, {"EMPLOYER NAME", type text}, {"GROUP NAME", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

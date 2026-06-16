@@ -171,7 +171,7 @@ def generate_data_dictionary(
     content = "\n\n".join(context_parts)
 
     response = client.models.generate_content(
-        model="gemini-2.5-flash",
+        model="gemini-3.5-flash",
         contents=content,
         config=types.GenerateContentConfig(
             system_instruction=_SYSTEM_INSTRUCTION,

@@ -16,7 +16,7 @@
         },
         {
           "title": "Adverse Decision Rate",
-          "visual_type": "card",
+          "visual_type": "kpi",
           "dimensions": [],
           "measures": [
             "Adverse Decision Rate"
@@ -34,7 +34,7 @@
         },
         {
           "title": "Clean Claim Rate",
-          "visual_type": "card",
+          "visual_type": "kpi",
           "dimensions": [],
           "measures": [
             "Clean Claim Rate"
@@ -56,7 +56,7 @@
           "title": "Outcome Distribution",
           "visual_type": "donut_chart",
           "dimensions": [
-            "FactDetermination.disposition"
+            "FactObservation.disposition"
           ],
           "measures": [
             "Total Org Determinations Override"
@@ -93,9 +93,9 @@
         },
         {
           "title": "Decisions by Disposition",
-          "visual_type": "clustered_bar_chart",
+          "visual_type": "donut_chart",
           "dimensions": [
-            "FactDetermination.disposition"
+            "FactObservation.disposition"
           ],
           "measures": [
             "Total Org Determinations Override"
@@ -121,7 +121,7 @@
       "visuals": [
         {
           "title": "Missing Data %",
-          "visual_type": "card",
+          "visual_type": "kpi",
           "dimensions": [],
           "measures": [
             "Missing Data %"
@@ -167,8 +167,8 @@
           "title": "CMS Submission Matrix",
           "visual_type": "matrix",
           "dimensions": [
-            "FactDetermination.disposition",
-            "FactDetermination.processing_priority"
+            "FactObservation.disposition",
+            "FactObservation.processing_priority"
           ],
           "measures": [
             "Total Org Determinations Override"
@@ -179,11 +179,11 @@
           "title": "CMS Submission Detail Table",
           "visual_type": "table",
           "dimensions": [
-            "FactDetermination.od_number",
+            "FactObservation.od_number",
             "DimPatient.mbi",
-            "FactDetermination.processing_priority",
-            "FactDetermination.disposition",
-            "FactDetermination.decision_rationale"
+            "FactObservation.processing_priority",
+            "FactObservation.disposition",
+            "FactObservation.decision_rationale"
           ],
           "measures": [
             "Total Org Determinations Override"

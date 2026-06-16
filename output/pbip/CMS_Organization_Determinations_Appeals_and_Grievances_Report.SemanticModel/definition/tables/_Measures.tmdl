@@ -3,25 +3,25 @@ table _Measures
 		dataType: string
 		isHidden: true
 
-	measure 'Total Org Determinations Override' = COUNTROWS(FactDetermination)
+	measure 'Total Org Determinations Override' = COUNTROWS(FactObservation)
 		// Description: Total count of unique Organization Determinations.
 
-	measure 'Adverse Decision Rate' = DIVIDE(CALCULATE(COUNTROWS(FactDetermination), FactDetermination[disposition] = "Adverse"), [Total Org Determinations Override], 0)
+	measure 'Adverse Decision Rate' = DIVIDE(CALCULATE(COUNTROWS(FactObservation), FactObservation[disposition] = "Adverse"), [Total Org Determinations Override], 0)
 		// Description: Percentage of determinations that resulted in adverse decisions.
 
-	measure 'Average Turnaround Time' = DIVIDE(SUM(FactDetermination[determination_key]), 2, 0)
+	measure 'Average Turnaround Time' = DIVIDE(SUM(FactObservation[determination_key]), 2, 0)
 		// Description: Average turnaround time for organization determinations in days.
 
-	measure 'Clean Claim Rate' = DIVIDE(CALCULATE(COUNTROWS(FactDetermination), FactDetermination[is_clean_claim] = TRUE), COUNTROWS(FactDetermination), 0)
+	measure 'Clean Claim Rate' = DIVIDE(CALCULATE(COUNTROWS(FactObservation), FactObservation[is_clean_claim] = TRUE), COUNTROWS(FactObservation), 0)
 		// Description: Percentage of clean claims submitted.
 
-	measure 'Missing Data %' = DIVIDE(CALCULATE(COUNTROWS(FactDetermination), ISBLANK(FactDetermination[od_number])), COUNTROWS(FactDetermination), 0)
+	measure 'Missing Data %' = DIVIDE(CALCULATE(COUNTROWS(FactObservation), ISBLANK(FactObservation[od_number])), COUNTROWS(FactObservation), 0)
 		// Description: Percentage of records missing key identifying fields.
 
-	measure 'Validation Errors' = CALCULATE(COUNTROWS(FactDetermination), FactDetermination[were_internal_plan_criteria_applied] = FALSE)
+	measure 'Validation Errors' = CALCULATE(COUNTROWS(FactObservation), FactObservation[were_internal_plan_criteria_applied] = FALSE)
 		// Description: Total count of validation warnings or errors in data.
 
-	measure 'Data Quality Score' = 0.98 - DIVIDE([Validation Errors], COUNTROWS(FactDetermination), 0)
+	measure 'Data Quality Score' = 0.98 - DIVIDE([Validation Errors], COUNTROWS(FactObservation), 0)
 		// Description: Composite score representing data completeness and validation rate.
 
 	measure 'Quality Trend' = [Data Quality Score]

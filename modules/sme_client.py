@@ -149,7 +149,7 @@ def chat_with_sme(
     )
 
     response = client.models.generate_content(
-        model="gemini-2.5-flash",
+        model="gemini-3.5-flash",
         contents=contents,
         config=types.GenerateContentConfig(
             system_instruction=_SYSTEM_INSTRUCTION,

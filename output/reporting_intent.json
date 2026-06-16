@@ -1,911 +1,326 @@
 [
   {
-    "requirement": "Organization Determination (OD) Number",
-    "intent": "detail_listing",
-    "recommended_visual": "Table",
+    "requirement": "Total number of grievances",
+    "intent": "kpi",
+    "recommended_visual": "Card",
     "required_columns": [
-      "FactObservation.od_number"
+      "FactObservation.observation_key",
+      "FactObservation.observation_code",
+      "FactObservation.observation_status",
+      "FactObservation.value_codeable_concept"
     ],
-    "reasoning": "This requirement asks for a specific identifier, indicating a need to list individual records."
+    "reasoning": "This requirement asks for a single summary count of grievances, which is best represented as a KPI card."
   },
   {
-    "requirement": "Contract Number",
-    "intent": "detail_listing",
-    "recommended_visual": "Table",
+    "requirement": "Total number of timely notifications of grievance decisions",
+    "intent": "compliance_monitoring",
+    "recommended_visual": "KPI + Trend",
     "required_columns": [
-      "DimOrganization.contract_number"
+      "FactObservation.observation_key",
+      "FactObservation.observation_code",
+      "FactObservation.observation_status",
+      "FactObservation.date_key"
     ],
-    "reasoning": "This requirement asks for a specific identifier, indicating a need to list individual records."
+    "reasoning": "Timely notifications represent an ongoing compliance obligation with specific regulatory thresholds."
   },
   {
-    "requirement": "Plan Benefit Package (PBP)",
-    "intent": "detail_listing",
-    "recommended_visual": "Table",
+    "requirement": "Number of expedited grievances",
+    "intent": "kpi",
+    "recommended_visual": "Card",
     "required_columns": [
-      "DimOrganization.pbp_identifier"
-    ],
-    "reasoning": "This requirement asks for a specific identifier, indicating a need to list individual records."
-  },
-  {
-    "requirement": "Enrollee MBI",
-    "intent": "detail_listing",
-    "recommended_visual": "Table",
-    "required_columns": [
-      "DimPatient.mbi"
-    ],
-    "reasoning": "This requirement asks for a specific identifier, indicating a need to list individual records."
-  },
-  {
-    "requirement": "Requesting Party (01-enrollee, 02-enrollee’s representative, 03-contract provider, 04-non-contract provider, 05-plan)",
-    "intent": "detail_listing",
-    "recommended_visual": "Table",
-    "required_columns": [
-      "FactObservation.requesting_party_code"
-    ],
-    "reasoning": "This requirement asks for a categorical attribute of each determination, indicating a need to list individual records."
-  },
-  {
-    "requirement": "Provider NPI",
-    "intent": "detail_listing",
-    "recommended_visual": "Table",
-    "required_columns": [
-      "DimProvider.npi"
-    ],
-    "reasoning": "This requirement asks for a specific identifier, indicating a need to list individual records."
-  },
-  {
-    "requirement": "Was this a contracted provider referral? (Y/N)",
-    "intent": "detail_listing",
-    "recommended_visual": "Table",
-    "required_columns": [
-      "FactObservation.was_contracted_provider_referral"
-    ],
-    "reasoning": "This requirement asks for a boolean attribute of each determination, indicating a need to list individual records."
-  },
-  {
-    "requirement": "Item/Service/Part B Drug Code (CPT, HCPCS, J code, DRG)",
-    "intent": "detail_listing",
-    "recommended_visual": "Table",
-    "required_columns": [
-      "FactObservation.item_service_part_b_drug_code"
-    ],
-    "reasoning": "This requirement asks for a specific code, indicating a need to list individual records."
-  },
-  {
-    "requirement": "Item/Service/Part B Drug Description",
-    "intent": "detail_listing",
-    "recommended_visual": "Table",
-    "required_columns": [
-      "FactObservation.item_service_part_b_drug_description"
-    ],
-    "reasoning": "This requirement asks for a specific description, indicating a need to list individual records."
-  },
-  {
-    "requirement": "Diagnosis Codes (ICD-10, HIPPS codes)",
-    "intent": "detail_listing",
-    "recommended_visual": "Table",
-    "required_columns": [
-      "DimCondition.diagnosis_code"
-    ],
-    "reasoning": "This requirement asks for specific codes, indicating a need to list individual records."
-  },
-  {
-    "requirement": "Was prior authorization required? (Y/N)",
-    "intent": "detail_listing",
-    "recommended_visual": "Table",
-    "required_columns": [
-      "FactObservation.was_prior_authorization_required"
-    ],
-    "reasoning": "This requirement asks for a boolean attribute of each determination, indicating a need to list individual records."
-  },
-  {
-    "requirement": "Processing Priority (S-Standard, E-Expedited)",
-    "intent": "detail_listing",
-    "recommended_visual": "Table",
-    "required_columns": [
+      "FactObservation.observation_key",
+      "FactObservation.observation_code",
       "FactObservation.processing_priority"
     ],
-    "reasoning": "This requirement asks for a categorical attribute of each determination, indicating a need to list individual records."
+    "reasoning": "This is a single summary count of grievances processed with an expedited priority."
   },
   {
-    "requirement": "Was expedited processing requested? (Y/N)",
-    "intent": "detail_listing",
-    "recommended_visual": "Table",
+    "requirement": "Number of dismissed grievances",
+    "intent": "kpi",
+    "recommended_visual": "Card",
     "required_columns": [
-      "FactObservation.was_expedited_processing_requested"
+      "FactObservation.observation_key",
+      "FactObservation.observation_code",
+      "FactObservation.value_codeable_concept"
     ],
-    "reasoning": "This requirement asks for a boolean attribute of each determination, indicating a need to list individual records."
+    "reasoning": "This is a single summary count of grievances that resulted in a dismissal disposition."
   },
   {
-    "requirement": "Date Request Received (YYYY-MM-DD hh:mm:ss)",
-    "intent": "detail_listing",
-    "recommended_visual": "Table",
+    "requirement": "Number of completed organization determinations (fully favorable, partially favorable, adverse)",
+    "intent": "comparison_analysis",
+    "recommended_visual": "Bar Chart",
     "required_columns": [
-      "DimDate.full_date",
-      "FactObservation.date_request_received_key"
+      "FactObservation.observation_key",
+      "FactObservation.observation_code",
+      "FactObservation.observation_status",
+      "FactObservation.value_codeable_concept"
     ],
-    "reasoning": "This requirement asks for a specific date, indicating a need to list individual records."
+    "reasoning": "This requirement compares the counts of completed organization determinations across different disposition categories."
   },
   {
-    "requirement": "Date of Decision (YYYY-MM-DD hh:mm:ss)",
-    "intent": "detail_listing",
-    "recommended_visual": "Table",
+    "requirement": "Number of completed reconsiderations (fully favorable, partially favorable, adverse)",
+    "intent": "comparison_analysis",
+    "recommended_visual": "Bar Chart",
     "required_columns": [
-      "DimDate.full_date",
-      "FactObservation.date_of_decision_key"
+      "FactObservation.observation_key",
+      "FactObservation.observation_code",
+      "FactObservation.observation_status",
+      "FactObservation.value_codeable_concept"
     ],
-    "reasoning": "This requirement asks for a specific date, indicating a need to list individual records."
+    "reasoning": "This requirement compares the counts of completed reconsiderations across different disposition categories."
   },
   {
-    "requirement": "Disposition (F-Fully favorable, P-Partially favorable, A-Adverse, D-Dismissal)",
-    "intent": "detail_listing",
-    "recommended_visual": "Table",
+    "requirement": "Number of withdrawn coverage requests",
+    "intent": "kpi",
+    "recommended_visual": "Card",
     "required_columns": [
-      "FactObservation.disposition"
+      "FactObservation.observation_key",
+      "FactObservation.observation_code",
+      "FactObservation.observation_status"
     ],
-    "reasoning": "This requirement asks for a categorical outcome of each determination, indicating a need to list individual records."
+    "reasoning": "This is a single summary count of coverage requests that were withdrawn."
   },
   {
-    "requirement": "Dismissal Rationale (01-Requestor not permitted/proper party, 02-Invalid request, 03-Enrollee died, 03-Untimely request, 04-Withdrawn)",
-    "intent": "detail_listing",
-    "recommended_visual": "Table",
+    "requirement": "Number of dismissed coverage requests",
+    "intent": "kpi",
+    "recommended_visual": "Card",
     "required_columns": [
-      "FactObservation.dismissal_rationale"
+      "FactObservation.observation_key",
+      "FactObservation.observation_code",
+      "FactObservation.value_codeable_concept"
     ],
-    "reasoning": "This requirement asks for a categorical attribute providing detail for dismissals, indicating a need to list individual records."
+    "reasoning": "This is a single summary count of coverage requests that were dismissed."
   },
   {
-    "requirement": "Decision Rationale (01-Cost Sharing/Benefit Limits, 02-Coverage Excluded, 03-Statutory Exclusion, 04-No Prior Authorization, 05-Lack of Medical Necessity, 06-Not Deemed Emergency Care, 07-Not Deemed Reasonable and Necessary, 08-Not Urgent Out of Area, 09-Requested Setting Not Approved, 10-Procedural/Admin Denial, 11-Step Therapy or UM Requirement Not Met)",
-    "intent": "detail_listing",
-    "recommended_visual": "Table",
+    "requirement": "Number of reopened organization determinations and reconsiderations",
+    "intent": "kpi",
+    "recommended_visual": "Card",
     "required_columns": [
-      "FactObservation.decision_rationale"
+      "FactObservation.observation_key",
+      "FactObservation.observation_code"
     ],
-    "reasoning": "This requirement asks for a categorical attribute providing detail for decisions, indicating a need to list individual records. Organizational decision applied to remove numerical prefixes."
+    "reasoning": "This is a single summary count of reopened cases."
   },
   {
-    "requirement": "Reviewer Qualifications (P-Physician, O-Other Appropriate Healthcare Professional)",
-    "intent": "detail_listing",
-    "recommended_visual": "Table",
+    "requirement": "Employer Group Plan Sponsor enrollment count as of the last day of the reporting period",
+    "intent": "kpi",
+    "recommended_visual": "Card",
     "required_columns": [
-      "DimProvider.qualification",
-      "FactObservation.reviewer_provider_key"
+      "DimPatient.patient_key",
+      "DimPatient.is_active",
+      "DimOrganization.organization_type",
+      "DimDate.date_key"
     ],
-    "reasoning": "This requirement asks for a categorical attribute of the reviewer, indicating a need to list individual records."
+    "reasoning": "This is a single summary count of active enrollees for a specific organization type at a point in time."
   },
   {
-    "requirement": "Were internal plan coverage criteria applied? (Y/N)",
-    "intent": "detail_listing",
-    "recommended_visual": "Table",
+    "requirement": "SNP Care Management: Number of eligible enrollees (Element A)",
+    "intent": "kpi",
+    "recommended_visual": "Card",
     "required_columns": [
-      "FactObservation.were_internal_plan_coverage_criteria_applied"
+      "DimPatient.patient_key",
+      "DimOrganization.organization_type"
     ],
-    "reasoning": "This requirement asks for a boolean attribute of each determination, indicating a need to list individual records."
+    "reasoning": "This is a single summary count of eligible enrollees for SNP Care Management."
   },
   {
-    "requirement": "Did a third-party vendor participate, in any capacity, in the determination review or decision-making? (Y/N)",
-    "intent": "detail_listing",
-    "recommended_visual": "Table",
+    "requirement": "SNP Care Management: Number of initial HRAs completed (Element C)",
+    "intent": "kpi",
+    "recommended_visual": "Card",
     "required_columns": [
-      "FactObservation.did_third_party_vendor_participate"
+      "FactObservation.observation_key",
+      "FactObservation.observation_code",
+      "FactObservation.observation_status"
     ],
-    "reasoning": "This requirement asks for a boolean attribute of each determination, indicating a need to list individual records."
+    "reasoning": "This is a single summary count of completed initial HRAs."
   },
   {
-    "requirement": "For partially or fully favorable decisions, was the approved item, service or Part B drug different from what was requested? (Y/N)",
-    "intent": "detail_listing",
-    "recommended_visual": "Table",
+    "requirement": "Payments to Providers: Total actual payments made to contracted providers (Element A)",
+    "intent": "kpi",
+    "recommended_visual": "Card",
     "required_columns": [
-      "FactObservation.approved_item_different_from_requested"
+      "FactObservation.value_quantity",
+      "FactObservation.observation_code"
     ],
-    "reasoning": "This requirement asks for a boolean attribute of each determination, indicating a need to list individual records."
+    "reasoning": "This is a single summary metric representing total actual payments."
   },
   {
-    "requirement": "Procedure code for the approved item, service, or Part B drug (if different from requested)",
-    "intent": "detail_listing",
-    "recommended_visual": "Table",
+    "requirement": "Payments to Providers: Payments by value-based payment categories (Categories 1, 2, 3, and 4)",
+    "intent": "comparison_analysis",
+    "recommended_visual": "Bar Chart",
     "required_columns": [
-      "FactObservation.approved_procedure_code"
+      "FactObservation.value_quantity",
+      "FactObservation.observation_code",
+      "DimOrganization.line_of_business"
     ],
-    "reasoning": "This requirement asks for a specific code, indicating a need to list individual records."
+    "reasoning": "This requirement compares payment amounts across different value-based payment categories."
   },
   {
-    "requirement": "Service Location (zip code)",
-    "intent": "detail_listing",
-    "recommended_visual": "Table",
+    "requirement": "Supplemental Benefit Utilization and Costs: Total net amount incurred by the plan (Element L)",
+    "intent": "kpi",
+    "recommended_visual": "Card",
     "required_columns": [
-      "FactObservation.service_location_zip_code"
+      "FactObservation.value_quantity",
+      "FactObservation.observation_code"
     ],
-    "reasoning": "This requirement asks for a specific location attribute, indicating a need to list individual records."
+    "reasoning": "This is a single summary metric representing total net amount incurred."
   },
   {
-    "requirement": "Place of Service (code)",
-    "intent": "detail_listing",
-    "recommended_visual": "Table",
+    "requirement": "D-SNP Transmission of Admission Notifications: Count of hospital and SNF admissions (Element A)",
+    "intent": "kpi",
+    "recommended_visual": "Card",
     "required_columns": [
-      "FactObservation.place_of_service_code"
+      "FactEncounter.encounter_key",
+      "FactEncounter.encounter_class"
     ],
-    "reasoning": "This requirement asks for a specific code, indicating a need to list individual records."
+    "reasoning": "This is a single summary count of admissions."
   },
   {
-    "requirement": "Start Date of Service (YYYY-MM-DD)",
-    "intent": "detail_listing",
-    "recommended_visual": "Table",
-    "required_columns": [
-      "DimDate.full_date",
-      "FactObservation.start_date_of_service_key"
-    ],
-    "reasoning": "This requirement asks for a specific date, indicating a need to list individual records."
-  },
-  {
-    "requirement": "End Date of Service (YYYY-MM-DD)",
-    "intent": "detail_listing",
-    "recommended_visual": "Table",
-    "required_columns": [
-      "DimDate.full_date",
-      "FactObservation.end_date_of_service_key"
-    ],
-    "reasoning": "This requirement asks for a specific date, indicating a need to list individual records."
-  },
-  {
-    "requirement": "Date Claim Received (YYYY-MM-DD)",
-    "intent": "detail_listing",
-    "recommended_visual": "Table",
-    "required_columns": [
-      "DimDate.full_date",
-      "FactObservation.date_claim_received_key"
-    ],
-    "reasoning": "This requirement asks for a specific date, indicating a need to list individual records."
-  },
-  {
-    "requirement": "Was it a clean claim? (Y/N)",
-    "intent": "detail_listing",
-    "recommended_visual": "Table",
-    "required_columns": [
-      "FactObservation.was_clean_claim"
-    ],
-    "reasoning": "This requirement asks for a boolean attribute of each determination, indicating a need to list individual records."
-  },
-  {
-    "requirement": "Was prior approval (e.g., a prior authorization or voluntary pre-service request) requested? (Y/N)",
-    "intent": "detail_listing",
-    "recommended_visual": "Table",
-    "required_columns": [
-      "FactObservation.was_prior_approval_requested"
-    ],
-    "reasoning": "This requirement asks for a boolean attribute of each determination, indicating a need to list individual records."
-  },
-  {
-    "requirement": "OD number for associated prior approval request",
-    "intent": "detail_listing",
-    "recommended_visual": "Table",
-    "required_columns": [
-      "FactObservation.associated_od_number"
-    ],
-    "reasoning": "This requirement asks for a specific identifier, indicating a need to list individual records."
-  },
-  {
-    "requirement": "Was prior authorization a required condition for coverage? (Y/N)",
-    "intent": "detail_listing",
-    "recommended_visual": "Table",
-    "required_columns": [
-      "FactObservation.was_prior_authorization_required_for_coverage"
-    ],
-    "reasoning": "This requirement asks for a boolean attribute of each determination, indicating a need to list individual records."
-  },
-  {
-    "requirement": "Associated Organization Determination (OD) Number (for Reconsiderations)",
-    "intent": "detail_listing",
-    "recommended_visual": "Table",
-    "required_columns": [
-      "FactObservation.associated_od_number"
-    ],
-    "reasoning": "This requirement asks for a specific identifier, indicating a need to list individual records."
-  },
-  {
-    "requirement": "Appeal Number",
-    "intent": "detail_listing",
-    "recommended_visual": "Table",
-    "required_columns": [
-      "FactObservation.appeal_number"
-    ],
-    "reasoning": "This requirement asks for a specific identifier, indicating a need to list individual records."
-  },
-  {
-    "requirement": "Is this an appeal of an OD dismissal? (Y/N)",
-    "intent": "detail_listing",
-    "recommended_visual": "Table",
-    "required_columns": [
-      "FactObservation.is_appeal_of_od_dismissal"
-    ],
-    "reasoning": "This requirement asks for a boolean attribute of each appeal, indicating a need to list individual records."
-  },
-  {
-    "requirement": "Was the initial OD request denied for lack of medical necessity? (Y/N)",
-    "intent": "detail_listing",
-    "recommended_visual": "Table",
-    "required_columns": [
-      "FactObservation.initial_od_denied_medical_necessity"
-    ],
-    "reasoning": "This requirement asks for a boolean attribute of each appeal, indicating a need to list individual records."
-  },
-  {
-    "requirement": "Was the reconsideration request reviewed by a physician? (Y/N)",
-    "intent": "detail_listing",
-    "recommended_visual": "Table",
-    "required_columns": [
-      "FactObservation.reconsideration_reviewed_by_physician"
-    ],
-    "reasoning": "This requirement asks for a boolean attribute of each reconsideration, indicating a need to list individual records."
-  },
-  {
-    "requirement": "Contract Number",
-    "intent": "data_submission",
-    "recommended_visual": "Table + Export",
+    "requirement": "By Contract Number",
+    "intent": "comparison_analysis",
+    "recommended_visual": "Bar Chart",
     "required_columns": [
       "DimOrganization.contract_number"
     ],
-    "reasoning": "This dimension is a key identifier for grouping data for submission to CMS."
+    "reasoning": "This dimension is used to compare metrics across different contract numbers."
   },
   {
-    "requirement": "Plan Benefit Package (PBP)",
-    "intent": "data_submission",
-    "recommended_visual": "Table + Export",
+    "requirement": "By Plan Benefit Package (PBP) Category Code",
+    "intent": "comparison_analysis",
+    "recommended_visual": "Bar Chart",
     "required_columns": [
-      "DimOrganization.pbp_identifier"
+      "DimOrganization.pbp_code"
     ],
-    "reasoning": "This dimension is a key identifier for grouping data for submission to CMS."
+    "reasoning": "This dimension is used to compare metrics across different PBPs."
   },
   {
-    "requirement": "Report Period (Quarterly: 1/1-3/31, 4/1-6/30, 7/1-9/30, 10/1-12/31)",
-    "intent": "data_submission",
-    "recommended_visual": "Table + Export",
+    "requirement": "By State",
+    "intent": "comparison_analysis",
+    "recommended_visual": "Bar Chart",
     "required_columns": [
-      "DimDate.year",
+      "DimPatient.state"
+    ],
+    "reasoning": "This dimension is used to compare metrics across different states."
+  },
+  {
+    "requirement": "In-network payments only (for Payments to Providers Elements B-S)",
+    "intent": "data_quality",
+    "recommended_visual": "Table + KPI",
+    "required_columns": [
+      "FactObservation.observation_code",
+      "FactObservation.value_boolean"
+    ],
+    "reasoning": "This filter rule ensures only in-network payments are included, acting as a data validation/quality check."
+  },
+  {
+    "requirement": "Beneficiary-initiated enrollment and disenrollment requests (excluding auto-assignments and CMS-initiated actions)",
+    "intent": "data_quality",
+    "recommended_visual": "Table + KPI",
+    "required_columns": [
+      "FactObservation.observation_code",
+      "FactObservation.value_codeable_concept"
+    ],
+    "reasoning": "This filter rule excludes auto-assignments and CMS-initiated actions, ensuring data quality."
+  },
+  {
+    "requirement": "Grievances are reported based on the date the MAO provided the decision, regardless of when the request was received.",
+    "intent": "compliance_monitoring",
+    "recommended_visual": "KPI + Trend",
+    "required_columns": [
+      "FactObservation.date_key",
+      "FactObservation.observation_code"
+    ],
+    "reasoning": "This defines the compliance reporting window and logic based on decision date."
+  },
+  {
+    "requirement": "Reopened cases must be reported in the quarter's file corresponding to when the beneficiary was notified of the reopening decision.",
+    "intent": "compliance_monitoring",
+    "recommended_visual": "KPI + Trend",
+    "required_columns": [
+      "FactObservation.date_key",
+      "FactObservation.observation_code",
       "DimDate.quarter"
     ],
-    "reasoning": "This dimension defines the temporal scope for which data must be collected and submitted to CMS."
+    "reasoning": "This is an ongoing compliance obligation defining when reopened cases must be reported."
   },
   {
-    "requirement": "Data must be for Initial Determinations (Coverage Decisions, Payment Decisions) and Reconsiderations (Coverage Decisions, Payment Decisions) made in the reporting period.",
-    "intent": "data_submission",
-    "recommended_visual": "Table + Export",
+    "requirement": "For Payments to Providers, if a provider is paid using multiple arrangements, report total dollars under the category representing the dominant payment arrangement.",
+    "intent": "data_quality",
+    "recommended_visual": "Table + KPI",
     "required_columns": [
-      "FactObservation.determination_type",
-      "FactObservation.date_of_decision_key",
-      "DimDate.full_date",
-      "DimDate.quarter",
-      "DimDate.year"
+      "FactObservation.value_quantity",
+      "FactObservation.observation_code",
+      "DimOrganization.line_of_business"
     ],
-    "reasoning": "This is a critical filter defining which records are included in the data submission to CMS."
+    "reasoning": "This is a data quality rule defining how to handle and allocate provider payments across multiple arrangements."
   },
   {
-    "requirement": "Completed organization determinations and reconsiderations (i.e., all required notification has occurred) during the reporting period, regardless of when the request was received.",
-    "intent": "data_submission",
-    "recommended_visual": "Table + Export",
+    "requirement": "SNP Care Management: To report an enrollee as 'unable to reach' (UTR), the plan must document at least 3 non-automated phone attempts and a follow-up letter.",
+    "intent": "compliance_monitoring",
+    "recommended_visual": "KPI + Trend",
     "required_columns": [
-      "FactObservation.determination_status",
-      "FactObservation.date_of_decision_key",
-      "DimDate.full_date",
-      "DimDate.quarter",
-      "DimDate.year"
+      "FactObservation.observation_code",
+      "FactObservation.observation_status",
+      "FactObservation.dismissal_rationale"
     ],
-    "reasoning": "This specifies the status and timing criteria for inclusion in the data submission to CMS."
+    "reasoning": "This is a compliance monitoring rule defining the documentation threshold for UTR status."
   },
   {
-    "requirement": "Organization determinations or reconsiderations where a substantive decision has been made and processed in accordance with 42 C.F.R. Part 422, Subpart M.",
-    "intent": "data_submission",
-    "recommended_visual": "Table + Export",
+    "requirement": "Complaints Tracking Module (CTM) records",
+    "intent": "data_quality",
+    "recommended_visual": "Table + KPI",
     "required_columns": [
-      "FactObservation.determination_status"
+      "FactObservation.observation_code",
+      "FactObservation.observation_identifier"
     ],
-    "reasoning": "This defines the type of decisions to be included, implying a specific status or outcome for data submission."
+    "reasoning": "This is an exclusion rule to filter out CTM records to ensure data quality."
   },
   {
-    "requirement": "Denial of a Medicare request for coverage (payment or provision) of an item or service as either partially favorable or adverse, regardless of whether Medicaid payment or provision ultimately is provided.",
-    "intent": "data_submission",
-    "recommended_visual": "Table + Export",
+    "requirement": "Grievances filed by non-enrollees or prospective enrollees",
+    "intent": "data_quality",
+    "recommended_visual": "Table + KPI",
     "required_columns": [
-      "FactObservation.disposition"
+      "FactObservation.observation_code",
+      "DimPatient.patient_key"
     ],
-    "reasoning": "This clarifies how certain denial types should be reported for data submission, irrespective of other payment sources."
+    "reasoning": "This is an exclusion rule to filter out non-enrollees to ensure data quality."
   },
   {
-    "requirement": "Dual Eligible Special Needs Plans (D-SNPs) that are applicable integrated plans should report a request for a Medicare item or service based on the outcome of applying both Medicare and Medicaid coverage criteria.",
-    "intent": "data_submission",
-    "recommended_visual": "Table + Export",
+    "requirement": "Withdrawn grievances",
+    "intent": "data_quality",
+    "recommended_visual": "Table + KPI",
     "required_columns": [
-      "DimOrganization.organization_type",
-      "FactObservation.item_service_part_b_drug_code",
-      "FactObservation.disposition"
+      "FactObservation.observation_code",
+      "FactObservation.observation_status"
     ],
-    "reasoning": "This is a specific reporting rule for D-SNPs, affecting how their data is prepared for submission to CMS."
+    "reasoning": "This is an exclusion rule to filter out withdrawn grievances to ensure data quality."
   },
   {
-    "requirement": "Denials based on exhaustion of Medicare benefits.",
-    "intent": "data_submission",
-    "recommended_visual": "Table + Export",
+    "requirement": "Dismissed grievances (excluded from the total grievance count, reported separately)",
+    "intent": "data_quality",
+    "recommended_visual": "Table + KPI",
+    "required_columns": [
+      "FactObservation.observation_code",
+      "FactObservation.value_codeable_concept"
+    ],
+    "reasoning": "This is an exclusion rule to filter out dismissed grievances from the total count to ensure data quality."
+  },
+  {
+    "requirement": "Decision Rationale descriptive reasons only (no numerical prefixes)",
+    "intent": "data_quality",
+    "recommended_visual": "Table + KPI",
     "required_columns": [
       "FactObservation.decision_rationale"
     ],
-    "reasoning": "This specifies a particular type of denial that must be included in the data submission."
+    "reasoning": "This is a data quality rule ensuring that numerical prefixes are removed from the decision rationale field per organizational decisions 4fac028f and 95cb9416."
   },
   {
-    "requirement": "Organization determinations that involve hospital discharges and transfers to post-acute care settings.",
-    "intent": "data_submission",
-    "recommended_visual": "Table + Export",
-    "required_columns": [
-      "FactObservation.item_service_part_b_drug_description",
-      "FactEncounter.discharge_disposition"
-    ],
-    "reasoning": "This specifies a category of determinations to be included in the data submission."
-  },
-  {
-    "requirement": "Requests for supplemental services that meet the criteria defined in 42 CFR § 422.100(c)(2).",
-    "intent": "data_submission",
-    "recommended_visual": "Table + Export",
-    "required_columns": [
-      "FactObservation.item_service_part_b_drug_description"
-    ],
-    "reasoning": "This specifies a category of requests to be included based on regulatory criteria for data submission."
-  },
-  {
-    "requirement": "Decisions to extend or continue coverage of the same item or service as a separate, fully favorable organization determination.",
-    "intent": "data_submission",
-    "recommended_visual": "Table + Export",
-    "required_columns": [
-      "FactObservation.disposition",
-      "FactObservation.item_service_part_b_drug_code",
-      "FactObservation.od_number"
-    ],
-    "reasoning": "This clarifies how certain favorable decisions should be reported as separate determinations for data submission."
-  },
-  {
-    "requirement": "If an organization determination includes more than one service, include all multiple line items as separate entries with the same OD number.",
-    "intent": "data_submission",
-    "recommended_visual": "Table + Export",
-    "required_columns": [
-      "FactObservation.od_number",
-      "FactObservation.item_service_part_b_drug_code"
-    ],
-    "reasoning": "This is a data structuring rule for submission, ensuring granular reporting to CMS."
-  },
-  {
-    "requirement": "Requests submitted by staff of a physician’s office on behalf of the physician should be reported as contract or non-contract provider, as appropriate.",
-    "intent": "data_submission",
-    "recommended_visual": "Table + Export",
-    "required_columns": [
-      "FactObservation.requesting_party_code",
-      "DimOrganization.organization_type"
-    ],
-    "reasoning": "This is a classification rule for the 'Requesting Party' field for data submission."
-  },
-  {
-    "requirement": "Provider’s NPI must be reported on a service decision when the request is submitted by (or on behalf of) a provider or when an enrollee submits a service request and identifies a provider had ordered the requested item, service, or Part B drug or the enrollee requested to receive the item, service, or Part B drug from a specific provider.",
-    "intent": "data_quality",
-    "recommended_visual": "Table + KPI",
-    "required_columns": [
-      "DimProvider.npi",
-      "FactObservation.requesting_party_code",
-      "FactObservation.item_service_part_b_drug_code"
-    ],
-    "reasoning": "This is a data quality rule specifying when the NPI field is mandatory for accurate reporting."
-  },
-  {
-    "requirement": "Data must be submitted at the contract number/PBP level.",
-    "intent": "data_submission",
-    "recommended_visual": "Table + Export",
-    "required_columns": [
-      "DimOrganization.contract_number",
-      "DimOrganization.pbp_identifier"
-    ],
-    "reasoning": "This defines the granularity and grouping for data submission to CMS."
-  },
-  {
-    "requirement": "Compliance with reporting requirements is a contractual obligation of all MA organizations.",
-    "intent": "compliance_monitoring",
-    "recommended_visual": "KPI + Trend",
-    "required_columns": [],
-    "reasoning": "This states an ongoing contractual obligation, implying monitoring of overall compliance with reporting requirements."
-  },
-  {
-    "requirement": "Data must be accurate and submitted in a timely manner.",
+    "requirement": "Ensure that the Medicare Part C Reporting is kept strictly separate from prior authorization metrics and service level data collection reports.",
     "intent": "compliance_monitoring",
     "recommended_visual": "KPI + Trend",
     "required_columns": [
-      "FactObservation.date_of_decision_key",
-      "DimDate.full_date"
+      "FactObservation.observation_code"
     ],
-    "reasoning": "This is a general compliance requirement for data quality and submission timeliness, requiring ongoing monitoring."
-  },
-  {
-    "requirement": "Data submissions are due by 11:59 p.m. Pacific Time on the date of the reporting deadline.",
-    "intent": "compliance_monitoring",
-    "recommended_visual": "KPI + Trend",
-    "required_columns": [
-      "DimDate.full_date"
-    ],
-    "reasoning": "This is a specific deadline that needs to be monitored for compliance."
-  },
-  {
-    "requirement": "Only data reflecting a good faith effort to provide accurate responses will count as timely submitted.",
-    "intent": "data_quality",
-    "recommended_visual": "Table + KPI",
-    "required_columns": [],
-    "reasoning": "This rule links timeliness to accuracy, implying a quality check on the submitted data."
-  },
-  {
-    "requirement": "CMS tracks resubmissions, including those made after the deadline.",
-    "intent": "compliance_monitoring",
-    "recommended_visual": "KPI + Trend",
-    "required_columns": [],
-    "reasoning": "This indicates CMS's monitoring activity related to submission behavior, which is a compliance concern."
-  },
-  {
-    "requirement": "CMS expects data to be accurate on the date of submission.",
-    "intent": "data_quality",
-    "recommended_visual": "Table + KPI",
-    "required_columns": [],
-    "reasoning": "This is a direct statement about data accuracy, a core data quality principle."
-  },
-  {
-    "requirement": "Organizations must store revised data and follow record retention requirements.",
-    "intent": "compliance_monitoring",
-    "recommended_visual": "KPI + Trend",
-    "required_columns": [],
-    "reasoning": "This is an ongoing compliance obligation related to data management and record keeping."
-  },
-  {
-    "requirement": "Organizations should report data based on their interpretation of the Service Level Data Collection and Technical Specifications and be able to support their decisions.",
-    "intent": "compliance_monitoring",
-    "recommended_visual": "KPI + Trend",
-    "required_columns": [],
-    "reasoning": "This is an ongoing compliance obligation related to data interpretation and defensibility under audit."
-  },
-  {
-    "requirement": "Organizations are required to report complete quarters that precede non-renewal or termination of the plan (PBP) or contract (e.g., if H0000 terminates May 31, report Q1; if H0000 non-renews Dec 31, report all quarters).",
-    "intent": "data_submission",
-    "recommended_visual": "Table + Export",
-    "required_columns": [
-      "DimOrganization.contract_number",
-      "DimOrganization.pbp_identifier",
-      "DimDate.quarter",
-      "DimDate.year"
-    ],
-    "reasoning": "This specifies the scope of data to be submitted in specific organizational change scenarios, impacting data inclusion."
-  },
-  {
-    "requirement": "HPMS will not allow the entry of '>', '<', ';', or decimals in any data entry field or uploaded file.",
-    "intent": "data_quality",
-    "recommended_visual": "Table + KPI",
-    "required_columns": [
-      "FactObservation.od_number",
-      "FactObservation.item_service_part_b_drug_code",
-      "DimOrganization.contract_number",
-      "DimOrganization.pbp_identifier"
-    ],
-    "reasoning": "This is a specific data validation rule for input fields, ensuring data quality."
-  },
-  {
-    "requirement": "Organizations must not submit 'placeholder' data (e.g., '99999').",
-    "intent": "data_quality",
-    "recommended_visual": "Table + KPI",
-    "required_columns": [
-      "FactObservation.od_number",
-      "FactObservation.item_service_part_b_drug_code",
-      "DimOrganization.contract_number",
-      "DimOrganization.pbp_identifier"
-    ],
-    "reasoning": "This is a data quality rule against submitting invalid or non-meaningful data."
-  },
-  {
-    "requirement": "Numeric fields do not allow characters.",
-    "intent": "data_quality",
-    "recommended_visual": "Table + KPI",
-    "required_columns": [
-      "DimDate.date_key",
-      "DimPatient.patient_key",
-      "DimProvider.provider_key",
-      "DimOrganization.organization_key",
-      "DimCondition.condition_key"
-    ],
-    "reasoning": "This is a data type validation rule, ensuring data quality."
-  },
-  {
-    "requirement": "Where there are multiple options, a single selection must be made.",
-    "intent": "data_quality",
-    "recommended_visual": "Table + KPI",
-    "required_columns": [
-      "FactObservation.requesting_party_code",
-      "FactObservation.processing_priority",
-      "FactObservation.disposition",
-      "FactObservation.dismissal_rationale",
-      "FactObservation.decision_rationale",
-      "DimProvider.qualification"
-    ],
-    "reasoning": "This is a data validation rule for categorical fields, ensuring single-choice selection and data quality."
-  },
-  {
-    "requirement": "CMS generally does not grant extensions to reporting deadlines.",
-    "intent": "compliance_monitoring",
-    "recommended_visual": "KPI + Trend",
-    "required_columns": [],
-    "reasoning": "This reinforces the strictness of compliance with deadlines, impacting monitoring."
-  },
-  {
-    "requirement": "Any assumptions made for timely data submission must be fully documented and defensible under audit.",
-    "intent": "compliance_monitoring",
-    "recommended_visual": "KPI + Trend",
-    "required_columns": [],
-    "reasoning": "This is an ongoing compliance obligation related to data governance and auditability."
-  },
-  {
-    "requirement": "Resubmission requests are considered through the HPMS Plan Reporting Module (PRM).",
-    "intent": "compliance_monitoring",
-    "recommended_visual": "KPI + Trend",
-    "required_columns": [],
-    "reasoning": "This describes a process related to compliance management and reporting."
-  },
-  {
-    "requirement": "Formal request to resubmit data is required once a reporting deadline has passed.",
-    "intent": "compliance_monitoring",
-    "recommended_visual": "KPI + Trend",
-    "required_columns": [],
-    "reasoning": "This describes a process related to compliance management and reporting."
-  },
-  {
-    "requirement": "Approval for resubmission requests is for 7 days from CMS review and approval.",
-    "intent": "compliance_monitoring",
-    "recommended_visual": "KPI + Trend",
-    "required_columns": [],
-    "reasoning": "This describes a process related to compliance management and reporting."
-  },
-  {
-    "requirement": "Organizations should not submit resubmission requests until data is available.",
-    "intent": "data_quality",
-    "recommended_visual": "Table + KPI",
-    "required_columns": [],
-    "reasoning": "This is a procedural rule to ensure meaningful data is submitted, thus a data quality concern."
-  },
-  {
-    "requirement": "Late data (submitted after deadline) may not be incorporated within CMS data analyses and reporting.",
-    "intent": "compliance_monitoring",
-    "recommended_visual": "KPI + Trend",
-    "required_columns": [],
-    "reasoning": "This highlights the importance of timely submission for CMS's internal processes, making it a compliance concern."
-  },
-  {
-    "requirement": "HPMS will not allow the resubmission of data identical to the original submission.",
-    "intent": "data_quality",
-    "recommended_visual": "Table + KPI",
-    "required_columns": [
-      "FactObservation.od_number",
-      "FactObservation.item_service_part_b_drug_code",
-      "FactObservation.date_of_decision_key"
-    ],
-    "reasoning": "This is a data quality rule to ensure resubmissions are actual corrections and not redundant."
-  },
-  {
-    "requirement": "Submission of inaccurate or incorrect data does not satisfy the obligation to report.",
-    "intent": "data_quality",
-    "recommended_visual": "Table + KPI",
-    "required_columns": [],
-    "reasoning": "This is a fundamental statement about data accuracy, a core data quality principle."
-  },
-  {
-    "requirement": "Corrections are appropriate for errors made at the original submission date or as indicated by CMS.",
-    "intent": "compliance_monitoring",
-    "recommended_visual": "KPI + Trend",
-    "required_columns": [],
-    "reasoning": "This describes the conditions under which corrections (resubmissions) are valid, related to compliance."
-  },
-  {
-    "requirement": "A plan can only initiate a resubmission request after the original reporting deadline has expired.",
-    "intent": "compliance_monitoring",
-    "recommended_visual": "KPI + Trend",
-    "required_columns": [],
-    "reasoning": "This describes a procedural rule for compliance with resubmission processes."
-  },
-  {
-    "requirement": "If CMS revises technical specifications, plans must incorporate changes beginning the following reporting period from the publication date (e.g., March update affects Q2 data).",
-    "intent": "compliance_monitoring",
-    "recommended_visual": "KPI + Trend",
-    "required_columns": [
-      "DimDate.quarter",
-      "DimDate.year"
-    ],
-    "reasoning": "This is an ongoing compliance obligation to adapt to updated specifications for reporting."
-  },
-  {
-    "requirement": "Validation checks should be performed by each organization prior to data submission (e.g., reconsideration 'date request received' >= organization determination 'date of decision').",
-    "intent": "data_quality",
-    "recommended_visual": "Table + KPI",
-    "required_columns": [
-      "FactObservation.date_request_received_key",
-      "FactObservation.date_of_decision_key",
-      "FactObservation.determination_type"
-    ],
-    "reasoning": "This explicitly states a requirement for pre-submission data validation, which is a data quality activity."
-  },
-  {
-    "requirement": "Adverse Decision means an item, service, or Part B drug was denied in whole.",
-    "intent": "data_quality",
-    "recommended_visual": "Table + KPI",
-    "required_columns": [
-      "FactObservation.disposition"
-    ],
-    "reasoning": "This provides a definition crucial for accurate classification and reporting of the 'Adverse' disposition, ensuring data quality."
-  },
-  {
-    "requirement": "Clean Claim is a claim with no defect, impropriety, lack of required documentation, or special circumstance preventing timely payment, conforming to Original Medicare clean claim requirements (42 CFR §422.500(b)).",
-    "intent": "data_quality",
-    "recommended_visual": "Table + KPI",
-    "required_columns": [
-      "FactObservation.was_clean_claim"
-    ],
-    "reasoning": "This provides a definition crucial for accurate classification and reporting of 'Clean Claim', ensuring data quality."
-  },
-  {
-    "requirement": "Fully Favorable decision means an item, service, or Part B drug was covered in whole.",
-    "intent": "data_quality",
-    "recommended_visual": "Table + KPI",
-    "required_columns": [
-      "FactObservation.disposition"
-    ],
-    "reasoning": "This provides a definition crucial for accurate classification and reporting of the 'Fully Favorable' disposition, ensuring data quality."
-  },
-  {
-    "requirement": "Internal Coverage Criteria refers to an MA organization’s established coverage criteria as defined in 42 CFR § 422.101(b)(6).",
-    "intent": "data_quality",
-    "recommended_visual": "Table + KPI",
-    "required_columns": [
-      "FactObservation.were_internal_plan_coverage_criteria_applied"
-    ],
-    "reasoning": "This provides a definition crucial for accurate reporting of whether internal coverage criteria were applied, ensuring data quality."
-  },
-  {
-    "requirement": "Organization Determination includes auto-adjudicated claims, service authorizations (prior-approvals, concurrent authorization), requests to continue previously authorized ongoing courses of treatment, and reduction/discontinuation of covered services. It includes pre-service requests from enrollee, representative, contract/non-contract providers, and claims payment requests.",
-    "intent": "data_submission",
-    "recommended_visual": "Table + Export",
-    "required_columns": [
-      "FactObservation.determination_type",
-      "FactObservation.requesting_party_code"
-    ],
-    "reasoning": "This provides a comprehensive definition of what types of events fall under 'Organization Determination' for reporting, directly impacting data inclusion for submission."
-  },
-  {
-    "requirement": "Concurrent Authorization is a coverage decision made contemporaneously to when an enrollee is receiving the item/service/Part B drug, without prior authorization.",
-    "intent": "data_quality",
-    "recommended_visual": "Table + KPI",
-    "required_columns": [
-      "FactObservation.determination_type",
-      "FactObservation.was_prior_authorization_required"
-    ],
-    "reasoning": "This provides a definition crucial for accurate classification of determination types, ensuring data quality."
-  },
-  {
-    "requirement": "Partially Favorable decision means an item, service, or Part B drug was partially covered (e.g., some claim line items paid, or fewer services authorized than requested).",
-    "intent": "data_quality",
-    "recommended_visual": "Table + KPI",
-    "required_columns": [
-      "FactObservation.disposition"
-    ],
-    "reasoning": "This provides a definition crucial for accurate classification and reporting of the 'Partially Favorable' disposition, ensuring data quality."
-  },
-  {
-    "requirement": "Prior Approval refers to coverage decisions made before provision of item/service/Part B drug, including prior authorization requests and voluntary pre-service requests.",
-    "intent": "data_quality",
-    "recommended_visual": "Table + KPI",
-    "required_columns": [
-      "FactObservation.was_prior_approval_requested",
-      "FactObservation.was_prior_authorization_required"
-    ],
-    "reasoning": "This provides a definition crucial for accurate reporting related to prior approvals, ensuring data quality."
-  },
-  {
-    "requirement": "National PACE Plans",
-    "intent": "data_submission",
-    "recommended_visual": "Table + Export",
-    "required_columns": [
-      "DimOrganization.organization_type"
-    ],
-    "reasoning": "This specifies an organizational type to be excluded from data submission to CMS."
-  },
-  {
-    "requirement": "1833 Cost Plans",
-    "intent": "data_submission",
-    "recommended_visual": "Table + Export",
-    "required_columns": [
-      "DimOrganization.organization_type"
-    ],
-    "reasoning": "This specifies an organizational type to be excluded from data submission to CMS."
-  },
-  {
-    "requirement": "Medicare-Medicaid Plans (MMPs)",
-    "intent": "data_submission",
-    "recommended_visual": "Table + Export",
-    "required_columns": [
-      "DimOrganization.organization_type"
-    ],
-    "reasoning": "This specifies an organizational type to be excluded from data submission to CMS."
-  },
-  {
-    "requirement": "Independent Review Entity (IRE) decisions",
-    "intent": "data_submission",
-    "recommended_visual": "Table + Export",
-    "required_columns": [
-      "FactObservation.determination_type"
-    ],
-    "reasoning": "This specifies a type of decision to be excluded from data submission to CMS."
-  },
-  {
-    "requirement": "Reopenings requested or completed by the IRE, Administrative Law Judge (ALJ), or Appeals Council",
-    "intent": "data_submission",
-    "recommended_visual": "Table + Export",
-    "required_columns": [
-      "FactObservation.determination_type",
-      "DimProvider.qualification"
-    ],
-    "reasoning": "This specifies types of reopenings/reviews to be excluded from data submission to CMS."
-  },
-  {
-    "requirement": "Duplicate payment requests concerning the same service or item",
-    "intent": "data_submission",
-    "recommended_visual": "Table + Export",
-    "required_columns": [
-      "FactObservation.od_number",
-      "FactObservation.item_service_part_b_drug_code",
-      "FactObservation.date_request_received_key"
-    ],
-    "reasoning": "This specifies a condition for excluding duplicate requests from data submission to CMS."
-  },
-  {
-    "requirement": "Payment requests returned to a provider/supplier in which a substantive decision (fully favorable, partially favorable or adverse) has not been made (e.g., incomplete forms, clerical errors)",
-    "intent": "data_submission",
-    "recommended_visual": "Table + Export",
-    "required_columns": [
-      "FactObservation.determination_status",
-      "FactObservation.disposition"
-    ],
-    "reasoning": "This specifies a condition for excluding requests that haven't reached a substantive decision from data submission to CMS."
-  },
-  {
-    "requirement": "Part B drugs paid or denied at the pharmacy and point-of-sale Part B drug claim rejections (unless the plan subsequently processes an organization determination)",
-    "intent": "data_submission",
-    "recommended_visual": "Table + Export",
-    "required_columns": [
-      "FactObservation.item_service_part_b_drug_code",
-      "FactObservation.determination_type"
-    ],
-    "reasoning": "This specifies types of Part B drug transactions to be excluded unless they become an OD for data submission to CMS."
-  },
-  {
-    "requirement": "Quality Improvement Organization (QIO) review of an individual’s request to continue Medicare-covered services (e.g., SNF stay) and any related claims/requests to pay for continued coverage based on such QIO decision",
-    "intent": "data_submission",
-    "recommended_visual": "Table + Export",
-    "required_columns": [
-      "FactObservation.determination_type",
-      "FactObservation.item_service_part_b_drug_description"
-    ],
-    "reasoning": "This specifies types of reviews and related claims to be excluded from data submission to CMS."
-  },
-  {
-    "requirement": "A service only covered under the plan’s Medicaid benefits and never covered by Medicare and not covered by the MA plan as a supplemental Medicare benefit (such as Medicaid home-and community-based long-term services and supports)",
-    "intent": "data_submission",
-    "recommended_visual": "Table + Export",
-    "required_columns": [
-      "FactObservation.item_service_part_b_drug_description"
-    ],
-    "reasoning": "This specifies services covered solely by Medicaid (and not Medicare/supplemental MA) to be excluded from data submission to CMS."
-  },
-  {
-    "requirement": "Plan decisions regarding a request to vacate a dismissal",
-    "intent": "data_submission",
-    "recommended_visual": "Table + Export",
-    "required_columns": [
-      "FactObservation.determination_type",
-      "FactObservation.dismissal_rationale"
-    ],
-    "reasoning": "This specifies a particular type of plan decision to be excluded from data submission to CMS."
+    "reasoning": "This is a compliance monitoring rule ensuring strict isolation of Part C reporting from prior authorization metrics per organizational decision c19cd11c."
   }
 ]

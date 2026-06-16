@@ -1,436 +1,250 @@
 {
   "fact_tables": [
     {
-      "name": "FactDetermination",
+      "name": "FactObservation",
       "source_fhir_resource": "Observation",
-      "description": "Captures details and outcomes of initial determinations and reconsiderations for coverage and payment, serving as the central fact for CMS reporting.",
-      "grain": "One row represents a single Organization Determination or Reconsideration event.",
+      "description": "Captures operational quality events, grievances, organization determinations, reconsiderations, health risk assessments (HRAs), and provider payments. Strictly isolated from prior authorization metrics and service level data collection reports per organizational decision c19cd11c.",
+      "grain": "One observation event (e.g., a grievance decision, a determination outcome, an HRA completion, or a payment record)",
       "columns": [
         {
-          "name": "determination_key",
-          "data_type": "INTEGER",
-          "source_fhir_field": "",
-          "description": "Surrogate key for the determination event."
+          "name": "observation_key",
+          "data_type": "VARCHAR",
+          "source_fhir_field": "id",
+          "description": "Surrogate key for the observation record."
         },
         {
           "name": "patient_key",
-          "data_type": "INTEGER",
-          "source_fhir_field": "",
-          "description": "Foreign key to DimPatient for the enrollee involved in the determination."
+          "data_type": "VARCHAR",
+          "source_fhir_field": "subject.reference",
+          "description": "Foreign key to DimPatient."
         },
         {
           "name": "provider_key",
-          "data_type": "INTEGER",
-          "source_fhir_field": "",
-          "description": "Foreign key to DimProvider for the primary provider associated with the request or decision."
+          "data_type": "VARCHAR",
+          "source_fhir_field": "performer.reference",
+          "description": "Foreign key to DimProvider."
         },
         {
           "name": "organization_key",
-          "data_type": "INTEGER",
-          "source_fhir_field": "",
-          "description": "Foreign key to DimOrganization for the plan/organization making the determination."
-        },
-        {
-          "name": "condition_key",
-          "data_type": "INTEGER",
-          "source_fhir_field": "",
-          "description": "Foreign key to DimCondition for the primary diagnosis associated with the determination."
-        },
-        {
-          "name": "request_date_key",
-          "data_type": "INTEGER",
-          "source_fhir_field": "",
-          "description": "Foreign key to DimDate for the date the determination request was received."
-        },
-        {
-          "name": "decision_date_key",
-          "data_type": "INTEGER",
-          "source_fhir_field": "",
-          "description": "Foreign key to DimDate for the date the determination decision was made."
-        },
-        {
-          "name": "claim_received_date_key",
-          "data_type": "INTEGER",
-          "source_fhir_field": "",
-          "description": "Foreign key to DimDate for the date the claim was received (applicable for payment decisions)."
-        },
-        {
-          "name": "service_start_date_key",
-          "data_type": "INTEGER",
-          "source_fhir_field": "",
-          "description": "Foreign key to DimDate for the start date of the service related to the determination."
-        },
-        {
-          "name": "service_end_date_key",
-          "data_type": "INTEGER",
-          "source_fhir_field": "",
-          "description": "Foreign key to DimDate for the end date of the service related to the determination."
-        },
-        {
-          "name": "od_number",
           "data_type": "VARCHAR",
-          "source_fhir_field": "Observation.identifier",
-          "description": "Unique identifier for the Organization Determination."
+          "source_fhir_field": "performer.reference",
+          "description": "Foreign key to DimOrganization."
         },
         {
-          "name": "appeal_number",
+          "name": "date_key",
           "data_type": "VARCHAR",
-          "source_fhir_field": "Observation.identifier",
-          "description": "Unique identifier for the Appeal or Reconsideration."
+          "source_fhir_field": "effectiveDateTime",
+          "description": "Foreign key to DimDate representing the event date."
         },
         {
-          "name": "associated_od_number",
+          "name": "observation_identifier",
           "data_type": "VARCHAR",
-          "source_fhir_field": "Observation.identifier",
-          "description": "Organization Determination number associated with a Reconsideration."
+          "source_fhir_field": "identifier",
+          "description": "Business identifier (e.g., Organization Determination Number, Appeal Number)."
         },
         {
-          "name": "requesting_party_code",
+          "name": "observation_code",
           "data_type": "VARCHAR",
-          "source_fhir_field": "Observation.valueCodeableConcept",
-          "description": "Code indicating the party requesting the determination (e.g., 01-enrollee, 03-contract provider)."
+          "source_fhir_field": "code",
+          "description": "Coded type of observation (e.g., Grievance, Initial Determination, Reconsideration, HRA, Payment)."
         },
         {
-          "name": "is_contracted_provider_referral",
+          "name": "observation_status",
+          "data_type": "VARCHAR",
+          "source_fhir_field": "status",
+          "description": "Completion status of the observation (e.g., final, completed)."
+        },
+        {
+          "name": "value_codeable_concept",
+          "data_type": "VARCHAR",
+          "source_fhir_field": "valueCodeableConcept",
+          "description": "Coded result value (e.g., Disposition like Fully Favorable, Adverse, Dismissal)."
+        },
+        {
+          "name": "value_boolean",
           "data_type": "BOOLEAN",
-          "source_fhir_field": "Observation.valueBoolean",
-          "description": "Indicates if the referral for the determination was from a contracted provider."
+          "source_fhir_field": "valueBoolean",
+          "description": "Boolean result flag (e.g., Was expedited requested, Was clean claim)."
         },
         {
-          "name": "item_service_code",
-          "data_type": "VARCHAR",
-          "source_fhir_field": "Procedure.code / MedicationRequest.medicationCodeableConcept",
-          "description": "Code for the requested item, service, or Part B drug (CPT, HCPCS, J code, DRG) (degenerate dimension)."
-        },
-        {
-          "name": "item_service_description",
-          "data_type": "VARCHAR",
-          "source_fhir_field": "Procedure.code.text / MedicationRequest.medicationCodeableConcept.text",
-          "description": "Description of the requested item, service, or Part B drug (degenerate dimension)."
-        },
-        {
-          "name": "is_prior_auth_required",
-          "data_type": "BOOLEAN",
-          "source_fhir_field": "Observation.valueBoolean",
-          "description": "Indicates if prior authorization was required for the requested item/service."
-        },
-        {
-          "name": "processing_priority",
-          "data_type": "VARCHAR",
-          "source_fhir_field": "Observation.valueCodeableConcept",
-          "description": "Processing priority for the determination (S-Standard, E-Expedited)."
-        },
-        {
-          "name": "is_expedited_processing_requested",
-          "data_type": "BOOLEAN",
-          "source_fhir_field": "Observation.valueBoolean",
-          "description": "Indicates if expedited processing was requested for the determination."
-        },
-        {
-          "name": "disposition",
-          "data_type": "VARCHAR",
-          "source_fhir_field": "Observation.valueCodeableConcept",
-          "description": "Outcome of the determination (F-Fully favorable, P-Partially favorable, A-Adverse, D-Dismissal)."
-        },
-        {
-          "name": "dismissal_rationale",
-          "data_type": "VARCHAR",
-          "source_fhir_field": "Observation.valueCodeableConcept",
-          "description": "Reason for dismissal of the determination (e.g., Requestor not permitted, Invalid request)."
+          "name": "value_quantity",
+          "data_type": "DECIMAL",
+          "source_fhir_field": "valueQuantity",
+          "description": "Numeric value (e.g., Payment amount, Out-of-pocket cost)."
         },
         {
           "name": "decision_rationale",
           "data_type": "VARCHAR",
-          "source_fhir_field": "Observation.valueCodeableConcept",
-          "description": "Reason for the determination decision (e.g., Cost Sharing/Benefit Limits, Lack of Medical Necessity). Organizational decision applied: numerical prefixes removed, only descriptive reasons reported."
+          "source_fhir_field": "valueCodeableConcept",
+          "description": "Descriptive reason for the decision. Numerical prefixes are removed per organizational decisions 4fac028f and 95cb9416."
         },
         {
-          "name": "were_internal_plan_criteria_applied",
-          "data_type": "BOOLEAN",
-          "source_fhir_field": "Observation.valueBoolean",
-          "description": "Indicates if internal plan coverage criteria were applied during the review."
-        },
-        {
-          "name": "did_third_party_vendor_participate",
-          "data_type": "BOOLEAN",
-          "source_fhir_field": "Observation.valueBoolean",
-          "description": "Indicates if a third-party vendor participated in the determination review or decision-making."
-        },
-        {
-          "name": "is_approved_item_different_from_requested",
-          "data_type": "BOOLEAN",
-          "source_fhir_field": "Observation.valueBoolean",
-          "description": "For favorable decisions, indicates if the approved item, service, or Part B drug was different from what was requested."
-        },
-        {
-          "name": "approved_item_service_code",
+          "name": "dismissal_rationale",
           "data_type": "VARCHAR",
-          "source_fhir_field": "Procedure.code / MedicationRequest.medicationCodeableConcept",
-          "description": "Procedure code for the approved item, service, or Part B drug (if different from requested) (degenerate dimension)."
+          "source_fhir_field": "valueCodeableConcept",
+          "description": "Coded reason for dismissal of a grievance or coverage request."
         },
         {
-          "name": "service_location_zip_code",
+          "name": "processing_priority",
           "data_type": "VARCHAR",
-          "source_fhir_field": "Location.address.postalCode",
-          "description": "Zip code of the service location (degenerate dimension)."
-        },
-        {
-          "name": "place_of_service_code",
-          "data_type": "VARCHAR",
-          "source_fhir_field": "Encounter.class",
-          "description": "Code for the place of service (degenerate dimension)."
-        },
-        {
-          "name": "is_clean_claim",
-          "data_type": "BOOLEAN",
-          "source_fhir_field": "Observation.valueBoolean",
-          "description": "Indicates if the claim was considered a 'clean claim' for payment decisions."
-        },
-        {
-          "name": "was_prior_approval_requested",
-          "data_type": "BOOLEAN",
-          "source_fhir_field": "Observation.valueBoolean",
-          "description": "Indicates if prior approval (e.g., prior authorization or voluntary pre-service request) was requested."
-        },
-        {
-          "name": "prior_approval_od_number",
-          "data_type": "VARCHAR",
-          "source_fhir_field": "Observation.identifier",
-          "description": "OD number for an associated prior approval request, if prior approval was requested."
-        },
-        {
-          "name": "is_prior_auth_required_for_coverage",
-          "data_type": "BOOLEAN",
-          "source_fhir_field": "Observation.valueBoolean",
-          "description": "Indicates if prior authorization was a required condition for coverage (if prior approval requested)."
-        },
-        {
-          "name": "is_appeal_of_od_dismissal",
-          "data_type": "BOOLEAN",
-          "source_fhir_field": "Observation.valueBoolean",
-          "description": "Indicates if the reconsideration is an appeal of an Organization Determination dismissal."
-        },
-        {
-          "name": "was_initial_od_denied_medical_necessity",
-          "data_type": "BOOLEAN",
-          "source_fhir_field": "Observation.valueBoolean",
-          "description": "Indicates if the initial OD request was denied for lack of medical necessity."
-        },
-        {
-          "name": "was_reconsideration_reviewed_by_physician",
-          "data_type": "BOOLEAN",
-          "source_fhir_field": "Observation.valueBoolean",
-          "description": "Indicates if the reconsideration request was reviewed by a physician."
-        },
-        {
-          "name": "determination_type",
-          "data_type": "VARCHAR",
-          "source_fhir_field": "Observation.code",
-          "description": "Type of determination (e.g., 'Initial Determination', 'Reconsideration')."
-        },
-        {
-          "name": "determination_subtype",
-          "data_type": "VARCHAR",
-          "source_fhir_field": "Observation.code",
-          "description": "Subtype of determination (e.g., 'Coverage Decision', 'Payment Decision')."
-        },
-        {
-          "name": "determination_count",
-          "data_type": "INTEGER",
-          "source_fhir_field": "",
-          "description": "Count of determination events (always 1 per row)."
+          "source_fhir_field": "valueCodeableConcept",
+          "description": "Priority of processing (e.g., Standard, Expedited)."
         }
       ]
     },
     {
       "name": "FactEncounter",
       "source_fhir_resource": "Encounter",
-      "description": "Captures details about patient encounters. While not directly generating measures for this specific CMS report, it provides contextual data.",
-      "grain": "One row represents a single patient encounter.",
+      "description": "Captures inpatient interactions, hospital admissions, and Skilled Nursing Facility (SNF) stays for D-SNP and general enrollees.",
+      "grain": "One encounter admission/stay",
       "columns": [
         {
           "name": "encounter_key",
-          "data_type": "INTEGER",
-          "source_fhir_field": "",
+          "data_type": "VARCHAR",
+          "source_fhir_field": "id",
           "description": "Surrogate key for the encounter."
         },
         {
           "name": "patient_key",
-          "data_type": "INTEGER",
-          "source_fhir_field": "",
+          "data_type": "VARCHAR",
+          "source_fhir_field": "subject.reference",
           "description": "Foreign key to DimPatient."
         },
         {
           "name": "provider_key",
-          "data_type": "INTEGER",
-          "source_fhir_field": "",
-          "description": "Foreign key to DimProvider for the primary practitioner of the encounter."
+          "data_type": "VARCHAR",
+          "source_fhir_field": "participant.individual.reference",
+          "description": "Foreign key to DimProvider."
         },
         {
           "name": "organization_key",
-          "data_type": "INTEGER",
-          "source_fhir_field": "",
-          "description": "Foreign key to DimOrganization for the service provider organization."
-        },
-        {
-          "name": "start_date_key",
-          "data_type": "INTEGER",
-          "source_fhir_field": "",
-          "description": "Foreign key to DimDate for the start date of the encounter."
-        },
-        {
-          "name": "end_date_key",
-          "data_type": "INTEGER",
-          "source_fhir_field": "",
-          "description": "Foreign key to DimDate for the end date of the encounter."
-        },
-        {
-          "name": "encounter_fhir_id",
           "data_type": "VARCHAR",
-          "source_fhir_field": "Encounter.id",
-          "description": "FHIR Encounter resource ID."
+          "source_fhir_field": "serviceProvider.reference",
+          "description": "Foreign key to DimOrganization."
         },
         {
-          "name": "class_code",
+          "name": "admission_date_key",
           "data_type": "VARCHAR",
-          "source_fhir_field": "Encounter.class",
-          "description": "Code classifying the type of encounter (e.g., inpatient, outpatient, emergency)."
+          "source_fhir_field": "period.start",
+          "description": "Foreign key to DimDate for admission start."
+        },
+        {
+          "name": "discharge_date_key",
+          "data_type": "VARCHAR",
+          "source_fhir_field": "period.end",
+          "description": "Foreign key to DimDate for discharge end."
+        },
+        {
+          "name": "encounter_class",
+          "data_type": "VARCHAR",
+          "source_fhir_field": "class",
+          "description": "Class of encounter (e.g., inpatient, SNF stay, ambulatory)."
         },
         {
           "name": "discharge_disposition",
           "data_type": "VARCHAR",
-          "source_fhir_field": "Encounter.hospitalization.dischargeDisposition",
-          "description": "The disposition of the patient at discharge from a hospital encounter."
-        },
-        {
-          "name": "encounter_count",
-          "data_type": "INTEGER",
-          "source_fhir_field": "",
-          "description": "Count of encounters (always 1 per row)."
+          "source_fhir_field": "hospitalization.dischargeDisposition",
+          "description": "Discharge disposition (e.g., discharged to home, transferred to post-acute care)."
         }
       ]
     },
     {
       "name": "FactProcedure",
       "source_fhir_resource": "Procedure",
-      "description": "Captures details about procedures and services performed. While not directly generating measures for this specific CMS report, it provides contextual data.",
-      "grain": "One row represents a single procedure or service.",
+      "description": "Captures medical items, services, and supplemental benefits approved and furnished to enrollees.",
+      "grain": "One procedure or service event",
       "columns": [
         {
           "name": "procedure_key",
-          "data_type": "INTEGER",
-          "source_fhir_field": "",
+          "data_type": "VARCHAR",
+          "source_fhir_field": "id",
           "description": "Surrogate key for the procedure."
         },
         {
           "name": "patient_key",
-          "data_type": "INTEGER",
-          "source_fhir_field": "",
+          "data_type": "VARCHAR",
+          "source_fhir_field": "subject.reference",
           "description": "Foreign key to DimPatient."
         },
         {
           "name": "provider_key",
-          "data_type": "INTEGER",
-          "source_fhir_field": "",
-          "description": "Foreign key to DimProvider for the performing practitioner."
+          "data_type": "VARCHAR",
+          "source_fhir_field": "performer.actor.reference",
+          "description": "Foreign key to DimProvider."
         },
         {
           "name": "organization_key",
-          "data_type": "INTEGER",
-          "source_fhir_field": "",
-          "description": "Foreign key to DimOrganization for the performing organization."
-        },
-        {
-          "name": "performed_date_key",
-          "data_type": "INTEGER",
-          "source_fhir_field": "",
-          "description": "Foreign key to DimDate for the date the procedure was performed."
-        },
-        {
-          "name": "procedure_fhir_id",
           "data_type": "VARCHAR",
-          "source_fhir_field": "Procedure.id",
-          "description": "FHIR Procedure resource ID."
+          "source_fhir_field": "location.reference",
+          "description": "Foreign key to DimOrganization."
+        },
+        {
+          "name": "date_key",
+          "data_type": "VARCHAR",
+          "source_fhir_field": "performedDateTime",
+          "description": "Foreign key to DimDate for when the procedure was performed."
         },
         {
           "name": "procedure_code",
           "data_type": "VARCHAR",
-          "source_fhir_field": "Procedure.code",
-          "description": "CPT/HCPCS code for the procedure or service."
+          "source_fhir_field": "code",
+          "description": "CPT, HCPCS, or other service code."
         },
         {
           "name": "procedure_description",
           "data_type": "VARCHAR",
-          "source_fhir_field": "Procedure.code.text",
-          "description": "Description of the procedure or service."
-        },
-        {
-          "name": "procedure_count",
-          "data_type": "INTEGER",
-          "source_fhir_field": "",
-          "description": "Count of procedures (always 1 per row)."
+          "source_fhir_field": "code.text",
+          "description": "Text description of the service or item."
         }
       ]
     },
     {
       "name": "FactMedication",
       "source_fhir_resource": "MedicationRequest",
-      "description": "Captures details about medication requests (e.g., Part B drugs). While not directly generating measures for this specific CMS report, it provides contextual data.",
-      "grain": "One row represents a single medication request.",
+      "description": "Captures Part B drug requests and approvals.",
+      "grain": "One medication request event",
       "columns": [
         {
           "name": "medication_key",
-          "data_type": "INTEGER",
-          "source_fhir_field": "",
+          "data_type": "VARCHAR",
+          "source_fhir_field": "id",
           "description": "Surrogate key for the medication request."
         },
         {
           "name": "patient_key",
-          "data_type": "INTEGER",
-          "source_fhir_field": "",
+          "data_type": "VARCHAR",
+          "source_fhir_field": "subject.reference",
           "description": "Foreign key to DimPatient."
         },
         {
           "name": "provider_key",
-          "data_type": "INTEGER",
-          "source_fhir_field": "",
-          "description": "Foreign key to DimProvider for the prescribing practitioner."
+          "data_type": "VARCHAR",
+          "source_fhir_field": "requester.reference",
+          "description": "Foreign key to DimProvider."
         },
         {
           "name": "organization_key",
-          "data_type": "INTEGER",
-          "source_fhir_field": "",
-          "description": "Foreign key to DimOrganization for the prescribing organization."
-        },
-        {
-          "name": "authored_on_date_key",
-          "data_type": "INTEGER",
-          "source_fhir_field": "",
-          "description": "Foreign key to DimDate for the date the medication request was authored."
-        },
-        {
-          "name": "medication_fhir_id",
           "data_type": "VARCHAR",
-          "source_fhir_field": "MedicationRequest.id",
-          "description": "FHIR MedicationRequest resource ID."
+          "source_fhir_field": "insurance.reference",
+          "description": "Foreign key to DimOrganization."
+        },
+        {
+          "name": "date_key",
+          "data_type": "VARCHAR",
+          "source_fhir_field": "authoredOn",
+          "description": "Foreign key to DimDate for request date."
         },
         {
           "name": "medication_code",
           "data_type": "VARCHAR",
-          "source_fhir_field": "MedicationRequest.medicationCodeableConcept",
-          "description": "J code for the Part B drug."
+          "source_fhir_field": "medicationCodeableConcept",
+          "description": "J code or other drug code."
         },
         {
           "name": "medication_description",
           "data_type": "VARCHAR",
-          "source_fhir_field": "MedicationRequest.medicationCodeableConcept.text",
-          "description": "Description of the Part B drug."
-        },
-        {
-          "name": "medication_request_count",
-          "data_type": "INTEGER",
-          "source_fhir_field": "",
-          "description": "Count of medication requests (always 1 per row)."
+          "source_fhir_field": "medicationCodeableConcept.text",
+          "description": "Text description of the drug."
         }
       ]
     }
@@ -439,821 +253,372 @@
     {
       "name": "DimPatient",
       "source_fhir_resource": "Patient",
-      "description": "Attributes of the patient (enrollee) involved in determinations and other healthcare events.",
+      "description": "Demographic and enrollment status details of the Medicare Advantage enrollees.",
       "columns": [
         {
           "name": "patient_key",
-          "data_type": "INTEGER",
-          "source_fhir_field": "",
-          "description": "Surrogate key for the patient."
-        },
-        {
-          "name": "patient_fhir_id",
           "data_type": "VARCHAR",
-          "source_fhir_field": "Patient.id",
-          "description": "FHIR Patient resource ID."
+          "source_fhir_field": "id",
+          "description": "Surrogate key for the patient."
         },
         {
           "name": "mbi",
           "data_type": "VARCHAR",
-          "source_fhir_field": "Patient.identifier",
+          "source_fhir_field": "identifier",
           "description": "Medicare Beneficiary Identifier (MBI)."
         },
         {
-          "name": "is_deceased",
-          "data_type": "BOOLEAN",
-          "source_fhir_field": "Patient.deceased[x]",
-          "description": "Indicates if the patient is deceased."
-        },
-        {
-          "name": "gender",
+          "name": "state",
           "data_type": "VARCHAR",
-          "source_fhir_field": "Patient.gender",
-          "description": "Patient's gender."
+          "source_fhir_field": "address.state",
+          "description": "State of residence of the beneficiary."
         },
         {
-          "name": "birth_date",
+          "name": "is_active",
+          "data_type": "BOOLEAN",
+          "source_fhir_field": "active",
+          "description": "Indicates if the member is currently active (used for voluntary disenrollment tracking)."
+        },
+        {
+          "name": "deceased_date",
           "data_type": "DATE",
-          "source_fhir_field": "Patient.birthDate",
-          "description": "Patient's birth date."
+          "source_fhir_field": "deceased[x]",
+          "description": "Date of death if the enrollee is deceased."
         }
       ]
     },
     {
       "name": "DimProvider",
       "source_fhir_resource": "Practitioner",
-      "description": "Attributes of healthcare providers involved in requests, reviews, or service delivery.",
+      "description": "Details of healthcare practitioners and providers.",
       "columns": [
         {
           "name": "provider_key",
-          "data_type": "INTEGER",
-          "source_fhir_field": "",
-          "description": "Surrogate key for the provider."
-        },
-        {
-          "name": "provider_fhir_id",
           "data_type": "VARCHAR",
-          "source_fhir_field": "Practitioner.id",
-          "description": "FHIR Practitioner resource ID."
+          "source_fhir_field": "id",
+          "description": "Surrogate key for the provider."
         },
         {
           "name": "npi",
           "data_type": "VARCHAR",
-          "source_fhir_field": "Practitioner.identifier",
+          "source_fhir_field": "identifier",
           "description": "National Provider Identifier (NPI)."
-        },
-        {
-          "name": "provider_name",
-          "data_type": "VARCHAR",
-          "source_fhir_field": "Practitioner.name",
-          "description": "Full name of the provider."
         },
         {
           "name": "qualification",
           "data_type": "VARCHAR",
-          "source_fhir_field": "Practitioner.qualification",
-          "description": "Professional qualification of the provider (e.g., Physician, Other Appropriate Healthcare Professional)."
+          "source_fhir_field": "qualification",
+          "description": "Professional qualifications (e.g., Physician, Other Healthcare Professional)."
         }
       ]
     },
     {
       "name": "DimOrganization",
       "source_fhir_resource": "Organization",
-      "description": "Attributes of organizations involved, such as health plans, requesting parties, or third-party vendors.",
+      "description": "Details of Medicare Advantage Organizations, Plan Sponsors, D-SNPs, and Employer Groups.",
       "columns": [
         {
           "name": "organization_key",
-          "data_type": "INTEGER",
-          "source_fhir_field": "",
+          "data_type": "VARCHAR",
+          "source_fhir_field": "id",
           "description": "Surrogate key for the organization."
-        },
-        {
-          "name": "organization_fhir_id",
-          "data_type": "VARCHAR",
-          "source_fhir_field": "Organization.id",
-          "description": "FHIR Organization resource ID."
-        },
-        {
-          "name": "organization_name",
-          "data_type": "VARCHAR",
-          "source_fhir_field": "Organization.name",
-          "description": "Name of the organization."
-        },
-        {
-          "name": "organization_type",
-          "data_type": "VARCHAR",
-          "source_fhir_field": "Organization.type",
-          "description": "Type of organization (e.g., MAO, 1876 Cost Plan, Physician's Office, IRE, Appeals Council)."
         },
         {
           "name": "contract_number",
           "data_type": "VARCHAR",
-          "source_fhir_field": "Organization.identifier",
-          "description": "Contract number associated with the organization/plan."
+          "source_fhir_field": "identifier",
+          "description": "CMS Contract Number."
         },
         {
-          "name": "plan_benefit_package",
+          "name": "pbp_code",
           "data_type": "VARCHAR",
-          "source_fhir_field": "Organization.identifier",
-          "description": "Plan Benefit Package (PBP) identifier."
+          "source_fhir_field": "identifier",
+          "description": "Plan Benefit Package (PBP) Category Code."
+        },
+        {
+          "name": "organization_type",
+          "data_type": "VARCHAR",
+          "source_fhir_field": "type",
+          "description": "Type of organization (e.g., MAO, D-SNP, Employer Group Plan Sponsor)."
+        },
+        {
+          "name": "line_of_business",
+          "data_type": "VARCHAR",
+          "source_fhir_field": "identifier",
+          "description": "Line of business identifier."
         }
       ]
     },
     {
       "name": "DimCondition",
       "source_fhir_resource": "Condition",
-      "description": "Attributes of medical conditions or diagnoses relevant to determinations.",
+      "description": "Diagnosis codes associated with enrollees and determinations.",
       "columns": [
         {
           "name": "condition_key",
-          "data_type": "INTEGER",
-          "source_fhir_field": "",
+          "data_type": "VARCHAR",
+          "source_fhir_field": "id",
           "description": "Surrogate key for the condition."
         },
         {
-          "name": "condition_fhir_id",
+          "name": "diagnosis_code",
           "data_type": "VARCHAR",
-          "source_fhir_field": "Condition.id",
-          "description": "FHIR Condition resource ID."
-        },
-        {
-          "name": "condition_code",
-          "data_type": "VARCHAR",
-          "source_fhir_field": "Condition.code",
-          "description": "Diagnosis Code (ICD-10, HIPPS)."
-        },
-        {
-          "name": "condition_description",
-          "data_type": "VARCHAR",
-          "source_fhir_field": "Condition.code.text",
-          "description": "Description of the diagnosis."
+          "source_fhir_field": "code",
+          "description": "ICD-10 or HIPPS diagnosis code."
         }
       ]
     },
     {
       "name": "DimDate",
-      "source_fhir_resource": "N/A",
-      "description": "Standard date dimension for time-based analysis of all events.",
+      "source_fhir_resource": "None",
+      "description": "Standard date dimension for time-based analysis and reporting periods.",
       "columns": [
         {
           "name": "date_key",
-          "data_type": "INTEGER",
-          "source_fhir_field": "",
-          "description": "Surrogate key for the date (format YYYYMMDD)."
+          "data_type": "VARCHAR",
+          "source_fhir_field": "None",
+          "description": "Surrogate key (YYYYMMDD)."
         },
         {
-          "name": "full_date",
+          "name": "date",
           "data_type": "DATE",
-          "source_fhir_field": "",
-          "description": "The full date."
-        },
-        {
-          "name": "day_of_week",
-          "data_type": "VARCHAR",
-          "source_fhir_field": "",
-          "description": "Name of the day of the week (e.g., 'Monday')."
-        },
-        {
-          "name": "day_name",
-          "data_type": "VARCHAR",
-          "source_fhir_field": "",
-          "description": "Full name of the day (e.g., 'Monday')."
-        },
-        {
-          "name": "day_of_month",
-          "data_type": "INTEGER",
-          "source_fhir_field": "",
-          "description": "Day of the month (1-31)."
-        },
-        {
-          "name": "day_of_year",
-          "data_type": "INTEGER",
-          "source_fhir_field": "",
-          "description": "Day of the year (1-366)."
-        },
-        {
-          "name": "week_of_year",
-          "data_type": "INTEGER",
-          "source_fhir_field": "",
-          "description": "Week number of the year (1-53)."
-        },
-        {
-          "name": "month",
-          "data_type": "INTEGER",
-          "source_fhir_field": "",
-          "description": "Month number (1-12)."
-        },
-        {
-          "name": "month_name",
-          "data_type": "VARCHAR",
-          "source_fhir_field": "",
-          "description": "Full name of the month (e.g., 'January')."
-        },
-        {
-          "name": "quarter",
-          "data_type": "INTEGER",
-          "source_fhir_field": "",
-          "description": "Quarter of the year (1-4)."
+          "source_fhir_field": "None",
+          "description": "Calendar date."
         },
         {
           "name": "year",
           "data_type": "INTEGER",
-          "source_fhir_field": "",
-          "description": "Year."
+          "source_fhir_field": "None",
+          "description": "Calendar year."
         },
         {
-          "name": "is_weekend",
-          "data_type": "BOOLEAN",
-          "source_fhir_field": "",
-          "description": "Flag indicating if the date is a weekend."
-        },
-        {
-          "name": "fiscal_period",
+          "name": "quarter",
           "data_type": "VARCHAR",
-          "source_fhir_field": "",
-          "description": "Fiscal period (e.g., 'Q1')."
+          "source_fhir_field": "None",
+          "description": "Calendar quarter (e.g., Q1, Q2)."
+        },
+        {
+          "name": "month",
+          "data_type": "VARCHAR",
+          "source_fhir_field": "None",
+          "description": "Month name."
+        },
+        {
+          "name": "day",
+          "data_type": "INTEGER",
+          "source_fhir_field": "None",
+          "description": "Day of the month."
         }
       ]
     }
   ],
   "relationships": [
     {
-      "fact_table": "FactDetermination",
+      "fact_table": "FactObservation",
       "dimension_table": "DimPatient",
       "join_key": "patient_key",
-      "relationship_type": "many-to-one"
+      "relationship_type": "many-to-one",
+      "is_active": true
     },
     {
-      "fact_table": "FactDetermination",
+      "fact_table": "FactObservation",
       "dimension_table": "DimProvider",
       "join_key": "provider_key",
-      "relationship_type": "many-to-one"
+      "relationship_type": "many-to-one",
+      "is_active": true
     },
     {
-      "fact_table": "FactDetermination",
+      "fact_table": "FactObservation",
       "dimension_table": "DimOrganization",
       "join_key": "organization_key",
-      "relationship_type": "many-to-one"
+      "relationship_type": "many-to-one",
+      "is_active": true
     },
     {
-      "fact_table": "FactDetermination",
-      "dimension_table": "DimCondition",
-      "join_key": "condition_key",
-      "relationship_type": "many-to-one"
-    },
-    {
-      "fact_table": "FactDetermination",
+      "fact_table": "FactObservation",
       "dimension_table": "DimDate",
-      "join_key": "request_date_key",
-      "relationship_type": "many-to-one"
-    },
-    {
-      "fact_table": "FactDetermination",
-      "dimension_table": "DimDate",
-      "join_key": "decision_date_key",
-      "relationship_type": "many-to-one"
-    },
-    {
-      "fact_table": "FactDetermination",
-      "dimension_table": "DimDate",
-      "join_key": "claim_received_date_key",
-      "relationship_type": "many-to-one"
-    },
-    {
-      "fact_table": "FactDetermination",
-      "dimension_table": "DimDate",
-      "join_key": "service_start_date_key",
-      "relationship_type": "many-to-one"
-    },
-    {
-      "fact_table": "FactDetermination",
-      "dimension_table": "DimDate",
-      "join_key": "service_end_date_key",
-      "relationship_type": "many-to-one"
+      "join_key": "date_key",
+      "relationship_type": "many-to-one",
+      "is_active": true
     },
     {
       "fact_table": "FactEncounter",
       "dimension_table": "DimPatient",
       "join_key": "patient_key",
-      "relationship_type": "many-to-one"
+      "relationship_type": "many-to-one",
+      "is_active": true
     },
     {
       "fact_table": "FactEncounter",
       "dimension_table": "DimProvider",
       "join_key": "provider_key",
-      "relationship_type": "many-to-one"
+      "relationship_type": "many-to-one",
+      "is_active": true
     },
     {
       "fact_table": "FactEncounter",
       "dimension_table": "DimOrganization",
       "join_key": "organization_key",
-      "relationship_type": "many-to-one"
+      "relationship_type": "many-to-one",
+      "is_active": true
     },
     {
       "fact_table": "FactEncounter",
       "dimension_table": "DimDate",
-      "join_key": "start_date_key",
-      "relationship_type": "many-to-one"
-    },
-    {
-      "fact_table": "FactEncounter",
-      "dimension_table": "DimDate",
-      "join_key": "end_date_key",
-      "relationship_type": "many-to-one"
+      "join_key": "admission_date_key",
+      "relationship_type": "many-to-one",
+      "is_active": true
     },
     {
       "fact_table": "FactProcedure",
       "dimension_table": "DimPatient",
       "join_key": "patient_key",
-      "relationship_type": "many-to-one"
+      "relationship_type": "many-to-one",
+      "is_active": true
     },
     {
       "fact_table": "FactProcedure",
       "dimension_table": "DimProvider",
       "join_key": "provider_key",
-      "relationship_type": "many-to-one"
+      "relationship_type": "many-to-one",
+      "is_active": true
     },
     {
       "fact_table": "FactProcedure",
       "dimension_table": "DimOrganization",
       "join_key": "organization_key",
-      "relationship_type": "many-to-one"
+      "relationship_type": "many-to-one",
+      "is_active": true
     },
     {
       "fact_table": "FactProcedure",
       "dimension_table": "DimDate",
-      "join_key": "performed_date_key",
-      "relationship_type": "many-to-one"
+      "join_key": "date_key",
+      "relationship_type": "many-to-one",
+      "is_active": true
     },
     {
       "fact_table": "FactMedication",
       "dimension_table": "DimPatient",
       "join_key": "patient_key",
-      "relationship_type": "many-to-one"
+      "relationship_type": "many-to-one",
+      "is_active": true
     },
     {
       "fact_table": "FactMedication",
       "dimension_table": "DimProvider",
       "join_key": "provider_key",
-      "relationship_type": "many-to-one"
+      "relationship_type": "many-to-one",
+      "is_active": true
     },
     {
       "fact_table": "FactMedication",
       "dimension_table": "DimOrganization",
       "join_key": "organization_key",
-      "relationship_type": "many-to-one"
+      "relationship_type": "many-to-one",
+      "is_active": true
     },
     {
       "fact_table": "FactMedication",
       "dimension_table": "DimDate",
-      "join_key": "authored_on_date_key",
-      "relationship_type": "many-to-one"
+      "join_key": "date_key",
+      "relationship_type": "many-to-one",
+      "is_active": true
     }
   ],
   "metrics": [
     {
-      "name": "total_determinations_count",
-      "description": "Total number of initial determinations and reconsiderations.",
-      "formula": "SUM(determination_count)",
-      "fact_table": "FactDetermination",
+      "name": "total_grievances",
+      "description": "Total number of grievances reported based on the decision date, excluding withdrawn and dismissed grievances.",
+      "formula": "COUNT(DISTINCT CASE WHEN observation_code = 'Grievance' AND observation_status = 'completed' AND value_codeable_concept <> 'Dismissal' THEN observation_key END)",
+      "fact_table": "FactObservation",
       "dimensions": [
-        "DimDate",
-        "DimPatient",
-        "DimProvider",
-        "DimOrganization",
-        "DimCondition",
-        "requesting_party_code",
-        "processing_priority",
-        "disposition",
-        "determination_type",
-        "determination_subtype"
+        "DimOrganization.contract_number",
+        "DimOrganization.pbp_code",
+        "DimPatient.state"
       ]
     },
     {
-      "name": "favorable_determinations_count",
-      "description": "Count of determinations with a 'Fully favorable' or 'Partially favorable' disposition.",
-      "formula": "COUNT(CASE WHEN disposition IN ('F', 'P') THEN determination_key END)",
-      "fact_table": "FactDetermination",
+      "name": "expedited_grievances",
+      "description": "Number of expedited grievances.",
+      "formula": "COUNT(DISTINCT CASE WHEN observation_code = 'Grievance' AND processing_priority = 'Expedited' THEN observation_key END)",
+      "fact_table": "FactObservation",
       "dimensions": [
-        "DimDate",
-        "DimOrganization",
-        "disposition",
-        "determination_type",
-        "determination_subtype"
+        "DimOrganization.contract_number",
+        "DimPatient.state"
       ]
     },
     {
-      "name": "adverse_determinations_count",
-      "description": "Count of determinations with an 'Adverse' disposition.",
-      "formula": "COUNT(CASE WHEN disposition = 'A' THEN determination_key END)",
-      "fact_table": "FactDetermination",
+      "name": "completed_organization_determinations",
+      "description": "Number of completed organization determinations categorized by disposition.",
+      "formula": "COUNT(DISTINCT CASE WHEN observation_code = 'Organization Determination' AND observation_status = 'completed' THEN observation_key END)",
+      "fact_table": "FactObservation",
       "dimensions": [
-        "DimDate",
-        "DimOrganization",
-        "determination_type",
-        "determination_subtype"
+        "DimOrganization.contract_number",
+        "FactObservation.value_codeable_concept"
       ]
     },
     {
-      "name": "dismissed_determinations_count",
-      "description": "Count of determinations with a 'Dismissal' disposition.",
-      "formula": "COUNT(CASE WHEN disposition = 'D' THEN determination_key END)",
-      "fact_table": "FactDetermination",
+      "name": "total_actual_provider_payments",
+      "description": "Total actual payments made to contracted providers.",
+      "formula": "SUM(CASE WHEN observation_code = 'Provider Payment' THEN value_quantity END)",
+      "fact_table": "FactObservation",
       "dimensions": [
-        "DimDate",
-        "DimOrganization",
-        "dismissal_rationale",
-        "determination_type",
-        "determination_subtype"
+        "DimOrganization.contract_number",
+        "DimOrganization.line_of_business"
       ]
     },
     {
-      "name": "expedited_processing_requested_count",
-      "description": "Count of determinations where expedited processing was requested.",
-      "formula": "COUNT(CASE WHEN is_expedited_processing_requested = TRUE THEN determination_key END)",
-      "fact_table": "FactDetermination",
+      "name": "initial_hras_completed",
+      "description": "SNP Care Management: Number of initial HRAs completed.",
+      "formula": "COUNT(DISTINCT CASE WHEN observation_code = 'Initial HRA' AND observation_status = 'completed' THEN observation_key END)",
+      "fact_table": "FactObservation",
       "dimensions": [
-        "DimDate",
-        "DimOrganization",
-        "determination_type",
-        "determination_subtype"
+        "DimOrganization.contract_number",
+        "DimPatient.state"
       ]
     },
     {
-      "name": "prior_auth_required_count",
-      "description": "Count of determinations where prior authorization was required for the requested item/service.",
-      "formula": "COUNT(CASE WHEN is_prior_auth_required = TRUE THEN determination_key END)",
-      "fact_table": "FactDetermination",
-      "dimensions": [
-        "DimDate",
-        "DimOrganization",
-        "determination_type",
-        "determination_subtype"
-      ]
-    },
-    {
-      "name": "total_encounters_count",
-      "description": "Total number of patient encounters.",
-      "formula": "SUM(encounter_count)",
+      "name": "dsnp_hospital_admissions",
+      "description": "Count of hospital and SNF admissions for D-SNP enrollees.",
+      "formula": "COUNT(DISTINCT CASE WHEN encounter_class IN ('inpatient', 'SNF stay') THEN encounter_key END)",
       "fact_table": "FactEncounter",
       "dimensions": [
-        "DimDate",
-        "DimPatient",
-        "DimProvider",
-        "DimOrganization",
-        "class_code"
-      ]
-    },
-    {
-      "name": "total_procedures_count",
-      "description": "Total number of procedures or services performed.",
-      "formula": "SUM(procedure_count)",
-      "fact_table": "FactProcedure",
-      "dimensions": [
-        "DimDate",
-        "DimPatient",
-        "DimProvider",
-        "DimOrganization",
-        "procedure_code"
-      ]
-    },
-    {
-      "name": "total_medication_requests_count",
-      "description": "Total number of medication requests.",
-      "formula": "SUM(medication_request_count)",
-      "fact_table": "FactMedication",
-      "dimensions": [
-        "DimDate",
-        "DimPatient",
-        "DimProvider",
-        "DimOrganization",
-        "medication_code"
+        "DimOrganization.contract_number",
+        "DimPatient.state"
       ]
     }
   ],
   "attributes": [
     {
-      "name": "Enrollee MBI",
+      "name": "Geography",
       "table": "DimPatient",
       "drill_path": [
-        "DimPatient.mbi"
+        "state",
+        "patient_key"
       ],
-      "description": "Medicare Beneficiary Identifier for the enrollee."
+      "description": "Geographic drill-down path for enrollees."
     },
     {
-      "name": "Patient Gender",
-      "table": "DimPatient",
-      "drill_path": [
-        "DimPatient.gender"
-      ],
-      "description": "Gender of the patient."
-    },
-    {
-      "name": "Provider NPI",
-      "table": "DimProvider",
-      "drill_path": [
-        "DimProvider.npi"
-      ],
-      "description": "National Provider Identifier for the provider."
-    },
-    {
-      "name": "Provider Qualification",
-      "table": "DimProvider",
-      "drill_path": [
-        "DimProvider.qualification"
-      ],
-      "description": "Professional qualification of the provider (e.g., Physician)."
-    },
-    {
-      "name": "Organization Name",
+      "name": "Organization Hierarchy",
       "table": "DimOrganization",
       "drill_path": [
-        "DimOrganization.organization_name"
+        "organization_type",
+        "contract_number",
+        "pbp_code"
       ],
-      "description": "Name of the organization."
+      "description": "Drill-down path from Organization Type to Contract and Plan Benefit Package."
     },
     {
-      "name": "Organization Type",
-      "table": "DimOrganization",
-      "drill_path": [
-        "DimOrganization.organization_type"
-      ],
-      "description": "Type of organization (e.g., MAO, 1876 Cost Plan)."
-    },
-    {
-      "name": "Contract Number",
-      "table": "DimOrganization",
-      "drill_path": [
-        "DimOrganization.contract_number"
-      ],
-      "description": "Contract number of the plan."
-    },
-    {
-      "name": "Plan Benefit Package (PBP)",
-      "table": "DimOrganization",
-      "drill_path": [
-        "DimOrganization.plan_benefit_package"
-      ],
-      "description": "Plan Benefit Package identifier."
-    },
-    {
-      "name": "Diagnosis Code",
-      "table": "DimCondition",
-      "drill_path": [
-        "DimCondition.condition_code",
-        "DimCondition.condition_description"
-      ],
-      "description": "ICD-10 or HIPPS diagnosis code."
-    },
-    {
-      "name": "OD Number",
-      "table": "FactDetermination",
-      "drill_path": [
-        "FactDetermination.od_number"
-      ],
-      "description": "Organization Determination Number."
-    },
-    {
-      "name": "Appeal Number",
-      "table": "FactDetermination",
-      "drill_path": [
-        "FactDetermination.appeal_number"
-      ],
-      "description": "Appeal Number for reconsiderations."
-    },
-    {
-      "name": "Requesting Party",
-      "table": "FactDetermination",
-      "drill_path": [
-        "FactDetermination.requesting_party_code"
-      ],
-      "description": "Party that requested the determination (e.g., enrollee, provider)."
-    },
-    {
-      "name": "Contracted Provider Referral",
-      "table": "FactDetermination",
-      "drill_path": [
-        "FactDetermination.is_contracted_provider_referral"
-      ],
-      "description": "Indicates if the referral was from a contracted provider."
-    },
-    {
-      "name": "Item/Service Code",
-      "table": "FactDetermination",
-      "drill_path": [
-        "FactDetermination.item_service_code",
-        "FactDetermination.item_service_description"
-      ],
-      "description": "Code for the requested item, service, or Part B drug."
-    },
-    {
-      "name": "Prior Authorization Required",
-      "table": "FactDetermination",
-      "drill_path": [
-        "FactDetermination.is_prior_auth_required"
-      ],
-      "description": "Indicates if prior authorization was required."
-    },
-    {
-      "name": "Processing Priority",
-      "table": "FactDetermination",
-      "drill_path": [
-        "FactDetermination.processing_priority"
-      ],
-      "description": "Priority of processing (Standard or Expedited)."
-    },
-    {
-      "name": "Expedited Processing Requested",
-      "table": "FactDetermination",
-      "drill_path": [
-        "FactDetermination.is_expedited_processing_requested"
-      ],
-      "description": "Indicates if expedited processing was requested."
-    },
-    {
-      "name": "Disposition",
-      "table": "FactDetermination",
-      "drill_path": [
-        "FactDetermination.disposition"
-      ],
-      "description": "Outcome of the determination (Fully favorable, Adverse, etc.)."
-    },
-    {
-      "name": "Dismissal Rationale",
-      "table": "FactDetermination",
-      "drill_path": [
-        "FactDetermination.dismissal_rationale"
-      ],
-      "description": "Reason for dismissal of a determination."
-    },
-    {
-      "name": "Decision Rationale",
-      "table": "FactDetermination",
-      "drill_path": [
-        "FactDetermination.decision_rationale"
-      ],
-      "description": "Reason for the determination decision."
-    },
-    {
-      "name": "Internal Plan Criteria Applied",
-      "table": "FactDetermination",
-      "drill_path": [
-        "FactDetermination.were_internal_plan_criteria_applied"
-      ],
-      "description": "Indicates if internal plan coverage criteria were applied."
-    },
-    {
-      "name": "Third-Party Vendor Participation",
-      "table": "FactDetermination",
-      "drill_path": [
-        "FactDetermination.did_third_party_vendor_participate"
-      ],
-      "description": "Indicates if a third-party vendor participated in the review."
-    },
-    {
-      "name": "Approved Item Different from Requested",
-      "table": "FactDetermination",
-      "drill_path": [
-        "FactDetermination.is_approved_item_different_from_requested"
-      ],
-      "description": "Indicates if the approved item/service differed from the requested one."
-    },
-    {
-      "name": "Service Location Zip Code",
-      "table": "FactDetermination",
-      "drill_path": [
-        "FactDetermination.service_location_zip_code"
-      ],
-      "description": "Zip code of the service location."
-    },
-    {
-      "name": "Place of Service Code",
-      "table": "FactDetermination",
-      "drill_path": [
-        "FactDetermination.place_of_service_code"
-      ],
-      "description": "Code for the place of service."
-    },
-    {
-      "name": "Clean Claim",
-      "table": "FactDetermination",
-      "drill_path": [
-        "FactDetermination.is_clean_claim"
-      ],
-      "description": "Indicates if the claim was clean."
-    },
-    {
-      "name": "Prior Approval Requested",
-      "table": "FactDetermination",
-      "drill_path": [
-        "FactDetermination.was_prior_approval_requested"
-      ],
-      "description": "Indicates if prior approval was requested."
-    },
-    {
-      "name": "Appeal of OD Dismissal",
-      "table": "FactDetermination",
-      "drill_path": [
-        "FactDetermination.is_appeal_of_od_dismissal"
-      ],
-      "description": "Indicates if the reconsideration appeals an OD dismissal."
-    },
-    {
-      "name": "Initial OD Denied Medical Necessity",
-      "table": "FactDetermination",
-      "drill_path": [
-        "FactDetermination.was_initial_od_denied_medical_necessity"
-      ],
-      "description": "Indicates if the initial OD was denied for lack of medical necessity."
-    },
-    {
-      "name": "Reconsideration Reviewed by Physician",
-      "table": "FactDetermination",
-      "drill_path": [
-        "FactDetermination.was_reconsideration_reviewed_by_physician"
-      ],
-      "description": "Indicates if the reconsideration was reviewed by a physician."
-    },
-    {
-      "name": "Determination Type",
-      "table": "FactDetermination",
-      "drill_path": [
-        "FactDetermination.determination_type",
-        "FactDetermination.determination_subtype"
-      ],
-      "description": "Type and subtype of the determination (e.g., Initial Coverage Decision)."
-    },
-    {
-      "name": "Date - Year",
+      "name": "Time Hierarchy",
       "table": "DimDate",
       "drill_path": [
-        "DimDate.year"
+        "year",
+        "quarter",
+        "month",
+        "date"
       ],
-      "description": "Year of the event date."
-    },
-    {
-      "name": "Date - Quarter",
-      "table": "DimDate",
-      "drill_path": [
-        "DimDate.year",
-        "DimDate.quarter"
-      ],
-      "description": "Quarter of the event date."
-    },
-    {
-      "name": "Date - Month",
-      "table": "DimDate",
-      "drill_path": [
-        "DimDate.year",
-        "DimDate.quarter",
-        "DimDate.month_name"
-      ],
-      "description": "Month of the event date."
-    },
-    {
-      "name": "Date - Day",
-      "table": "DimDate",
-      "drill_path": [
-        "DimDate.year",
-        "DimDate.quarter",
-        "DimDate.month_name",
-        "DimDate.full_date"
-      ],
-      "description": "Full date of the event."
-    },
-    {
-      "name": "Encounter Class",
-      "table": "FactEncounter",
-      "drill_path": [
-        "FactEncounter.class_code"
-      ],
-      "description": "Classification of the patient encounter."
-    },
-    {
-      "name": "Discharge Disposition",
-      "table": "FactEncounter",
-      "drill_path": [
-        "FactEncounter.discharge_disposition"
-      ],
-      "description": "Patient's disposition at hospital discharge."
-    },
-    {
-      "name": "Procedure Code",
-      "table": "FactProcedure",
-      "drill_path": [
-        "FactProcedure.procedure_code",
-        "FactProcedure.procedure_description"
-      ],
-      "description": "Code and description of the performed procedure/service."
-    },
-    {
-      "name": "Medication Code",
-      "table": "FactMedication",
-      "drill_path": [
-        "FactMedication.medication_code",
-        "FactMedication.medication_description"
-      ],
-      "description": "Code and description of the requested medication."
+      "description": "Standard calendar drill-down path."
     }
   ]
 }

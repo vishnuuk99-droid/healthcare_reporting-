@@ -1,0 +1,32 @@
+relationship 'Pharmacy Claims_Medication_Dispensed_Date_Date_Date'
+	fromColumn: 'Pharmacy Claims'.Medication_Dispensed_Date
+	toColumn: Date.Date
+
+relationship 'Pharmacy Claims_Amount_Paid_Date_Date_Date'
+	isActive: false
+	fromColumn: 'Pharmacy Claims'.Amount_Paid_Date
+	toColumn: Date.Date
+
+relationship 6aa69865-7a1c-a07e-c7c0-19a5feb90763
+	crossFilteringBehavior: bothDirections
+	toCardinality: many
+	fromColumn: 'Member Names'.Member_Claim_Id
+	toColumn: 'Pharmacy Claims'.Member_Claim_Id
+
+relationship ba563589-abc7-2a21-3351-b261e1514bfb
+	crossFilteringBehavior: bothDirections
+	toCardinality: many
+	fromColumn: 'Member Groups'.'Member ID'
+	toColumn: 'Pharmacy Claims'.Member_Claim_Id
+
+relationship afe4ad22-5c0e-499b-9088-9d960900e691
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'Member Address'.date_of_birth
+	toColumn: LocalDateTable_8af95df4-344a-4e09-8bf9-d6edc45c554f.Date
+
+relationship 91d029ff-a6cb-ed6c-108a-7f31ff6b97f8
+	crossFilteringBehavior: bothDirections
+	toCardinality: many
+	fromColumn: 'Member Address'.Member_Id
+	toColumn: 'Pharmacy Claims'.Member_Claim_Id
+

@@ -1,0 +1,1201 @@
+/// Dedicated table for all DAX measures
+table _Measures
+	lineageTag: 812edab6-c7c1-40cc-9e21-87f912160efe
+
+	measure 'Total Billed Amount' = SUM('Pharmacy Claims'[Billed_Amount])
+		formatString: $#,##0
+		displayFolder: Cost Amounts
+		lineageTag: 9abe7914-3125-4d0c-bbab-ec943f28d33d
+
+	measure 'Total Paid Amount' = SUM('Pharmacy Claims'[Paid_Amount])
+		formatString: $#,##0
+		displayFolder: Cost Amounts
+		lineageTag: 00d75a03-2a14-4db2-b3a4-cb6b10199b59
+
+	measure 'Total Copay Paid' = SUM('Pharmacy Claims'[Copay_Paid])
+		formatString: $#,##0
+		displayFolder: Cost Amounts
+		lineageTag: 83fbcd25-97ab-477d-a653-8e0146e0a5ae
+
+	measure 'Total Co-insurance' = SUM('Pharmacy Claims'[Co_insurance])
+		formatString: $#,##0
+		displayFolder: Cost Amounts
+		lineageTag: 8e2662a4-5ef1-4fbd-bc35-d83b9e8d4d72
+
+	measure 'Total Deductible' = SUM('Pharmacy Claims'[Deductible_total_amount])
+		formatString: $#,##0
+		displayFolder: Cost Amounts
+		lineageTag: 09fce9b5-df08-4921-b7d9-106734129d2a
+
+	measure 'Total Patient Paid' = SUM('Pharmacy Claims'[Patient_Paid_Amount])
+		formatString: $#,##0
+		displayFolder: Cost Amounts
+		lineageTag: cbe3f295-6008-4764-9933-79d1e79397e5
+
+	measure 'Plan Paid %' = DIVIDE([Total Paid Amount], [Total Billed Amount])
+		formatString: 0.0%
+		displayFolder: Cost Ratios
+		lineageTag: 5671eacf-d7b8-4f8a-952a-a99997a9207f
+
+	measure 'Patient Paid %' = DIVIDE([Total Patient Paid], [Total Billed Amount])
+		formatString: 0.0%
+		displayFolder: Cost Ratios
+		lineageTag: 473b97d2-5fb2-4cf5-919a-a87519fde036
+
+	measure 'Copay % of Billed' = DIVIDE([Total Copay Paid], [Total Billed Amount])
+		formatString: 0.0%
+		displayFolder: Cost Ratios
+		lineageTag: 3f590e63-6371-4f6e-8788-4a6c56d1c961
+
+	measure 'Total Claims' = COUNTROWS('Pharmacy Claims')
+		formatString: #,##0
+		displayFolder: Claims Count
+		lineageTag: ff1470ee-7784-410a-8a85-6a4e48486087
+
+	measure 'Unique Members' = DISTINCTCOUNT('Pharmacy Claims'[Member_Claim_Id])
+		formatString: #,##0
+		displayFolder: Claims Count
+		lineageTag: f9462990-a9f1-4c03-82bf-6f7ea1ba93a0
+
+	measure 'Unique Drugs' = DISTINCTCOUNT('Pharmacy Claims'[Drug_Name])
+		formatString: #,##0
+		displayFolder: Claims Count
+		lineageTag: d112aa0e-2908-49cd-88f4-68e38f678a9a
+
+	measure 'Avg Billed per Claim' = DIVIDE([Total Billed Amount], [Total Claims])
+		formatString: $#,##0
+		displayFolder: Cost Amounts
+		lineageTag: dd1dcb87-82a5-4821-8e10-b0a0893453f3
+
+	measure 'Avg Paid per Claim' = DIVIDE([Total Paid Amount], [Total Claims])
+		formatString: $#,##0
+		displayFolder: Cost Amounts
+		lineageTag: 9b398255-35e5-482f-9ff8-31bb9754f203
+
+	measure 'Paid Amount YTD' = CALCULATE([Total Paid Amount], DATESYTD('Date'[Date]))
+		formatString: $#,##0
+		displayFolder: Time Intelligence
+		lineageTag: 2d2cb328-efd7-43e0-a90d-a1a14042639d
+
+	measure 'Billed Amount YTD' = CALCULATE([Total Billed Amount], DATESYTD('Date'[Date]))
+		formatString: $#,##0
+		displayFolder: Time Intelligence
+		lineageTag: 95fa6b47-7fa8-4e34-b7af-ecc76a1d0a57
+
+	measure 'Paid Amount MoM%' =
+			VAR _prevMonth = CALCULATE([Total Paid Amount], DATEADD('Date'[Date], -1, MONTH))
+			RETURN DIVIDE([Total Paid Amount] - _prevMonth, _prevMonth)
+		formatString: 0.0%
+		displayFolder: Time Intelligence
+		lineageTag: 880eee62-c55a-4675-99ad-c6d5ab56351a
+
+	measure 'Claims Prior Month' = CALCULATE([Total Claims], DATEADD('Date'[Date], -1, MONTH))
+		formatString: #,##0
+		displayFolder: Time Intelligence
+		lineageTag: 229d9957-ac62-40f5-9482-a8bb2a3be059
+
+	/// PMPM = Total Paid / Member-Months. Accurate for any number of months in context.
+	measure PMPM =
+			VAR _mm = [Total Member-Months]
+			RETURN IF(ISBLANK(_mm) || _mm = 0, BLANK(), DIVIDE([Total Paid Amount], _mm))
+		formatString: $#,##0
+		displayFolder: PMPM
+		lineageTag: ff945644-8cfa-439b-9f0d-6430955e518a
+
+	measure 'PMPM Prior Month' = CALCULATE([PMPM], DATEADD('Date'[Date], -1, MONTH))
+		formatString: $#,##0
+		displayFolder: PMPM
+		lineageTag: 2fc6a910-62a3-42a5-8cab-d97c63cb9993
+
+	measure 'PMPM MoM%' = DIVIDE([PMPM] - [PMPM Prior Month], [PMPM Prior Month])
+		formatString: 0.0%
+		displayFolder: PMPM
+		lineageTag: 491616e5-6a98-4868-97ba-6dfbfdce4553
+
+	measure 'PMPM Prior Year' = CALCULATE([PMPM], SAMEPERIODLASTYEAR('Date'[Date]))
+		formatString: $#,##0
+		displayFolder: PMPM
+		lineageTag: 50db267e-bc63-4d92-a032-a1c234233d57
+
+	measure 'PMPM YoY%' = DIVIDE([PMPM] - [PMPM Prior Year], [PMPM Prior Year])
+		formatString: 0.0%
+		displayFolder: PMPM
+		lineageTag: 2b53ec0c-bf81-447e-a4d4-b27e8a8a1bf3
+
+	measure 'Non-Specialty Drug Spend' = [Total Paid Amount] - [Specialty Drug Spend]
+		formatString: $#,##0
+		displayFolder: Specialty
+		lineageTag: 32aa2805-2119-4375-a61c-bb35cc618a5c
+
+	measure 'Specialty Drug Spend %' = DIVIDE([Specialty Drug Spend], [Total Paid Amount])
+		formatString: 0.0%
+		displayFolder: Specialty
+		lineageTag: 8f65a29a-f2c9-48d6-a734-2cabe38ba5fa
+
+	/// Count of distinct drugs where average paid per claim exceeds $500. Adjust threshold as needed.
+	measure 'High-Cost Drug Count' =
+			CALCULATE(
+			    DISTINCTCOUNT('Pharmacy Claims'[Drug_Name]),
+			    FILTER(
+			        VALUES('Pharmacy Claims'[Drug_Name]),
+			        CALCULATE(AVERAGE('Pharmacy Claims'[Paid_Amount])) > 500
+			    )
+			)
+		formatString: #,##0
+		displayFolder: Specialty
+		lineageTag: 8fb6c6e0-f39e-447e-b60d-ad2ad7de92e3
+
+	/// Total paid on claims where individual claim paid amount exceeds $500.
+	measure 'High-Cost Claim Spend' =
+			CALCULATE(
+			    [Total Paid Amount],
+			    FILTER('Pharmacy Claims', 'Pharmacy Claims'[Paid_Amount] > 500)
+			)
+		formatString: $#,##0
+		displayFolder: Specialty
+		lineageTag: 131fd2fd-567d-4633-a18c-c1acc15d9440
+
+	measure 'Generic Drug Spend' = CALCULATE([Total Paid Amount], 'Pharmacy Claims'[Drug_Brand] = "Generic")
+		formatString: $#,##0
+		displayFolder: Specialty
+		lineageTag: 4ff0cc6d-d76a-4d3c-ae79-2968b282d060
+
+	measure 'Brand Drug Spend' = CALCULATE([Total Paid Amount], 'Pharmacy Claims'[Drug_Brand] = "Brand")
+		formatString: $#,##0
+		displayFolder: Specialty
+		lineageTag: 631ee1c2-cee3-49fb-a143-536ba1c81944
+
+	measure 'Brand Drug Spend %' = DIVIDE([Brand Drug Spend], [Total Paid Amount])
+		formatString: 0.0%
+		displayFolder: Specialty
+		lineageTag: afffedb6-1d7d-4f08-a544-82499b8a18ac
+
+	measure 'Paid Amount Prior Year' = CALCULATE([Total Paid Amount], SAMEPERIODLASTYEAR('Date'[Date]))
+		formatString: $#,##0
+		displayFolder: Time Intelligence
+		lineageTag: dd0e18df-733d-42d4-a09f-3314b18b56a9
+
+	measure 'Paid Amount YoY%' =
+			VAR _py = [Paid Amount Prior Year]
+			RETURN IF(ISBLANK(_py) || _py = 0, BLANK(), DIVIDE([Total Paid Amount] - _py, _py))
+		formatString: 0.0%
+		displayFolder: Time Intelligence
+		lineageTag: ffeca0e0-90c1-400f-98e8-7765bf42fba7
+
+	measure 'Claims Prior Year' = CALCULATE([Total Claims], SAMEPERIODLASTYEAR('Date'[Date]))
+		formatString: #,##0
+		displayFolder: Time Intelligence
+		lineageTag: dff4c729-9577-43f5-8863-47f7f34cec89
+
+	measure 'Claims YoY%' = DIVIDE([Total Claims] - [Claims Prior Year], [Claims Prior Year])
+		formatString: 0.0%
+		displayFolder: Time Intelligence
+		lineageTag: 93fe17c4-b8b0-4037-839a-6931f0306276
+
+	measure 'Billed Amount Prior Year' = CALCULATE([Total Billed Amount], SAMEPERIODLASTYEAR('Date'[Date]))
+		formatString: $#,##0
+		displayFolder: Time Intelligence
+		lineageTag: 16716b6d-4c8f-46a8-99df-600dc5f985c5
+
+	measure 'Billed Amount YoY%' =
+			VAR _py = [Billed Amount Prior Year]
+			RETURN IF(ISBLANK(_py) || _py = 0, BLANK(), DIVIDE([Total Billed Amount] - _py, _py))
+		formatString: 0.0%
+		displayFolder: Time Intelligence
+		lineageTag: d307acdf-ec7e-4e4d-b1a1-c0c454d2a585
+
+	/// 3-month rolling average of total paid amount
+	measure '3M Rolling Avg Paid' =
+			DIVIDE(
+			    CALCULATE(
+			        [Total Paid Amount],
+			        DATESINPERIOD('Date'[Date], LASTDATE('Date'[Date]), -3, MONTH)
+			    ),
+			    3
+			)
+		formatString: $#,##0
+		displayFolder: Time Intelligence
+		lineageTag: c018360c-6656-4e51-9500-81800689659b
+
+	/// 6-month rolling average of total paid amount
+	measure '6M Rolling Avg Paid' =
+			DIVIDE(
+			    CALCULATE(
+			        [Total Paid Amount],
+			        DATESINPERIOD('Date'[Date], LASTDATE('Date'[Date]), -6, MONTH)
+			    ),
+			    6
+			)
+		formatString: $#,##0
+		displayFolder: Time Intelligence
+		lineageTag: a7e5966d-c796-4d92-8546-a5a0677849f4
+
+	/// 3-month rolling PMPM trend
+	measure '3M Rolling PMPM' =
+			DIVIDE(
+			    CALCULATE(
+			        [Total Paid Amount],
+			        DATESINPERIOD('Date'[Date], LASTDATE('Date'[Date]), -3, MONTH)
+			    ),
+			    CALCULATE(
+			        [Total Member-Months],
+			        DATESINPERIOD('Date'[Date], LASTDATE('Date'[Date]), -3, MONTH)
+			    )
+			)
+		formatString: $#,##0
+		displayFolder: Time Intelligence
+		lineageTag: cf893ee6-b2ca-4f08-a48d-cb6bb2254987
+
+	/// Paid Amount YTD for same period last year
+	measure 'Paid Amount YTD Prior Year' = CALCULATE([Total Paid Amount], DATESYTD(SAMEPERIODLASTYEAR('Date'[Date])))
+		formatString: $#,##0
+		displayFolder: Time Intelligence
+		lineageTag: ac85fbde-0fee-4f1b-91b4-1a1f9123f5c9
+
+	measure 'Paid Amount YTD YoY%' = DIVIDE([Paid Amount YTD] - [Paid Amount YTD Prior Year], [Paid Amount YTD Prior Year])
+		formatString: 0.0%
+		displayFolder: Time Intelligence
+		lineageTag: 1c87581d-7265-4caf-bbbf-36159cbf215c
+
+	/// Ranks drugs by Total Paid Amount descending. Use in a Drug_Name table/visual for Pareto chart.
+	measure 'Drug Spend Rank' =
+			RANKX(
+			    ALLSELECTED('Pharmacy Claims'[Drug_Name]),
+			    [Total Paid Amount],
+			    ,
+			    DESC,
+			    Dense
+			)
+		formatString: #,##0
+		displayFolder: Pareto
+		lineageTag: f59cf5a9-5cf8-4c9b-8da1-f40839c695c3
+
+	/// Cumulative paid amount up to and including current drug rank. Use with Drug Spend Rank for Pareto.
+	measure 'Cumulative Drug Spend' =
+			VAR _thisRank = [Drug Spend Rank]
+			VAR _cumSpend =
+			    CALCULATE(
+			        [Total Paid Amount],
+			        FILTER(
+			            ALLSELECTED('Pharmacy Claims'[Drug_Name]),
+			            [Drug Spend Rank] <= _thisRank
+			        )
+			    )
+			RETURN _cumSpend
+		formatString: $#,##0
+		displayFolder: Pareto
+		lineageTag: 1689466b-96da-499a-a7f3-ae13c241a21a
+
+	/// Cumulative spend % for Pareto line. Drop Drug_Name in rows, add this as a line series.
+	measure 'Cumulative Spend %' =
+			VAR _totalSpend = CALCULATE([Total Paid Amount], ALLSELECTED('Pharmacy Claims'[Drug_Name]))
+			RETURN DIVIDE([Cumulative Drug Spend], _totalSpend)
+		formatString: 0.0%
+		displayFolder: Pareto
+		lineageTag: b7fd7db0-0fa3-4203-b3b2-2fecd7246913
+
+	/// Ranks therapeutic classes by Total Paid Amount descending.
+	measure 'Class Spend Rank' =
+			RANKX(
+			    ALLSELECTED('Pharmacy Claims'[Therapeutic_Class]),
+			    [Total Paid Amount],
+			    ,
+			    DESC,
+			    Dense
+			)
+		formatString: #,##0
+		displayFolder: Pareto
+		lineageTag: 789a98cd-6071-4b5b-9778-87baff14f73c
+
+	/// Ranks prescribers by Total Paid Amount descending.
+	measure 'Prescriber Spend Rank' =
+			RANKX(
+			    ALLSELECTED('Pharmacy Claims'[Presciber_Id]),
+			    [Total Paid Amount],
+			    ,
+			    DESC,
+			    Dense
+			)
+		formatString: #,##0
+		displayFolder: Pareto
+		lineageTag: 98ed2d09-6766-4b4a-b32f-225e9c4b6682
+
+	/// Members with PMPM between $300 and $1000.
+	measure 'Medium Risk Members' =
+			CALCULATE(
+			    DISTINCTCOUNT('Pharmacy Claims'[Member_Claim_Id]),
+			    FILTER(
+			        VALUES('Pharmacy Claims'[Member_Claim_Id]),
+			        VAR _memberPMPM =
+			            DIVIDE(
+			                CALCULATE(SUM('Pharmacy Claims'[Paid_Amount])),
+			                CALCULATE(SUMX(VALUES('Date'[Year-Month]), CALCULATE(COUNTROWS('Pharmacy Claims') > 0)))
+			            )
+			        RETURN _memberPMPM >= 300 && _memberPMPM <= 1000
+			    )
+			)
+		formatString: #,##0
+		displayFolder: Member Risk
+		lineageTag: a2fdefb0-d100-4d98-a3ec-5d19c2db0deb
+
+	/// Members with PMPM below $300.
+	measure 'Low Risk Members' =
+			CALCULATE(
+			    DISTINCTCOUNT('Pharmacy Claims'[Member_Claim_Id]),
+			    FILTER(
+			        VALUES('Pharmacy Claims'[Member_Claim_Id]),
+			        DIVIDE(
+			            CALCULATE(SUM('Pharmacy Claims'[Paid_Amount])),
+			            CALCULATE(SUMX(VALUES('Date'[Year-Month]), CALCULATE(COUNTROWS('Pharmacy Claims') > 0)))
+			        ) < 300
+			    )
+			)
+		formatString: #,##0
+		displayFolder: Member Risk
+		lineageTag: b9d2cc73-85c7-4deb-a67d-f923cb181f57
+
+	/// Total paid amount from high-risk members (PMPM > $1000).
+	measure 'High Risk Member Spend' =
+			CALCULATE(
+			    SUM('Pharmacy Claims'[Paid_Amount]),
+			    FILTER(
+			        VALUES('Pharmacy Claims'[Member_Claim_Id]),
+			        DIVIDE(
+			            CALCULATE(SUM('Pharmacy Claims'[Paid_Amount])),
+			            CALCULATE(SUMX(VALUES('Date'[Year-Month]), CALCULATE(COUNTROWS('Pharmacy Claims') > 0)))
+			        ) > 1000
+			    )
+			)
+		formatString: $#,##0
+		displayFolder: Member Risk
+		lineageTag: 797a1b70-7efc-4fd0-9c7f-86042c7dd86a
+
+	/// % of total spend coming from high-risk members.
+	measure 'High Risk Spend %' = DIVIDE([High Risk Member Spend], [Total Paid Amount])
+		formatString: 0.0%
+		displayFolder: Member Risk
+		lineageTag: ae84d6c9-5539-440f-aa80-f404db271546
+
+	/// Average paid per claim for each member. Use with Member_Claim_Id in rows.
+	measure 'Member Avg Cost per Claim' =
+			DIVIDE(
+			    SUM('Pharmacy Claims'[Paid_Amount]),
+			    COUNTROWS('Pharmacy Claims')
+			)
+		formatString: $#,##0
+		displayFolder: Member Risk
+		lineageTag: 65606dbd-b705-4d9a-9404-23389e406c21
+
+	/// Number of distinct drugs per member. High count = polypharmacy risk indicator.
+	measure 'Member Drug Count' = DISTINCTCOUNT('Pharmacy Claims'[Drug_Name])
+		formatString: #,##0
+		displayFolder: Member Risk
+		lineageTag: aadd1233-85b8-4b3f-aa39-2e815c6c1761
+
+	/// Specialty-tier classes based on your actual Therapeutic_Class values. Update this list if your specialty definition changes.
+	measure 'Specialty Drug Spend' =
+			CALCULATE(
+			    [Total Paid Amount],
+			    'Pharmacy Claims'[Therapeutic_Class] IN {
+			        "Immunosuppressants",
+			        "Anticoagulants",
+			        "Antipsychotics",
+			        "Antivirals",
+			        "Antiepileptics",
+			        "Corticosteroids"
+			    }
+			)
+		formatString: $#,##0
+		displayFolder: Specialty
+		lineageTag: ca4bde5e-8ab6-4bc4-b93d-c5908cb1a6cf
+
+	/// Text indicator for trend direction in the Cost Matrix. Shows arrow + label based on MoM% change.
+	measure 'Trend Direction' =
+			VAR _mom = [Paid Amount MoM%]
+			RETURN
+			    IF(ISBLANK(_mom), "—",
+			        IF(_mom > 0.10, "↑↑ Surge",
+			        IF(_mom > 0.02, "↑ Rising",
+			        IF(_mom < -0.10, "↓↓ Drop",
+			        IF(_mom < -0.02, "↓ Falling",
+			        "→ Stable")))))
+		displayFolder: Cost Matrix
+		lineageTag: 03b9d3f0-2f43-4a02-a48c-062318a17d5b
+
+	/// Median paid amount per drug — used as Y-axis reference line for quadrant chart.
+	measure 'Median Drug Spend' =
+			MEDIANX(
+			    VALUES('Pharmacy Claims'[Drug_Name]),
+			    CALCULATE(SUM('Pharmacy Claims'[Paid_Amount]))
+			)
+		formatString: $#,##0
+		displayFolder: Quadrant
+		lineageTag: d7c1eb02-22f6-425b-b6d7-d60a5bd622b6
+
+	/// Median claim count per drug — used as X-axis reference line for quadrant chart.
+	measure 'Median Drug Claim Count' =
+			MEDIANX(
+			    VALUES('Pharmacy Claims'[Drug_Name]),
+			    CALCULATE(COUNTROWS('Pharmacy Claims'))
+			)
+		formatString: #,##0
+		displayFolder: Quadrant
+		lineageTag: d8adf302-640e-4509-bf0c-600ecf718987
+
+	/// Classifies each drug into a cost-volume quadrant. Use in a table alongside Drug_Name.
+	measure 'Cost Volume Quadrant' =
+			VAR _spend = SUM('Pharmacy Claims'[Paid_Amount])
+			VAR _claims = COUNTROWS('Pharmacy Claims')
+			VAR _medSpend = [Median Drug Spend]
+			VAR _medClaims = [Median Drug Claim Count]
+			RETURN
+			    SWITCH(
+			        TRUE(),
+			        _spend >= _medSpend && _claims >= _medClaims, "High Cost · High Volume",
+			        _spend >= _medSpend && _claims < _medClaims,  "High Cost · Low Volume",
+			        _spend < _medSpend  && _claims >= _medClaims, "Low Cost · High Volume",
+			        _spend < _medSpend  && _claims < _medClaims,  "Low Cost · Low Volume",
+			        BLANK()
+			    )
+		displayFolder: Quadrant
+		lineageTag: e55ffedb-3a0a-4d0b-983a-c2134ccafd71
+
+	/// Total paid amount for prior year same period, for YoY bar chart on trend page.
+	measure 'Paid Amount PY' =
+			CALCULATE(
+			    [Total Paid Amount],
+			    SAMEPERIODLASTYEAR('Date'[Date])
+			)
+		formatString: $#,##0
+		displayFolder: Time Intelligence
+		lineageTag: 960b9fc1-1df4-4314-b0fe-555d323f4860
+
+	/// Variance between current and prior year spend. Positive = cost increase.
+	measure 'Paid Amount YoY Variance' = [Total Paid Amount] - [Paid Amount PY]
+		formatString: $#,##0
+		displayFolder: Time Intelligence
+		lineageTag: 8700a19e-81c9-4712-9a27-1e6ac0e387bc
+
+	/// Count of therapeutic classes where MoM spend increased — quick pulse check for Cost Matrix.
+	measure 'Classes with Rising Spend' =
+			CALCULATE(
+			    DISTINCTCOUNT('Pharmacy Claims'[Therapeutic_Class]),
+			    FILTER(
+			        VALUES('Pharmacy Claims'[Therapeutic_Class]),
+			        [Paid Amount MoM%] > 0
+			    )
+			)
+		formatString: #,##0
+		displayFolder: Cost Matrix
+		lineageTag: ca053212-2e4d-406a-99f1-ca5b7245f2a8
+
+	/// Top drug by total paid amount — for KPI callout on spend analysis page.
+	measure 'Top Drug by Spend' =
+			CALCULATE(
+			    MAX('Pharmacy Claims'[Drug_Name]),
+			    TOPN(1,
+			        VALUES('Pharmacy Claims'[Drug_Name]),
+			        [Total Paid Amount],
+			        DESC
+			    )
+			)
+		displayFolder: Pareto
+		lineageTag: ec2d451c-686b-4f3e-83b2-0f27f941ec56
+
+	/// % of total spend from top 10 drugs — the Pareto 80/20 callout.
+	measure 'Top 10 Drugs Spend %' =
+			VAR _top10Spend =
+			    CALCULATE(
+			        [Total Paid Amount],
+			        TOPN(10,
+			            ALL('Pharmacy Claims'[Drug_Name]),
+			            [Total Paid Amount],
+			            DESC
+			        )
+			    )
+			VAR _totalSpend = CALCULATE([Total Paid Amount], ALL('Pharmacy Claims'[Drug_Name]))
+			RETURN DIVIDE(_top10Spend, _totalSpend)
+		formatString: 0.0%
+		displayFolder: Pareto
+		lineageTag: 2a8fa0ad-504a-4021-9397-ae8438950f95
+
+	/// Spend from top 5 prescribers as % of total — concentration insight.
+	measure 'Top 5 Prescribers Spend %' =
+			VAR _top5Spend =
+			    CALCULATE(
+			        [Total Paid Amount],
+			        TOPN(5,
+			            ALL('Pharmacy Claims'[Presciber_Id]),
+			            [Total Paid Amount],
+			            DESC
+			        )
+			    )
+			VAR _totalSpend = CALCULATE([Total Paid Amount], ALL('Pharmacy Claims'[Presciber_Id]))
+			RETURN DIVIDE(_top5Spend, _totalSpend)
+		formatString: 0.0%
+		displayFolder: Pareto
+		lineageTag: cb407152-25ba-4f3b-a663-75e167ef4197
+
+	/// Bridges Cost Breakdown table to actual measures. Use Cost Breakdown[Cost Type] as Legend and this measure as Values in the donut chart.
+	measure 'Cost Breakdown Amount' =
+			SWITCH(
+			    SELECTEDVALUE('Cost Breakdown'[Cost Type]),
+			    "Plan Paid",     [Total Paid Amount],
+			    "Copay",         [Total Copay Paid],
+			    "Co-insurance",  [Total Co-insurance],
+			    "Deductible",    [Total Deductible],
+			    BLANK()
+			)
+		formatString: $#,##0
+		displayFolder: Cost Amounts
+		lineageTag: 1d395d95-b9ed-4b68-9e80-f32ba98ad5ad
+
+	/// Returns the name of the prescriber with the highest total paid amount. Use in a card visual.
+	measure 'Top Prescriber by Spend' =
+			CALCULATE(
+			    MAX('Pharmacy Claims'[Presciber_Id]),
+			    TOPN(1,
+			        VALUES('Pharmacy Claims'[Presciber_Id]),
+			        [Total Paid Amount],
+			        DESC
+			    )
+			)
+		displayFolder: Pareto
+		lineageTag: 4b0abe10-fec4-4fd4-947b-2b9534becad6
+
+	/// Returns the therapeutic class with the highest total paid amount. Use in a card visual.
+	measure 'Top Class by Spend' =
+			CALCULATE(
+			    MAX('Pharmacy Claims'[Therapeutic_Class]),
+			    TOPN(1,
+			        VALUES('Pharmacy Claims'[Therapeutic_Class]),
+			        [Total Paid Amount],
+			        DESC
+			    )
+			)
+		displayFolder: Pareto
+		lineageTag: 0ba1b014-ebf1-4004-83f9-d3b7a2190c76
+
+	/// Total paid amount for the top prescriber — shown as subtitle on the card.
+	measure 'Top Prescriber Spend Amount' =
+			CALCULATE(
+			    [Total Paid Amount],
+			    TOPN(1,
+			        VALUES('Pharmacy Claims'[Presciber_Id]),
+			        [Total Paid Amount],
+			        DESC
+			    )
+			)
+		formatString: $#,##0
+		displayFolder: Pareto
+		lineageTag: a774f352-ae24-49a3-ba02-f729f3f81c87
+
+	/// Total paid amount for the top therapeutic class — shown as subtitle on the card.
+	measure 'Top Class Spend Amount' =
+			CALCULATE(
+			    [Total Paid Amount],
+			    TOPN(1,
+			        VALUES('Pharmacy Claims'[Therapeutic_Class]),
+			        [Total Paid Amount],
+			        DESC
+			    )
+			)
+		formatString: $#,##0
+		displayFolder: Pareto
+		lineageTag: c641dcce-2563-4f38-8973-9b47cfe0d357
+
+	/// Members with PMPM above $1000 — High Risk tier. Fixed Boolean bug.
+	measure 'High Risk Members' =
+			CALCULATE(
+			    DISTINCTCOUNT('Pharmacy Claims'[Member_Claim_Id]),
+			    FILTER(
+			        VALUES('Pharmacy Claims'[Member_Claim_Id]),
+			        CALCULATE(SUM('Pharmacy Claims'[Paid_Amount])) > 1000
+			    )
+			)
+		formatString: #,##0
+		displayFolder: Member Risk
+		lineageTag: 00167a6b-8291-4d34-9baa-e8b6473635cd
+
+	/// Discount rate = (Billed - Paid) / Billed. High discount = strong contract negotiation.
+	measure 'Discount %' =
+			DIVIDE(
+			    [Total Billed Amount] - [Total Paid Amount],
+			    [Total Billed Amount]
+			)
+		formatString: 0.0%
+		displayFolder: Cost Ratios
+		lineageTag: f8572b95-58b0-4dda-8ec6-7356d2c87a0a
+
+	/// Top member's spend as % of total — concentration risk indicator.
+	measure 'Top Member Spend %' =
+			VAR _topMemberSpend =
+			    CALCULATE(
+			        [Total Paid Amount],
+			        TOPN(1,
+			            VALUES('Pharmacy Claims'[Member_Claim_Id]),
+			            [Total Paid Amount],
+			            DESC
+			        )
+			    )
+			RETURN DIVIDE(_topMemberSpend, [Total Paid Amount])
+		formatString: 0.0%
+		displayFolder: Member Risk
+		lineageTag: cc7cafe9-6d72-420c-9625-d50f3ab0df07
+
+	/// Top member's total paid amount.
+	measure 'Top Member Spend Amount' =
+			CALCULATE(
+			    [Total Paid Amount],
+			    TOPN(1,
+			        VALUES('Pharmacy Claims'[Member_Claim_Id]),
+			        [Total Paid Amount],
+			        DESC
+			    )
+			)
+		formatString: $#,##0
+		displayFolder: Member Risk
+		lineageTag: fcad6565-7830-4e45-87a4-6ead497c1340
+
+	/// Net plan liability after patient cost share. Core cost management metric.
+	measure 'Net Plan Liability' = [Total Paid Amount] - [Total Copay Paid] - [Total Co-insurance] - [Total Deductible]
+		formatString: $#,##0
+		displayFolder: Cost Amounts
+		lineageTag: 24b47455-9bb6-4178-b404-f58cde848f29
+
+	/// Count of members with more than 3 distinct drugs — polypharmacy risk flag.
+	measure 'Polypharmacy Members' =
+			CALCULATE(
+			    DISTINCTCOUNT('Pharmacy Claims'[Member_Claim_Id]),
+			    FILTER(
+			        VALUES('Pharmacy Claims'[Member_Claim_Id]),
+			        CALCULATE(DISTINCTCOUNT('Pharmacy Claims'[Drug_Name])) > 3
+			    )
+			)
+		formatString: #,##0
+		displayFolder: Member Risk
+		lineageTag: 42a430f0-2542-4ac1-a947-ec60ad2af537
+
+	/// Member-Years = Member-Months / 12. Works correctly for partial year data.
+	measure 'Total Member-Years' =
+			VAR _mm = [Total Member-Months]
+			RETURN IF(ISBLANK(_mm) || _mm = 0, BLANK(), DIVIDE(_mm, 12))
+		formatString: #,##0.0
+		displayFolder: PMPY
+		lineageTag: 699f09d3-559e-4504-820e-321b726fd912
+
+	/// PMPY = Total Paid / Member-Years. Annualized cost per member. Shows note when less than 12 months of data.
+	measure PMPY =
+			VAR _my = [Total Member-Years]
+			RETURN IF(ISBLANK(_my) || _my = 0, BLANK(), DIVIDE([Total Paid Amount], _my))
+		formatString: $#,##0
+		displayFolder: PMPY
+		lineageTag: a7867ab6-56fc-48a1-a75e-c40f05f2355c
+
+	/// PMPY for the prior year.
+	measure 'PMPY Prior Year' =
+			VAR _py_paid = CALCULATE([Total Paid Amount], SAMEPERIODLASTYEAR('Date'[Date]))
+			VAR _py_mm = CALCULATE([Total Member-Months], SAMEPERIODLASTYEAR('Date'[Date]))
+			VAR _py_my = DIVIDE(_py_mm, 12)
+			RETURN IF(ISBLANK(_py_my) || _py_my = 0, BLANK(), DIVIDE(_py_paid, _py_my))
+		formatString: $#,##0
+		displayFolder: PMPY
+		lineageTag: 75200e5a-b522-45a1-940f-43060711d714
+
+	/// Year-over-year % change in PMPY.
+	measure 'PMPY YoY%' =
+			VAR _cur = [PMPY]
+			VAR _py = [PMPY Prior Year]
+			RETURN IF(ISBLANK(_py) || _py = 0, BLANK(), DIVIDE(_cur - _py, _py))
+		formatString: 0.0%
+		displayFolder: PMPY
+		lineageTag: 395c0aa7-f211-435a-9e70-7f0bfac845dc
+
+	/// Dollar variance between current and prior year PMPY.
+	measure 'PMPY YoY Variance' =
+			VAR _cur = [PMPY]
+			VAR _py = [PMPY Prior Year]
+			RETURN IF(ISBLANK(_py) || ISBLANK(_cur), BLANK(), _cur - _py)
+		formatString: $#,##0;($#,##0)
+		displayFolder: PMPY
+		lineageTag: 6588b0b2-8d61-4ce1-a76a-7e3369270129
+
+	/// Annualized PMPY for specialty drug classes only.
+	measure 'Specialty PMPY' =
+			VAR _my = [Total Member-Years]
+			RETURN IF(ISBLANK(_my) || _my = 0, BLANK(), DIVIDE([Specialty Drug Spend], _my))
+		formatString: $#,##0
+		displayFolder: PMPY
+		lineageTag: c84c7847-21cc-4f42-9956-3f9d6dadd072
+
+	/// Annualized PMPY for non-specialty drug classes only.
+	measure 'Non-Specialty PMPY' =
+			VAR _my = [Total Member-Years]
+			RETURN IF(ISBLANK(_my) || _my = 0, BLANK(), DIVIDE([Non-Specialty Drug Spend], _my))
+		formatString: $#,##0
+		displayFolder: PMPY
+		lineageTag: a6718320-90bb-469a-b2d4-95cd7195fa44
+
+	/// Annualized PMPY per therapeutic class. Use with Therapeutic_Class in rows.
+	measure 'Class PMPY' =
+			VAR _my = [Total Member-Years]
+			RETURN IF(ISBLANK(_my) || _my = 0, BLANK(), DIVIDE(SUM('Pharmacy Claims'[Paid_Amount]), _my))
+		formatString: $#,##0
+		displayFolder: PMPY
+		lineageTag: bc12752f-665a-4f52-9b1c-aa701e02932a
+
+	/// PMPY YTD — annualized based on YTD PMPM.
+	measure 'PMPY YTD' =
+			VAR _ytd_paid = CALCULATE([Total Paid Amount], DATESYTD('Date'[Date]))
+			VAR _ytd_mm = CALCULATE([Total Member-Months], DATESYTD('Date'[Date]))
+			VAR _ytd_my = DIVIDE(_ytd_mm, 12)
+			RETURN IF(ISBLANK(_ytd_my) || _ytd_my = 0, BLANK(), DIVIDE(_ytd_paid, _ytd_my))
+		formatString: $#,##0
+		displayFolder: PMPY
+		lineageTag: 3f79c4de-0731-4df2-ba40-353474498fca
+
+	/// Total paid amount filtered by state/city context from Member Address table.
+	measure 'Total Paid by Location' = CALCULATE([Total Paid Amount])
+		formatString: $#,##0
+		displayFolder: Geography
+		lineageTag: d8f2b296-87fd-451d-889e-d857a472f0ae
+
+	/// Total patient paid amount by location.
+	measure 'Total Patient Paid by Location' = CALCULATE([Total Patient Paid])
+		formatString: $#,##0
+		displayFolder: Geography
+		lineageTag: 872b0e66-f618-44e8-8dc4-9de598e907f5
+
+	/// Total claims by location.
+	measure 'Total Claims by Location' = CALCULATE([Total Claims])
+		formatString: #,##0
+		displayFolder: Geography
+		lineageTag: 8e7c21d7-e23f-464d-baf8-86e3d82fc00e
+
+	/// Unique members by location.
+	measure 'Members by Location' = CALCULATE([Unique Members])
+		formatString: #,##0
+		displayFolder: Geography
+		lineageTag: aff42549-15bc-47a1-9348-7b4e08c97519
+
+	/// PMPM by location.
+	measure 'PMPM by Location' = CALCULATE([PMPM])
+		formatString: $#,##0
+		displayFolder: Geography
+		lineageTag: ef982096-bfa1-40c8-911b-4dd27d27f7b2
+
+	/// PMPY by location.
+	measure 'PMPY by Location' = CALCULATE([PMPY])
+		formatString: $#,##0
+		displayFolder: Geography
+		lineageTag: 138ef751-af58-4ebb-bdfd-1d0c9fb6fe52
+
+	/// Avg paid per claim by location.
+	measure 'Avg Cost by Location' = CALCULATE([Avg Paid per Claim])
+		formatString: $#,##0
+		displayFolder: Geography
+		lineageTag: 23c9c200-215a-40d6-9286-5f04ce0c797f
+
+	/// Top state by total paid amount — for KPI card.
+	measure 'Top State by Spend' =
+			CALCULATE(
+			    MAX('Member Address'[STATE]),
+			    TOPN(1,
+			        VALUES('Member Address'[STATE]),
+			        [Total Paid Amount],
+			        DESC
+			    )
+			)
+		displayFolder: Geography
+		lineageTag: 707cba0a-45af-4107-b3ca-ac5026176674
+
+	/// Top city by total paid amount — for KPI card.
+	measure 'Top City by Spend' =
+			CALCULATE(
+			    MAX('Member Address'[City]),
+			    TOPN(1,
+			        VALUES('Member Address'[City]),
+			        [Total Paid Amount],
+			        DESC
+			    )
+			)
+		displayFolder: Geography
+		lineageTag: 83ef50ab-e3ad-4410-93a4-5e562cc806a2
+
+	/// Total paid amount for the top state.
+	measure 'Top State Spend Amount' =
+			CALCULATE(
+			    [Total Paid Amount],
+			    TOPN(1,
+			        VALUES('Member Address'[STATE]),
+			        [Total Paid Amount],
+			        DESC
+			    )
+			)
+		formatString: $#,##0
+		displayFolder: Geography
+		lineageTag: ef1ad235-f98f-4890-a922-163c29386d2f
+
+	/// % of total spend from the top state — concentration insight.
+	measure 'Top State Spend %' = DIVIDE([Top State Spend Amount], [Total Paid Amount])
+		formatString: 0.0%
+		displayFolder: Geography
+		lineageTag: 2f214336-f6cb-43bc-bb56-fe2466ad3406
+
+	/// Total paid for Specialty drugs by age group — for stacked bar.
+	measure 'Specialty Spend by Age' = CALCULATE([Total Paid Amount], 'Pharmacy Claims'[Specialty Flag] = "Specialty")
+		formatString: $#,##0
+		displayFolder: Demographics
+		lineageTag: 7501de5f-536b-4086-8b8f-88bbe5b9a9d9
+
+	/// Total paid for Standard drugs by age group — for stacked bar.
+	measure 'Standard Spend by Age' = CALCULATE([Total Paid Amount], 'Pharmacy Claims'[Specialty Flag] = "Standard")
+		formatString: $#,##0
+		displayFolder: Demographics
+		lineageTag: 9dde844f-8e12-4998-8a63-e16375263008
+
+	/// Total patient paid by age group.
+	measure 'Patient Paid by Age' = CALCULATE([Total Patient Paid])
+		formatString: $#,##0
+		displayFolder: Demographics
+		lineageTag: eee17f44-12b9-467a-8947-c8beebc69454
+
+	/// Total plan paid by age group.
+	measure 'Plan Paid by Age' = CALCULATE([Total Paid Amount])
+		formatString: $#,##0
+		displayFolder: Demographics
+		lineageTag: 04f2c12f-851f-42ef-8dd2-a1e0a1604361
+
+	/// Member count by age group.
+	measure 'Members by Age Group' = CALCULATE(DISTINCTCOUNT('Member Address'[Member_Id]))
+		formatString: #,##0
+		displayFolder: Demographics
+		lineageTag: 155f7f0b-9f11-41e1-8656-8c1f1db03706
+
+	/// PMPM by age group — shows which age segment is most expensive per member.
+	measure 'PMPM by Age Group' =
+			DIVIDE(
+			    CALCULATE([Total Paid Amount]),
+			    CALCULATE([Total Member-Months])
+			)
+		formatString: $#,##0
+		displayFolder: Demographics
+		lineageTag: 815f98a2-af3f-4266-b966-11512b7085de
+
+	/// Avg paid per claim by age group.
+	measure 'Avg Cost by Age Group' = CALCULATE([Avg Paid per Claim])
+		formatString: $#,##0
+		displayFolder: Demographics
+		lineageTag: beeaac93-6d64-4f31-aec7-71e56ef638f4
+
+	/// Distinct member count by city/state from Member Address table.
+	measure 'Member Count by City' = DISTINCTCOUNT('Member Address'[Member_Id])
+		formatString: #,##0
+		displayFolder: Geography
+		lineageTag: af8c1692-dd2b-4138-9baf-a34a1ca69b46
+
+	/// Distinct member count at state level.
+	measure 'Member Count by State' =
+			CALCULATE(
+			    DISTINCTCOUNT('Member Address'[Member_Id]),
+			    ALLEXCEPT('Member Address', 'Member Address'[STATE])
+			)
+		formatString: #,##0
+		displayFolder: Geography
+		lineageTag: 701463bb-a9e3-472b-9dbd-bce60d4d6230
+
+	/// Total paid per member at city level — bubble size intensity for map.
+	measure 'Paid per Member by City' = DIVIDE([Total Paid Amount], DISTINCTCOUNT('Member Address'[Member_Id]))
+		formatString: $#,##0
+		displayFolder: Geography
+		lineageTag: 1caaf640-1570-4ec0-8206-005a1e555828
+
+	/// Top state by member count — for KPI card.
+	measure 'Top State by Members' =
+			CALCULATE(
+			    MAX('Member Address'[STATE]),
+			    TOPN(1,
+			        VALUES('Member Address'[STATE]),
+			        DISTINCTCOUNT('Member Address'[Member_Id]),
+			        DESC
+			    )
+			)
+		displayFolder: Geography
+		lineageTag: 5b1ece6b-8fdd-40e2-b7c9-93ac3d51ecf3
+
+	/// Top city by member count — for KPI card.
+	measure 'Top City by Members' =
+			CALCULATE(
+			    MAX('Member Address'[City]),
+			    TOPN(1,
+			        VALUES('Member Address'[City]),
+			        DISTINCTCOUNT('Member Address'[Member_Id]),
+			        DESC
+			    )
+			)
+		displayFolder: Geography
+		lineageTag: 038bd3e1-7318-4dac-b5d3-d7f8b878e9b8
+
+	/// MoM % badge for Total Paid Amount KPI card. Green arrow = cost down (good), Red arrow = cost up (alert).
+	measure 'KPI Paid MoM Badge' =
+			VAR _mom = [Paid Amount MoM%]
+			VAR _pct = FORMAT(ABS(_mom), "0.0%")
+			RETURN
+			    IF(ISBLANK(_mom), "— vs last month",
+			        IF(_mom > 0, "▲ " & _pct & " vs last month",
+			        IF(_mom < 0, "▼ " & _pct & " vs last month",
+			        "→ 0.0% vs last month")))
+		displayFolder: KPI Badges
+		lineageTag: a97ad620-ca0e-4133-b830-4affefd74f73
+
+	/// MoM % badge for PMPM KPI card.
+	measure 'KPI PMPM MoM Badge' =
+			VAR _mom = [PMPM MoM%]
+			VAR _pct = FORMAT(ABS(_mom), "0.0%")
+			RETURN
+			    IF(ISBLANK(_mom), "— vs last month",
+			        IF(_mom > 0, "▲ " & _pct & " vs last month",
+			        IF(_mom < 0, "▼ " & _pct & " vs last month",
+			        "→ 0.0% vs last month")))
+		displayFolder: KPI Badges
+		lineageTag: eebdb2a4-1a32-48fb-a883-22b9e5396a8b
+
+	/// MoM badge for Total Claims KPI card.
+	measure 'KPI Claims MoM Badge' =
+			VAR _curr = [Total Claims]
+			VAR _prev = [Claims Prior Month]
+			VAR _mom = DIVIDE(_curr - _prev, _prev)
+			VAR _pct = FORMAT(ABS(_mom), "0.0%")
+			RETURN
+			    IF(ISBLANK(_mom), "— vs last month",
+			        IF(_mom > 0, "▲ " & _pct & " vs last month",
+			        IF(_mom < 0, "▼ " & _pct & " vs last month",
+			        "→ 0.0% vs last month")))
+		displayFolder: KPI Badges
+		lineageTag: 7c94beee-6313-49ba-8ae7-bbbc0e56bcd7
+
+	/// Single-line summary for a card: 'Generic X% | Brand Y%'. Drop onto a Card visual on Page 3.
+	measure 'Generic vs Brand Label' =
+			VAR _total = [Total Paid Amount]
+			VAR _generic = [Generic Drug Spend]
+			VAR _brand = [Brand Drug Spend]
+			VAR _gpct = FORMAT(DIVIDE(_generic, _total), "0%")
+			VAR _bpct = FORMAT(DIVIDE(_brand, _total), "0%")
+			RETURN "Generic " & _gpct & "  |  Brand " & _bpct
+		displayFolder: KPI Badges
+		lineageTag: ceb6c4fa-2c7a-480f-a0aa-4768bbc4d438
+
+	/// Summary card label: 'X high-risk members · Y% of spend · Z on 4+ drugs'. Use as subtitle card on Page 2.
+	measure 'Risk Summary Label' =
+			VAR _hr = [High Risk Members]
+			VAR _hrpct = FORMAT([High Risk Spend %], "0%")
+			VAR _poly = [Polypharmacy Members]
+			RETURN
+			    IF(ISBLANK(_hr), BLANK(),
+			        FORMAT(_hr, "0") & " high-risk members · " & _hrpct & " of spend · " & FORMAT(_poly, "0") & " on 4+ drugs")
+		displayFolder: KPI Badges
+		lineageTag: 258037f0-052f-46a7-9515-edd262dd9230
+
+	/// YoY % badge for Total Paid Amount KPI card.
+	measure 'Paid YoY Badge' =
+			VAR _yoy = [Paid Amount YoY%]
+			VAR _pct = FORMAT(ABS(_yoy), "0.0%")
+			RETURN
+			    IF(ISBLANK(_yoy), "— vs prior year",
+			        IF(_yoy > 0, "▲ " & _pct & " vs prior year",
+			        IF(_yoy < 0, "▼ " & _pct & " vs prior year",
+			        "→ flat vs prior year")))
+		displayFolder: KPI Badges
+		lineageTag: f3bb636e-653d-4189-9212-e8b792721a58
+
+	/// YoY % badge for PMPY KPI card.
+	measure 'PMPY YoY Badge' =
+			VAR _yoy = [PMPY YoY%]
+			VAR _pct = FORMAT(ABS(_yoy), "0.0%")
+			RETURN
+			    IF(ISBLANK(_yoy), "— vs prior year",
+			        IF(_yoy > 0, "▲ " & _pct & " vs prior year",
+			        IF(_yoy < 0, "▼ " & _pct & " vs prior year",
+			        "→ flat vs prior year")))
+		displayFolder: KPI Badges
+		lineageTag: dd2e5554-a4c9-40f0-aaeb-7ba57fdad297
+
+	/// Safe distinct count of Member_Claim_Id — not inflated by City/ZIP grain.
+	measure 'Member Unique Count' =
+			CALCULATE(
+			    DISTINCTCOUNT('Pharmacy Claims'[Member_Claim_Id])
+			)
+		formatString: 0
+		displayFolder: Claims Count
+		lineageTag: b0825d27-282e-42ec-9ea1-8716b8009047
+
+	/// Total Paid Amount at Member_Claim_Id grain — prevents row duplication when City/ZIP columns are in the visual.
+	measure 'Total Paid (Member Level)' =
+			CALCULATE(
+			    [Total Paid Amount],
+			    ALLEXCEPT('Pharmacy Claims', 'Pharmacy Claims'[Member_Claim_Id])
+			)
+		formatString: \$#,0;(\$#,0)
+		displayFolder: Cost Amounts
+		lineageTag: 01cabec4-cefa-4e7c-b590-a7f474335b05
+
+	/// Total Patient Paid for the same period in the prior year.
+	measure 'Patient Paid Prior Year' = CALCULATE([Total Patient Paid], SAMEPERIODLASTYEAR('Date'[Date]))
+		formatString: $#,##0
+		displayFolder: YoY Analysis
+		lineageTag: f4e53b15-7930-4bc6-a3dd-3e16516d751d
+
+	/// Year-over-year % change in Total Patient Paid.
+	measure 'Patient Paid YoY%' =
+			VAR _py = [Patient Paid Prior Year]
+			RETURN IF(ISBLANK(_py) || _py = 0, BLANK(), DIVIDE([Total Patient Paid] - _py, _py))
+		formatString: 0.0%
+		displayFolder: YoY Analysis
+		lineageTag: c23bbf12-c2f5-4ac9-be0c-add70391ebc3
+
+	/// Dollar variance in Patient Paid vs prior year. Positive = patient paying more.
+	measure 'Patient Paid YoY Variance' = [Total Patient Paid] - [Patient Paid Prior Year]
+		formatString: $#,##0;($#,##0)
+		displayFolder: YoY Analysis
+		lineageTag: 007e1c0b-fa08-4192-9d66-58448ad02f83
+
+	/// Dollar variance in Total Billed Amount vs prior year. Positive = higher billing.
+	measure 'Billed Amount YoY Variance' = [Total Billed Amount] - [Billed Amount Prior Year]
+		formatString: $#,##0;($#,##0)
+		displayFolder: YoY Analysis
+		lineageTag: df9dd9ea-690c-4b44-8783-6712d6eae674
+
+	/// Single card showing all three YoY % changes at a glance. Drop on a Card visual for a quick executive summary.
+	measure 'YoY Summary Label' =
+			VAR _py_paid = [Paid Amount Prior Year]
+			VAR _no_data = ISBLANK(_py_paid) || _py_paid = 0
+			VAR _bpct = [Billed Amount YoY%]
+			VAR _ppct = [Paid Amount YoY%]
+			VAR _ptpct = [Patient Paid YoY%]
+			VAR _bvar = [Billed Amount YoY Variance]
+			VAR _pvar = [Paid Amount YoY Variance]
+			VAR _ptvar = [Patient Paid YoY Variance]
+			VAR _up = UNICHAR(9650) & " "
+			VAR _dn = UNICHAR(9660) & " "
+			RETURN
+			    IF(_no_data, "No prior year data available",
+			        "Billed " & IF(_bpct >= 0, _up, _dn) & FORMAT(ABS(_bpct),"0.0%") & " (" & FORMAT(_bvar, "$#,##0;($#,##0)") & ")" &
+			        "  |  Plan Paid " & IF(_ppct >= 0, _up, _dn) & FORMAT(ABS(_ppct),"0.0%") & " (" & FORMAT(_pvar, "$#,##0;($#,##0)") & ")" &
+			        "  |  Patient Paid " & IF(_ptpct >= 0, _up, _dn) & FORMAT(ABS(_ptpct),"0.0%") & " (" & FORMAT(_ptvar, "$#,##0;($#,##0)") & ")"
+			    )
+		displayFolder: YoY Analysis
+		lineageTag: 619c2f75-bdf6-4471-a2d6-f5d290e164ef
+
+	/// Total Billed Amount for the prior month.
+	measure 'Billed Amount Prior Month' = CALCULATE([Total Billed Amount], DATEADD('Date'[Date], -1, MONTH))
+		formatString: $#,##0
+		displayFolder: MoM Analysis
+		lineageTag: 7e75c42f-8870-4dae-9cea-18b509f56b99
+
+	/// MoM % change in Total Billed Amount.
+	measure 'Billed Amount MoM%' =
+			VAR _prev = [Billed Amount Prior Month]
+			RETURN IF(ISBLANK(_prev) || _prev = 0, BLANK(), DIVIDE([Total Billed Amount] - _prev, _prev))
+		formatString: 0.0%
+		displayFolder: MoM Analysis
+		lineageTag: 561865bb-68cc-49c2-8ecb-4dce101906e5
+
+	/// Total Patient Paid for the prior month.
+	measure 'Patient Paid Prior Month' = CALCULATE([Total Patient Paid], DATEADD('Date'[Date], -1, MONTH))
+		formatString: $#,##0
+		displayFolder: MoM Analysis
+		lineageTag: 2c40dd1b-7c53-4b52-a72b-3ce458ce5d7c
+
+	/// MoM % change in Total Patient Paid.
+	measure 'Patient Paid MoM%' =
+			VAR _prev = [Patient Paid Prior Month]
+			RETURN IF(ISBLANK(_prev) || _prev = 0, BLANK(), DIVIDE([Total Patient Paid] - _prev, _prev))
+		formatString: 0.0%
+		displayFolder: MoM Analysis
+		lineageTag: b70a4fd9-d113-4527-af6d-07014ac87c8d
+
+	/// Single card label showing MoM % change for all three amounts. Works with current 2026 data — no prior year needed.
+	measure 'MoM Summary Label' =
+			VAR _billed = [Billed Amount MoM%]
+			VAR _paid = [Paid Amount MoM%]
+			VAR _patient = [Patient Paid MoM%]
+			VAR _bvar = [Total Billed Amount] - [Billed Amount Prior Month]
+			VAR _pvar = [Total Paid Amount] - CALCULATE([Total Paid Amount], DATEADD('Date'[Date], -1, MONTH))
+			VAR _ptvar = [Total Patient Paid] - [Patient Paid Prior Month]
+			VAR _up = UNICHAR(9650) & " "
+			VAR _dn = UNICHAR(9660) & " "
+			RETURN
+			    IF(ISBLANK(_billed),
+			        "Select a single month to see MoM change",
+			        "Billed " & IF(_billed >= 0, _up, _dn) & FORMAT(ABS(_billed),"0.0%") & " (" & FORMAT(_bvar, "$#,##0;($#,##0)") & ")" &
+			        "  |  Plan Paid " & IF(_paid >= 0, _up, _dn) & FORMAT(ABS(_paid),"0.0%") & " (" & FORMAT(_pvar, "$#,##0;($#,##0)") & ")" &
+			        "  |  Patient Paid " & IF(_patient >= 0, _up, _dn) & FORMAT(ABS(_patient),"0.0%") & " (" & FORMAT(_ptvar, "$#,##0;($#,##0)") & ")"
+			    )
+		displayFolder: MoM Analysis
+		lineageTag: ebd390cd-2281-4bb9-adb6-84a53c731127
+
+	/// % of total paid spend contributed by each age group. Shows cost concentration by age.
+	measure 'Age Group Spend %' =
+			DIVIDE(
+			    CALCULATE([Total Paid Amount]),
+			    CALCULATE([Total Paid Amount], ALL('Member Groups'))
+			)
+		formatString: 0.0%
+		displayFolder: Demographics
+		lineageTag: 0b394a30-bd9c-454d-9126-f8a5589df2b5
+
+	/// Avg number of distinct drugs per member within each age group — polypharmacy indicator by age.
+	measure 'Avg Drugs per Member by Age' =
+			DIVIDE(
+			    CALCULATE(DISTINCTCOUNT('Pharmacy Claims'[Drug_Name])),
+			    CALCULATE(DISTINCTCOUNT('Pharmacy Claims'[Member_Claim_Id]))
+			)
+		formatString: 0.0
+		displayFolder: Demographics
+		lineageTag: dd7f7cb3-8c86-4ab3-b5ea-6a49400e040e
+
+	/// % of claims in each age group that are specialty drug claims.
+	measure 'Specialty Claim % by Age' =
+			DIVIDE(
+			    CALCULATE([Total Claims], 'Pharmacy Claims'[Specialty Flag] = "Specialty"),
+			    [Total Claims]
+			)
+		formatString: 0.0%
+		displayFolder: Demographics
+		lineageTag: f7202045-d2c4-416c-ab1f-cfec459f637a
+
+	/// Shows how many months of data are in context. Drop as subtitle on PMPY card to warn when < 12 months.
+	measure 'PMPY Data Coverage Label' =
+			VAR _mm =
+			    COUNTROWS(
+			        SUMMARIZE('Date', 'Date'[Year], 'Date'[Month Number])
+			    )
+			RETURN
+			    IF(ISBLANK(_mm), BLANK(),
+			        IF(_mm < 12,
+			            "Annualized from " & _mm & " month" & IF(_mm = 1, "", "s") & " of data",
+			            "Based on full 12 months"
+			        )
+			    )
+		displayFolder: PMPY
+		lineageTag: f7a5d58b-82e3-41d3-8c03-ff6e49a7a0f5
+
+	/// Member-Months: counts distinct members per Year-Month using the Date table's Year-Month column.
+	measure 'Total Member-Months' =
+			SUMX(
+			    VALUES('Date'[Year-Month]),
+			    CALCULATE(DISTINCTCOUNT('Pharmacy Claims'[Member_Claim_Id]))
+			)
+		formatString: #,##0
+		displayFolder: PMPM
+		lineageTag: bd8749fc-42b6-44f7-97b1-d5e90cdfd33a
+
+	column _
+		lineageTag: f6ca07c0-293d-45cf-9a85-67c51b41fb02
+		isNameInferred
+		sourceColumn: [_]
+
+	partition _Measures = calculated
+		mode: import
+		source = ROW("_", BLANK())
+

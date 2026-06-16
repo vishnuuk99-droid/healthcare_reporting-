@@ -1,0 +1,31 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-IN
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+/// Errors in queries that were loaded on 01-06-2026 12:41:24.
+queryGroup 'Query Errors - 01-06-2026 12:41:24'
+
+	annotation PBI_QueryGroupOrder = 0
+
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation PBI_QueryOrder = ["Pharmacy Claims","Member Names","Member Groups","Member Address","Errors in Pharmacy Claims"]
+
+annotation PBI_ProTooling = ["MCP-PBIModeling","DevMode"]
+
+ref table 'Pharmacy Claims'
+ref table Date
+ref table _Measures
+ref table 'Cost Breakdown'
+ref table 'Member Names'
+ref table 'Member Groups'
+ref table 'Member Address'
+ref table DateTableTemplate_c8a84fd5-2e0c-4510-9892-2885c5a4380c
+ref table LocalDateTable_8af95df4-344a-4e09-8bf9-d6edc45c554f
+
+ref cultureInfo en-US
+

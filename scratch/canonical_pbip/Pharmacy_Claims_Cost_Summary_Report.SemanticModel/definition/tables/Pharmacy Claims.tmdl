@@ -1,0 +1,180 @@
+table 'Pharmacy Claims'
+	lineageTag: b09ad655-2b1c-4630-8fa6-178f9e15f7b0
+
+	column Pharmacy_Claim_Id
+		dataType: int64
+		formatString: 0
+		lineageTag: ec2e17c0-0156-4417-85d7-bb7969971a3a
+		summarizeBy: count
+		sourceColumn: Pharmacy_Claim_Id
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Member_Claim_Id
+		dataType: int64
+		formatString: 0
+		lineageTag: 4aa8b389-3116-47c5-b5fa-bc6096623fa6
+		summarizeBy: none
+		sourceColumn: Member_Claim_Id
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Presciber_Id
+		dataType: string
+		lineageTag: 37ae5ab7-87c5-475d-9830-bfc5802fb302
+		summarizeBy: none
+		sourceColumn: Presciber_Id
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column NDC
+		dataType: int64
+		formatString: 0
+		lineageTag: 45df086f-376f-494a-85e0-7a32d40a95b0
+		summarizeBy: sum
+		sourceColumn: NDC
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Therapeutic_Class
+		dataType: string
+		lineageTag: 11e6811a-1090-4107-ac3d-19de7b656c70
+		summarizeBy: none
+		sourceColumn: Therapeutic_Class
+
+		annotation SummarizationSetBy = Automatic
+
+	column Drug_Name
+		dataType: string
+		lineageTag: 0914f5cf-bf52-4365-80fd-055bb7ee17ad
+		summarizeBy: none
+		sourceColumn: Drug_Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column Drug_Brand
+		dataType: string
+		lineageTag: 0dc30fc2-f692-48d0-b2f9-5c19c054c3ed
+		summarizeBy: none
+		sourceColumn: Drug_Brand
+
+		annotation SummarizationSetBy = Automatic
+
+	column Billed_Amount
+		dataType: int64
+		formatString: $#,0.00
+		lineageTag: 5a0ab128-3791-4a31-91b0-6033504917a4
+		summarizeBy: sum
+		sourceColumn: Billed_Amount
+
+		annotation SummarizationSetBy = Automatic
+
+	column Paid_Amount
+		dataType: int64
+		formatString: $#,0.00
+		lineageTag: 6bd364f7-69d0-4449-85fd-18bfbe727aad
+		summarizeBy: sum
+		sourceColumn: Paid_Amount
+
+		annotation SummarizationSetBy = Automatic
+
+	column Copay_Paid
+		dataType: int64
+		formatString: $#,0.00
+		lineageTag: 897755df-774b-44de-8eda-5c6b2f65fdf2
+		summarizeBy: sum
+		sourceColumn: Copay_Paid
+
+		annotation SummarizationSetBy = Automatic
+
+	column Co_insurance
+		dataType: int64
+		formatString: $#,0.00
+		lineageTag: 6491b420-9cb1-47df-8438-9661720f2b92
+		summarizeBy: sum
+		sourceColumn: Co_insurance
+
+		annotation SummarizationSetBy = Automatic
+
+	column Deductible_total_amount
+		dataType: int64
+		formatString: $#,0.00
+		lineageTag: 1d9701fa-c294-437d-9763-2b4b47bf3300
+		summarizeBy: sum
+		sourceColumn: Deductible_total_amount
+
+		annotation SummarizationSetBy = Automatic
+
+	column Patient_Paid_Amount
+		dataType: int64
+		formatString: $#,0.00
+		lineageTag: e5096baf-c594-45d2-bcdc-dacdb84bbbf3
+		summarizeBy: sum
+		sourceColumn: Patient_Paid_Amount
+
+		annotation SummarizationSetBy = Automatic
+
+	column Medication_Dispensed_Date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: b7905e5e-39e2-4b03-826b-a006bb23196b
+		summarizeBy: none
+		sourceColumn: Medication_Dispensed_Date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Amount_Paid_Date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 4870b155-3fbb-45fc-add3-01b9f501ead3
+		summarizeBy: none
+		sourceColumn: Amount_Paid_Date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	/// Tags each claim as Specialty or Standard based on Therapeutic Class. Use as a slicer or matrix column to flag high-management classes.
+	column 'Specialty Flag' =
+			IF(
+			    'Pharmacy Claims'[Therapeutic_Class] IN {
+			        "Immunosuppressants",
+			        "Anticoagulants",
+			        "Antipsychotics",
+			        "Antivirals",
+			        "Antiepileptics",
+			        "Corticosteroids"
+			    },
+			    "Specialty",
+			    "Standard"
+			)
+		dataType: string
+		displayFolder: Flags
+		lineageTag: 19606617-2e19-44ed-bed6-3f0f8ababdae
+		summarizeBy: none
+
+	partition Sheet1 = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("C:\Users\uvishnu\OneDrive - ZeOmega\Desktop\Pharmacy_Cost_Analysis.xlsx"), null, true),
+				    Sheet1_Sheet = Source{[Item="Sheet1",Kind="Sheet"]}[Data],
+				    #"Promoted Headers" = Table.PromoteHeaders(Sheet1_Sheet, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"Pharmacy_Claim_Id", Int64.Type}, {"Member_Claim_Id", Int64.Type}, {"Presciber_Id", type text}, {"NDC", Int64.Type}, {"Therapeutic_Class", type text}, {"Drug_Name", type text}, {"Drug_Brand", type text}, {"Billed_Amount", Int64.Type}, {"Paid_Amount", Int64.Type}, {"Copay_Paid", Int64.Type}, {"Co_insurance", Int64.Type}, {"Deductible_total_amount", Int64.Type}, {"Patient_Paid_Amount", Int64.Type}, {"Medication_Dispensed_Date", type date}, {"Amount_Paid_Date", type date}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

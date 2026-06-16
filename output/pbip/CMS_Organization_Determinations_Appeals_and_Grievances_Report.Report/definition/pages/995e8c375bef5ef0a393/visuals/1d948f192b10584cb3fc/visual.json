@@ -1,0 +1,166 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "1d948f192b10584cb3fc",
+  "position": {
+    "x": 20,
+    "y": 510,
+    "z": 0,
+    "width": 1200,
+    "height": 300,
+    "tabOrder": 0
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "drillFilterOtherVisuals": true,
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FactObservation"
+                    }
+                  },
+                  "Property": "od_number"
+                }
+              },
+              "queryRef": "FactObservation.od_number",
+              "nativeQueryRef": "od_number"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimPatient"
+                    }
+                  },
+                  "Property": "mbi"
+                }
+              },
+              "queryRef": "DimPatient.mbi",
+              "nativeQueryRef": "mbi"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FactObservation"
+                    }
+                  },
+                  "Property": "processing_priority"
+                }
+              },
+              "queryRef": "FactObservation.processing_priority",
+              "nativeQueryRef": "processing_priority"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FactObservation"
+                    }
+                  },
+                  "Property": "disposition"
+                }
+              },
+              "queryRef": "FactObservation.disposition",
+              "nativeQueryRef": "disposition"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FactObservation"
+                    }
+                  },
+                  "Property": "decision_rationale"
+                }
+              },
+              "queryRef": "FactObservation.decision_rationale",
+              "nativeQueryRef": "decision_rationale"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Total Org Determinations Override"
+                }
+              },
+              "queryRef": "_Measures.Total Org Determinations Override",
+              "nativeQueryRef": "Total Org Determinations Override"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "FactObservation"
+                  }
+                },
+                "Property": "od_number"
+              }
+            },
+            "direction": "Ascending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "visualContainerObjects": {
+      "border": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "color": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "ThemeDataColor": {
+                      "ColorId": 0,
+                      "Percent": -0.5
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "title": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'CMS Submission Detail Table'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

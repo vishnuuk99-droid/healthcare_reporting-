@@ -14,5 +14,13 @@
     "mapped_term": "Decision Rationale (descriptive reasons only)",
     "description": "For the 'Decision Rationale' data element under Reconsiderations (II.A. Coverage Decisions and II.B. Payment Decisions), the numerical prefixes (e.g., '01 - ') will be removed, and only the descriptive reason (e.g., 'Cost Sharing/Benefit Limits') will be reported.",
     "timestamp": "2026-06-06T09:03:06.419869+00:00"
+  },
+  {
+    "decision_id": "c19cd11c",
+    "type": "reporting_preference",
+    "source_term": "Medicare Part C Reporting Requirements",
+    "mapped_term": "Isolated Part C Reporting (No Prior Auth or Service Level Data)",
+    "description": "Ensure that the Medicare Part C Reporting is kept strictly separate from prior authorization metrics and service level data collection reports.",
+    "timestamp": "2026-06-08T13:59:29.572399+00:00"
   }
 ]

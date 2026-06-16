@@ -13,11 +13,11 @@
       }
     ],
     "singleVisual": {
-      "visualType": "tableEx",
+      "visualType": "card",
       "projections": {
         "Values": [
           {
-            "queryRef": "_Measures.Total Org Determinations Override"
+            "queryRef": "_Measures[Total Org Determinations Override]"
           }
         ]
       },
@@ -39,9 +39,30 @@
               },
               "Property": "Total Org Determinations Override"
             },
-            "Name": "_Measures.Total Org Determinations Override"
+            "Name": "_Measures[Total Org Determinations Override]"
           }
         ]
+      },
+      "dataRoles": [
+        {
+          "role": "Values",
+          "projection": 0
+        }
+      ],
+      "sorting": {
+        "implicit": {
+          "sortDirection": 1,
+          "sortBy": {
+            "queryRef": "_Measures[Total Org Determinations Override]"
+          }
+        }
+      },
+      "formatting": {
+        "show": true,
+        "title": {
+          "show": true,
+          "text": "Total Organization Determinations"
+        }
       },
       "vcObjects": {
         "title": [
@@ -81,11 +102,11 @@
       }
     ],
     "singleVisual": {
-      "visualType": "tableEx",
+      "visualType": "kpi",
       "projections": {
-        "Values": [
+        "Indicator": [
           {
-            "queryRef": "_Measures.Adverse Decision Rate"
+            "queryRef": "_Measures[Adverse Decision Rate]"
           }
         ]
       },
@@ -107,9 +128,30 @@
               },
               "Property": "Adverse Decision Rate"
             },
-            "Name": "_Measures.Adverse Decision Rate"
+            "Name": "_Measures[Adverse Decision Rate]"
           }
         ]
+      },
+      "dataRoles": [
+        {
+          "role": "Indicator",
+          "projection": 0
+        }
+      ],
+      "sorting": {
+        "implicit": {
+          "sortDirection": 1,
+          "sortBy": {
+            "queryRef": "_Measures[Adverse Decision Rate]"
+          }
+        }
+      },
+      "formatting": {
+        "show": true,
+        "title": {
+          "show": true,
+          "text": "Adverse Decision Rate"
+        }
       },
       "vcObjects": {
         "title": [
@@ -149,11 +191,11 @@
       }
     ],
     "singleVisual": {
-      "visualType": "tableEx",
+      "visualType": "card",
       "projections": {
         "Values": [
           {
-            "queryRef": "_Measures.Average Turnaround Time"
+            "queryRef": "_Measures[Average Turnaround Time]"
           }
         ]
       },
@@ -175,9 +217,30 @@
               },
               "Property": "Average Turnaround Time"
             },
-            "Name": "_Measures.Average Turnaround Time"
+            "Name": "_Measures[Average Turnaround Time]"
           }
         ]
+      },
+      "dataRoles": [
+        {
+          "role": "Values",
+          "projection": 0
+        }
+      ],
+      "sorting": {
+        "implicit": {
+          "sortDirection": 1,
+          "sortBy": {
+            "queryRef": "_Measures[Average Turnaround Time]"
+          }
+        }
+      },
+      "formatting": {
+        "show": true,
+        "title": {
+          "show": true,
+          "text": "Average Turnaround Time"
+        }
       },
       "vcObjects": {
         "title": [
@@ -217,11 +280,11 @@
       }
     ],
     "singleVisual": {
-      "visualType": "tableEx",
+      "visualType": "kpi",
       "projections": {
-        "Values": [
+        "Indicator": [
           {
-            "queryRef": "_Measures.Clean Claim Rate"
+            "queryRef": "_Measures[Clean Claim Rate]"
           }
         ]
       },
@@ -243,9 +306,30 @@
               },
               "Property": "Clean Claim Rate"
             },
-            "Name": "_Measures.Clean Claim Rate"
+            "Name": "_Measures[Clean Claim Rate]"
           }
         ]
+      },
+      "dataRoles": [
+        {
+          "role": "Indicator",
+          "projection": 0
+        }
+      ],
+      "sorting": {
+        "implicit": {
+          "sortDirection": 1,
+          "sortBy": {
+            "queryRef": "_Measures[Clean Claim Rate]"
+          }
+        }
+      },
+      "formatting": {
+        "show": true,
+        "title": {
+          "show": true,
+          "text": "Clean Claim Rate"
+        }
       },
       "vcObjects": {
         "title": [
@@ -285,14 +369,16 @@
       }
     ],
     "singleVisual": {
-      "visualType": "tableEx",
+      "visualType": "lineChart",
       "projections": {
-        "Values": [
+        "Category": [
           {
-            "queryRef": "DimDate.month_name"
-          },
+            "queryRef": "DimDate[month_name]"
+          }
+        ],
+        "Y": [
           {
-            "queryRef": "_Measures.Total Org Determinations Override"
+            "queryRef": "_Measures[Total Org Determinations Override]"
           }
         ]
       },
@@ -318,7 +404,7 @@
               },
               "Property": "month_name"
             },
-            "Name": "DimDate.month_name"
+            "Name": "DimDate[month_name]"
           },
           {
             "Measure": {
@@ -329,9 +415,34 @@
               },
               "Property": "Total Org Determinations Override"
             },
-            "Name": "_Measures.Total Org Determinations Override"
+            "Name": "_Measures[Total Org Determinations Override]"
           }
         ]
+      },
+      "dataRoles": [
+        {
+          "role": "Category",
+          "projection": 0
+        },
+        {
+          "role": "Y",
+          "projection": 0
+        }
+      ],
+      "sorting": {
+        "implicit": {
+          "sortDirection": 1,
+          "sortBy": {
+            "queryRef": "DimDate[month_name]"
+          }
+        }
+      },
+      "formatting": {
+        "show": true,
+        "title": {
+          "show": true,
+          "text": "Monthly Determination Volume Trend"
+        }
       },
       "vcObjects": {
         "title": [
@@ -371,14 +482,16 @@
       }
     ],
     "singleVisual": {
-      "visualType": "tableEx",
+      "visualType": "donutChart",
       "projections": {
-        "Values": [
+        "Category": [
           {
-            "queryRef": "FactDetermination.disposition"
-          },
+            "queryRef": "FactObservation[disposition]"
+          }
+        ],
+        "Y": [
           {
-            "queryRef": "_Measures.Total Org Determinations Override"
+            "queryRef": "_Measures[Total Org Determinations Override]"
           }
         ]
       },
@@ -387,7 +500,7 @@
         "From": [
           {
             "Name": "f",
-            "Entity": "FactDetermination"
+            "Entity": "FactObservation"
           },
           {
             "Name": "a",
@@ -404,7 +517,7 @@
               },
               "Property": "disposition"
             },
-            "Name": "FactDetermination.disposition"
+            "Name": "FactObservation[disposition]"
           },
           {
             "Measure": {
@@ -415,9 +528,34 @@
               },
               "Property": "Total Org Determinations Override"
             },
-            "Name": "_Measures.Total Org Determinations Override"
+            "Name": "_Measures[Total Org Determinations Override]"
           }
         ]
+      },
+      "dataRoles": [
+        {
+          "role": "Category",
+          "projection": 0
+        },
+        {
+          "role": "Y",
+          "projection": 0
+        }
+      ],
+      "sorting": {
+        "implicit": {
+          "sortDirection": 1,
+          "sortBy": {
+            "queryRef": "FactObservation[disposition]"
+          }
+        }
+      },
+      "formatting": {
+        "show": true,
+        "title": {
+          "show": true,
+          "text": "Outcome Distribution"
+        }
       },
       "vcObjects": {
         "title": [
@@ -449,7 +587,7 @@
       {
         "position": {
           "x": 20,
-          "y": 20,
+          "y": 190,
           "width": 560,
           "height": 320,
           "z": 0
@@ -457,14 +595,16 @@
       }
     ],
     "singleVisual": {
-      "visualType": "tableEx",
+      "visualType": "clusteredBarChart",
       "projections": {
-        "Values": [
+        "Category": [
           {
-            "queryRef": "DimProvider.provider_name"
-          },
+            "queryRef": "DimProvider[provider_name]"
+          }
+        ],
+        "Y": [
           {
-            "queryRef": "_Measures.Total Org Determinations Override"
+            "queryRef": "_Measures[Total Org Determinations Override]"
           }
         ]
       },
@@ -490,7 +630,7 @@
               },
               "Property": "provider_name"
             },
-            "Name": "DimProvider.provider_name"
+            "Name": "DimProvider[provider_name]"
           },
           {
             "Measure": {
@@ -501,9 +641,34 @@
               },
               "Property": "Total Org Determinations Override"
             },
-            "Name": "_Measures.Total Org Determinations Override"
+            "Name": "_Measures[Total Org Determinations Override]"
           }
         ]
+      },
+      "dataRoles": [
+        {
+          "role": "Category",
+          "projection": 0
+        },
+        {
+          "role": "Y",
+          "projection": 0
+        }
+      ],
+      "sorting": {
+        "implicit": {
+          "sortDirection": 1,
+          "sortBy": {
+            "queryRef": "DimProvider[provider_name]"
+          }
+        }
+      },
+      "formatting": {
+        "show": true,
+        "title": {
+          "show": true,
+          "text": "Determinations by Provider"
+        }
       },
       "vcObjects": {
         "title": [
@@ -535,7 +700,7 @@
       {
         "position": {
           "x": 600,
-          "y": 20,
+          "y": 190,
           "width": 560,
           "height": 320,
           "z": 0
@@ -543,14 +708,16 @@
       }
     ],
     "singleVisual": {
-      "visualType": "tableEx",
+      "visualType": "clusteredBarChart",
       "projections": {
-        "Values": [
+        "Category": [
           {
-            "queryRef": "DimOrganization.organization_name"
-          },
+            "queryRef": "DimOrganization[organization_name]"
+          }
+        ],
+        "Y": [
           {
-            "queryRef": "_Measures.Total Org Determinations Override"
+            "queryRef": "_Measures[Total Org Determinations Override]"
           }
         ]
       },
@@ -576,7 +743,7 @@
               },
               "Property": "organization_name"
             },
-            "Name": "DimOrganization.organization_name"
+            "Name": "DimOrganization[organization_name]"
           },
           {
             "Measure": {
@@ -587,9 +754,34 @@
               },
               "Property": "Total Org Determinations Override"
             },
-            "Name": "_Measures.Total Org Determinations Override"
+            "Name": "_Measures[Total Org Determinations Override]"
           }
         ]
+      },
+      "dataRoles": [
+        {
+          "role": "Category",
+          "projection": 0
+        },
+        {
+          "role": "Y",
+          "projection": 0
+        }
+      ],
+      "sorting": {
+        "implicit": {
+          "sortDirection": 1,
+          "sortBy": {
+            "queryRef": "DimOrganization[organization_name]"
+          }
+        }
+      },
+      "formatting": {
+        "show": true,
+        "title": {
+          "show": true,
+          "text": "Determinations by Organization"
+        }
       },
       "vcObjects": {
         "title": [
@@ -621,7 +813,7 @@
       {
         "position": {
           "x": 20,
-          "y": 360,
+          "y": 530,
           "width": 560,
           "height": 320,
           "z": 0
@@ -629,14 +821,16 @@
       }
     ],
     "singleVisual": {
-      "visualType": "tableEx",
+      "visualType": "donutChart",
       "projections": {
-        "Values": [
+        "Category": [
           {
-            "queryRef": "FactDetermination.disposition"
-          },
+            "queryRef": "FactObservation[disposition]"
+          }
+        ],
+        "Y": [
           {
-            "queryRef": "_Measures.Total Org Determinations Override"
+            "queryRef": "_Measures[Total Org Determinations Override]"
           }
         ]
       },
@@ -645,7 +839,7 @@
         "From": [
           {
             "Name": "f",
-            "Entity": "FactDetermination"
+            "Entity": "FactObservation"
           },
           {
             "Name": "a",
@@ -662,7 +856,7 @@
               },
               "Property": "disposition"
             },
-            "Name": "FactDetermination.disposition"
+            "Name": "FactObservation[disposition]"
           },
           {
             "Measure": {
@@ -673,9 +867,34 @@
               },
               "Property": "Total Org Determinations Override"
             },
-            "Name": "_Measures.Total Org Determinations Override"
+            "Name": "_Measures[Total Org Determinations Override]"
           }
         ]
+      },
+      "dataRoles": [
+        {
+          "role": "Category",
+          "projection": 0
+        },
+        {
+          "role": "Y",
+          "projection": 0
+        }
+      ],
+      "sorting": {
+        "implicit": {
+          "sortDirection": 1,
+          "sortBy": {
+            "queryRef": "FactObservation[disposition]"
+          }
+        }
+      },
+      "formatting": {
+        "show": true,
+        "title": {
+          "show": true,
+          "text": "Decisions by Disposition"
+        }
       },
       "vcObjects": {
         "title": [
@@ -707,7 +926,7 @@
       {
         "position": {
           "x": 600,
-          "y": 360,
+          "y": 530,
           "width": 560,
           "height": 320,
           "z": 0
@@ -715,14 +934,16 @@
       }
     ],
     "singleVisual": {
-      "visualType": "tableEx",
+      "visualType": "lineChart",
       "projections": {
-        "Values": [
+        "Category": [
           {
-            "queryRef": "DimDate.month_name"
-          },
+            "queryRef": "DimDate[month_name]"
+          }
+        ],
+        "Y": [
           {
-            "queryRef": "_Measures.Total Org Determinations Override"
+            "queryRef": "_Measures[Total Org Determinations Override]"
           }
         ]
       },
@@ -748,7 +969,7 @@
               },
               "Property": "month_name"
             },
-            "Name": "DimDate.month_name"
+            "Name": "DimDate[month_name]"
           },
           {
             "Measure": {
@@ -759,9 +980,34 @@
               },
               "Property": "Total Org Determinations Override"
             },
-            "Name": "_Measures.Total Org Determinations Override"
+            "Name": "_Measures[Total Org Determinations Override]"
           }
         ]
+      },
+      "dataRoles": [
+        {
+          "role": "Category",
+          "projection": 0
+        },
+        {
+          "role": "Y",
+          "projection": 0
+        }
+      ],
+      "sorting": {
+        "implicit": {
+          "sortDirection": 1,
+          "sortBy": {
+            "queryRef": "DimDate[month_name]"
+          }
+        }
+      },
+      "formatting": {
+        "show": true,
+        "title": {
+          "show": true,
+          "text": "Trend Analysis"
+        }
       },
       "vcObjects": {
         "title": [
@@ -801,11 +1047,11 @@
       }
     ],
     "singleVisual": {
-      "visualType": "tableEx",
+      "visualType": "kpi",
       "projections": {
-        "Values": [
+        "Indicator": [
           {
-            "queryRef": "_Measures.Missing Data %"
+            "queryRef": "_Measures[Missing Data %]"
           }
         ]
       },
@@ -827,9 +1073,30 @@
               },
               "Property": "Missing Data %"
             },
-            "Name": "_Measures.Missing Data %"
+            "Name": "_Measures[Missing Data %]"
           }
         ]
+      },
+      "dataRoles": [
+        {
+          "role": "Indicator",
+          "projection": 0
+        }
+      ],
+      "sorting": {
+        "implicit": {
+          "sortDirection": 1,
+          "sortBy": {
+            "queryRef": "_Measures[Missing Data %]"
+          }
+        }
+      },
+      "formatting": {
+        "show": true,
+        "title": {
+          "show": true,
+          "text": "Missing Data %"
+        }
       },
       "vcObjects": {
         "title": [
@@ -869,11 +1136,11 @@
       }
     ],
     "singleVisual": {
-      "visualType": "tableEx",
+      "visualType": "card",
       "projections": {
         "Values": [
           {
-            "queryRef": "_Measures.Validation Errors"
+            "queryRef": "_Measures[Validation Errors]"
           }
         ]
       },
@@ -895,9 +1162,30 @@
               },
               "Property": "Validation Errors"
             },
-            "Name": "_Measures.Validation Errors"
+            "Name": "_Measures[Validation Errors]"
           }
         ]
+      },
+      "dataRoles": [
+        {
+          "role": "Values",
+          "projection": 0
+        }
+      ],
+      "sorting": {
+        "implicit": {
+          "sortDirection": 1,
+          "sortBy": {
+            "queryRef": "_Measures[Validation Errors]"
+          }
+        }
+      },
+      "formatting": {
+        "show": true,
+        "title": {
+          "show": true,
+          "text": "Validation Errors"
+        }
       },
       "vcObjects": {
         "title": [
@@ -937,11 +1225,11 @@
       }
     ],
     "singleVisual": {
-      "visualType": "tableEx",
+      "visualType": "card",
       "projections": {
         "Values": [
           {
-            "queryRef": "_Measures.Data Quality Score"
+            "queryRef": "_Measures[Data Quality Score]"
           }
         ]
       },
@@ -963,9 +1251,30 @@
               },
               "Property": "Data Quality Score"
             },
-            "Name": "_Measures.Data Quality Score"
+            "Name": "_Measures[Data Quality Score]"
           }
         ]
+      },
+      "dataRoles": [
+        {
+          "role": "Values",
+          "projection": 0
+        }
+      ],
+      "sorting": {
+        "implicit": {
+          "sortDirection": 1,
+          "sortBy": {
+            "queryRef": "_Measures[Data Quality Score]"
+          }
+        }
+      },
+      "formatting": {
+        "show": true,
+        "title": {
+          "show": true,
+          "text": "Data Quality Score"
+        }
       },
       "vcObjects": {
         "title": [
@@ -1005,14 +1314,16 @@
       }
     ],
     "singleVisual": {
-      "visualType": "tableEx",
+      "visualType": "lineChart",
       "projections": {
-        "Values": [
+        "Category": [
           {
-            "queryRef": "DimDate.month_name"
-          },
+            "queryRef": "DimDate[month_name]"
+          }
+        ],
+        "Y": [
           {
-            "queryRef": "_Measures.Quality Trend"
+            "queryRef": "_Measures[Quality Trend]"
           }
         ]
       },
@@ -1038,7 +1349,7 @@
               },
               "Property": "month_name"
             },
-            "Name": "DimDate.month_name"
+            "Name": "DimDate[month_name]"
           },
           {
             "Measure": {
@@ -1049,9 +1360,34 @@
               },
               "Property": "Quality Trend"
             },
-            "Name": "_Measures.Quality Trend"
+            "Name": "_Measures[Quality Trend]"
           }
         ]
+      },
+      "dataRoles": [
+        {
+          "role": "Category",
+          "projection": 0
+        },
+        {
+          "role": "Y",
+          "projection": 0
+        }
+      ],
+      "sorting": {
+        "implicit": {
+          "sortDirection": 1,
+          "sortBy": {
+            "queryRef": "DimDate[month_name]"
+          }
+        }
+      },
+      "formatting": {
+        "show": true,
+        "title": {
+          "show": true,
+          "text": "Quality Trend"
+        }
       },
       "vcObjects": {
         "title": [
@@ -1083,7 +1419,7 @@
       {
         "position": {
           "x": 20,
-          "y": 20,
+          "y": 190,
           "width": 1200,
           "height": 300,
           "z": 0
@@ -1091,17 +1427,21 @@
       }
     ],
     "singleVisual": {
-      "visualType": "tableEx",
+      "visualType": "pivotTable",
       "projections": {
+        "Rows": [
+          {
+            "queryRef": "FactObservation[disposition]"
+          }
+        ],
+        "Columns": [
+          {
+            "queryRef": "FactObservation[processing_priority]"
+          }
+        ],
         "Values": [
           {
-            "queryRef": "FactDetermination.disposition"
-          },
-          {
-            "queryRef": "FactDetermination.processing_priority"
-          },
-          {
-            "queryRef": "_Measures.Total Org Determinations Override"
+            "queryRef": "_Measures[Total Org Determinations Override]"
           }
         ]
       },
@@ -1110,7 +1450,7 @@
         "From": [
           {
             "Name": "f",
-            "Entity": "FactDetermination"
+            "Entity": "FactObservation"
           },
           {
             "Name": "a",
@@ -1127,7 +1467,7 @@
               },
               "Property": "disposition"
             },
-            "Name": "FactDetermination.disposition"
+            "Name": "FactObservation[disposition]"
           },
           {
             "Column": {
@@ -1138,7 +1478,7 @@
               },
               "Property": "processing_priority"
             },
-            "Name": "FactDetermination.processing_priority"
+            "Name": "FactObservation[processing_priority]"
           },
           {
             "Measure": {
@@ -1149,9 +1489,38 @@
               },
               "Property": "Total Org Determinations Override"
             },
-            "Name": "_Measures.Total Org Determinations Override"
+            "Name": "_Measures[Total Org Determinations Override]"
           }
         ]
+      },
+      "dataRoles": [
+        {
+          "role": "Rows",
+          "projection": 0
+        },
+        {
+          "role": "Columns",
+          "projection": 0
+        },
+        {
+          "role": "Values",
+          "projection": 0
+        }
+      ],
+      "sorting": {
+        "implicit": {
+          "sortDirection": 1,
+          "sortBy": {
+            "queryRef": "FactObservation[disposition]"
+          }
+        }
+      },
+      "formatting": {
+        "show": true,
+        "title": {
+          "show": true,
+          "text": "CMS Submission Matrix"
+        }
       },
       "vcObjects": {
         "title": [
@@ -1183,9 +1552,9 @@
       {
         "position": {
           "x": 20,
-          "y": 340,
+          "y": 510,
           "width": 1200,
-          "height": 340,
+          "height": 300,
           "z": 0
         }
       }
@@ -1195,22 +1564,22 @@
       "projections": {
         "Values": [
           {
-            "queryRef": "FactDetermination.od_number"
+            "queryRef": "FactObservation[od_number]"
           },
           {
-            "queryRef": "DimPatient.mbi"
+            "queryRef": "DimPatient[mbi]"
           },
           {
-            "queryRef": "FactDetermination.processing_priority"
+            "queryRef": "FactObservation[processing_priority]"
           },
           {
-            "queryRef": "FactDetermination.disposition"
+            "queryRef": "FactObservation[disposition]"
           },
           {
-            "queryRef": "FactDetermination.decision_rationale"
+            "queryRef": "FactObservation[decision_rationale]"
           },
           {
-            "queryRef": "_Measures.Total Org Determinations Override"
+            "queryRef": "_Measures[Total Org Determinations Override]"
           }
         ]
       },
@@ -1223,7 +1592,7 @@
           },
           {
             "Name": "f",
-            "Entity": "FactDetermination"
+            "Entity": "FactObservation"
           },
           {
             "Name": "a",
@@ -1240,7 +1609,7 @@
               },
               "Property": "od_number"
             },
-            "Name": "FactDetermination.od_number"
+            "Name": "FactObservation[od_number]"
           },
           {
             "Column": {
@@ -1251,7 +1620,7 @@
               },
               "Property": "mbi"
             },
-            "Name": "DimPatient.mbi"
+            "Name": "DimPatient[mbi]"
           },
           {
             "Column": {
@@ -1262,7 +1631,7 @@
               },
               "Property": "processing_priority"
             },
-            "Name": "FactDetermination.processing_priority"
+            "Name": "FactObservation[processing_priority]"
           },
           {
             "Column": {
@@ -1273,7 +1642,7 @@
               },
               "Property": "disposition"
             },
-            "Name": "FactDetermination.disposition"
+            "Name": "FactObservation[disposition]"
           },
           {
             "Column": {
@@ -1284,7 +1653,7 @@
               },
               "Property": "decision_rationale"
             },
-            "Name": "FactDetermination.decision_rationale"
+            "Name": "FactObservation[decision_rationale]"
           },
           {
             "Measure": {
@@ -1295,9 +1664,50 @@
               },
               "Property": "Total Org Determinations Override"
             },
-            "Name": "_Measures.Total Org Determinations Override"
+            "Name": "_Measures[Total Org Determinations Override]"
           }
         ]
+      },
+      "dataRoles": [
+        {
+          "role": "Values",
+          "projection": 0
+        },
+        {
+          "role": "Values",
+          "projection": 1
+        },
+        {
+          "role": "Values",
+          "projection": 2
+        },
+        {
+          "role": "Values",
+          "projection": 3
+        },
+        {
+          "role": "Values",
+          "projection": 4
+        },
+        {
+          "role": "Values",
+          "projection": 5
+        }
+      ],
+      "sorting": {
+        "implicit": {
+          "sortDirection": 1,
+          "sortBy": {
+            "queryRef": "FactObservation[od_number]"
+          }
+        }
+      },
+      "formatting": {
+        "show": true,
+        "title": {
+          "show": true,
+          "text": "CMS Submission Detail Table"
+        }
       },
       "vcObjects": {
         "title": [

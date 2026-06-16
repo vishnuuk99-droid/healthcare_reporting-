@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "Pharmacy_Claims_Cost_Summary_Report"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "3d662028-d117-41c3-889c-6bff8000a730"
+  }
+}

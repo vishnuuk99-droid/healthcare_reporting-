@@ -8,8 +8,11 @@ mapping CMS concepts to FHIR US Core R4 resources.
 """
 
 import json
+from dotenv import load_dotenv
+load_dotenv()
 
 import streamlit as st
+
 
 from modules.file_manager import (
     ensure_directories,
@@ -31,729 +34,491 @@ st.set_page_config(
 # Create project directories on first run
 ensure_directories()
 
+
+# ── Custom Download Helper ───────────────────────────────────────────
+import base64
+
+def render_download_button(label: str, data, file_name: str, mime: str, use_container_width: bool = False, type: str = "secondary", key=None):
+    if isinstance(data, str):
+        data_bytes = data.encode('utf-8')
+    elif isinstance(data, (bytes, bytearray)):
+        data_bytes = data
+    else:
+        # Fallback for dict or other types that might be passed
+        data_bytes = json.dumps(data, indent=2).encode('utf-8')
+    
+    b64 = base64.b64encode(data_bytes).decode('utf-8')
+    
+    # Determine button styles matching the dashboard theme
+    if type == "primary":
+        background = "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)"
+        hover_background = "linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)"
+        border = "none"
+        color = "#ffffff"
+    else:
+        background = "rgba(255, 255, 255, 0.05)"
+        hover_background = "rgba(255, 255, 255, 0.1)"
+        border = "1px solid rgba(255, 255, 255, 0.1)"
+        color = "#f8fafc"
+        
+    width_style = "100%" if use_container_width else "auto"
+    
+    button_html = f'''
+    <a href="data:{mime};base64,{b64}" download="{file_name}" target="_self" style="text-decoration: none; width: {width_style}; display: inline-block;">
+        <button style="
+            width: 100%;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            border: {border};
+            background: {background};
+            color: {color};
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 38px;
+        "
+        onmouseover="this.style.filter='brightness(1.1)';"
+        onmouseout="this.style.filter='brightness(1.0)';"
+        >
+            {label}
+        </button>
+    </a>
+    '''
+    st.markdown(button_html, unsafe_allow_html=True)
+
+
 # ── Custom Styling ───────────────────────────────────────────────────
 st.markdown(
     """
     <style>
-    /* Sidebar */
-    [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+    /* Global Typography */
+    html, body, [class*="css"] {
+        font-family: 'Plus Jakarta Sans', sans-serif;
     }
+
+    code, pre, [class*="mono"] {
+        font-family: 'JetBrains Mono', monospace !important;
+    }
+
+    /* Sidebar Background & Design */
+    [data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #090d16 0%, #111827 100%) !important;
+        border-right: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
     [data-testid="stSidebar"] .stMarkdown h1,
     [data-testid="stSidebar"] .stMarkdown h2,
     [data-testid="stSidebar"] .stMarkdown h3 {
-        color: #e2e8f0;
+        color: #f8fafc;
+        font-weight: 700;
+        letter-spacing: -0.025em;
     }
     [data-testid="stSidebar"] .stMarkdown p,
     [data-testid="stSidebar"] .stMarkdown li {
-        color: #cbd5e1;
-    }
-
-    /* Main header gradient text */
-    .main-title {
-        font-size: 2.2rem;
-        font-weight: 700;
-        background: linear-gradient(90deg, #3b82f6, #06b6d4);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin-bottom: 0.25rem;
-    }
-
-    /* Decision type badges */
-    .badge-terminology {
-        background: #1e3a5f; color: #7dd3fc; padding: 2px 10px;
-        border-radius: 12px; font-size: 0.8rem; font-weight: 600;
-    }
-    .badge-business-rule {
-        background: #3b1f2b; color: #fda4af; padding: 2px 10px;
-        border-radius: 12px; font-size: 0.8rem; font-weight: 600;
-    }
-    .badge-preference {
-        background: #1a3a2a; color: #86efac; padding: 2px 10px;
-        border-radius: 12px; font-size: 0.8rem; font-weight: 600;
-    }
-
-    /* Confidence badges */
-    .conf-high {
-        background: #14532d; color: #86efac; padding: 2px 10px;
-        border-radius: 12px; font-size: 0.75rem; font-weight: 600;
-    }
-    .conf-medium {
-        background: #422006; color: #fcd34d; padding: 2px 10px;
-        border-radius: 12px; font-size: 0.75rem; font-weight: 600;
-    }
-    .conf-low {
-        background: #450a0a; color: #fca5a5; padding: 2px 10px;
-        border-radius: 12px; font-size: 0.75rem; font-weight: 600;
-    }
-
-    /* ── Analytics Model Styles ───────────────────────────────── */
-    .fact-card {
-        background: linear-gradient(135deg, #1e3a5f 0%, #0f2942 100%);
-        border: 1px solid #2563eb;
-        border-radius: 12px;
-        padding: 16px;
-        margin-bottom: 12px;
-    }
-    .fact-card h4 {
-        color: #60a5fa;
-        margin: 0 0 4px 0;
-        font-size: 1rem;
-    }
-    .fact-card .grain {
-        color: #93c5fd;
-        font-size: 0.8rem;
-        font-style: italic;
-    }
-    .fact-card .desc {
-        color: #cbd5e1;
-        font-size: 0.85rem;
-        margin-top: 6px;
-    }
-
-    .dim-card {
-        background: linear-gradient(135deg, #1a3a2a 0%, #0f2918 100%);
-        border: 1px solid #16a34a;
-        border-radius: 12px;
-        padding: 16px;
-        margin-bottom: 12px;
-    }
-    .dim-card h4 {
-        color: #86efac;
-        margin: 0 0 4px 0;
-        font-size: 1rem;
-    }
-    .dim-card .desc {
-        color: #cbd5e1;
-        font-size: 0.85rem;
-        margin-top: 6px;
-    }
-
-    .metric-pill {
-        display: inline-block;
-        background: #312e81;
-        color: #c4b5fd;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 0.78rem;
-        font-weight: 600;
-        margin: 3px 4px;
-        border: 1px solid #4338ca;
-    }
-
-    .rel-row {
-        background: #1e1b2e;
-        border: 1px solid #4338ca;
-        border-radius: 8px;
-        padding: 10px 14px;
-        margin-bottom: 6px;
-        font-size: 0.85rem;
-        color: #e2e8f0;
-    }
-    .rel-row .arrow {
-        color: #a78bfa;
-        font-weight: 700;
-        padding: 0 8px;
-    }
-    .rel-row .key {
-        color: #fcd34d;
-        font-family: monospace;
-        font-size: 0.8rem;
-    }
-
-    .attr-chip {
-        display: inline-block;
-        background: #422006;
-        color: #fcd34d;
-        padding: 3px 10px;
-        border-radius: 16px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        margin: 2px 3px;
-        border: 1px solid #b45309;
-    }
-
-    .col-tag {
-        display: inline-block;
-        background: #1e293b;
         color: #94a3b8;
-        padding: 2px 8px;
-        border-radius: 6px;
-        font-size: 0.72rem;
-        margin: 2px;
-        font-family: monospace;
-    }
-    .col-type {
-        color: #64748b;
-        font-size: 0.7rem;
     }
 
-    .schema-header {
-        font-size: 1.4rem;
-        font-weight: 700;
-        background: linear-gradient(90deg, #a78bfa, #60a5fa);
+    /* Primary main header gradient text */
+    .main-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #a855f7 0%, #3b82f6 50%, #14b8a6 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         margin-bottom: 0.5rem;
+        letter-spacing: -0.03em;
     }
 
-    .status-approved {
-        background: #14532d; color: #86efac; padding: 4px 14px;
-        border-radius: 20px; font-size: 0.82rem; font-weight: 700;
-        display: inline-block;
+    /* Card Styling with Glassmorphism */
+    .fact-card, .dim-card, .intent-card, .page-card, .drill-card, .dd-card, .msr-card, .dax-card, .diag-card, .pbip-valid-card, .pbip-missing-card, .pbip-empty-card {
+        background: rgba(17, 24, 39, 0.45) !important;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-radius: 16px !important;
+        padding: 20px !important;
+        margin-bottom: 16px !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
-    .status-draft {
-        background: #422006; color: #fcd34d; padding: 4px 14px;
-        border-radius: 20px; font-size: 0.82rem; font-weight: 700;
-        display: inline-block;
+
+    /* Borders matching semantic elements */
+    .fact-card {
+        border: 1px solid rgba(59, 130, 246, 0.2) !important;
     }
-    /* ── Reporting Intent Styles ─────────────────────────────── */
+    .fact-card:hover {
+        border-color: rgba(59, 130, 246, 0.5) !important;
+        box-shadow: 0 4px 25px rgba(59, 130, 246, 0.15) !important;
+        transform: translateY(-2px);
+    }
+    
+    .dim-card {
+        border: 1px solid rgba(16, 185, 129, 0.2) !important;
+    }
+    .dim-card:hover {
+        border-color: rgba(16, 185, 129, 0.5) !important;
+        box-shadow: 0 4px 25px rgba(16, 185, 129, 0.15) !important;
+        transform: translateY(-2px);
+    }
+
     .intent-card {
-        background: linear-gradient(135deg, #1c1917 0%, #292524 100%);
-        border: 1px solid #57534e;
-        border-radius: 12px;
-        padding: 14px 16px;
-        margin-bottom: 10px;
+        border: 1px solid rgba(245, 158, 11, 0.2) !important;
     }
-    .intent-card .req-text {
-        color: #e7e5e4;
-        font-size: 0.85rem;
-        margin-bottom: 8px;
+    .intent-card:hover {
+        border-color: rgba(245, 158, 11, 0.5) !important;
+        box-shadow: 0 4px 25px rgba(245, 158, 11, 0.15) !important;
+        transform: translateY(-2px);
     }
 
-    .intent-badge {
-        display: inline-block;
-        padding: 3px 12px;
-        border-radius: 14px;
-        font-size: 0.74rem;
-        font-weight: 700;
-        margin-right: 6px;
-    }
-    .intent-detail_listing { background: #1e3a5f; color: #7dd3fc; }
-    .intent-kpi { background: #14532d; color: #86efac; }
-    .intent-trend_analysis { background: #312e81; color: #c4b5fd; }
-    .intent-comparison_analysis { background: #422006; color: #fcd34d; }
-    .intent-cross_tabulation { background: #3b1f2b; color: #fda4af; }
-    .intent-data_submission { background: #164e63; color: #67e8f9; }
-    .intent-data_quality { background: #450a0a; color: #fca5a5; }
-    .intent-compliance_monitoring { background: #1a3a2a; color: #86efac; }
-
-    .visual-rec {
-        display: inline-block;
-        background: #0f172a;
-        color: #94a3b8;
-        padding: 3px 10px;
-        border-radius: 8px;
-        font-size: 0.74rem;
-        font-weight: 600;
-        border: 1px solid #334155;
-    }
-
-    .col-req {
-        display: inline-block;
-        background: #1e293b;
-        color: #94a3b8;
-        padding: 2px 7px;
-        border-radius: 5px;
-        font-size: 0.68rem;
-        margin: 1px 2px;
-        font-family: monospace;
-    }
-
-    /* ── Report Definition Styles ─────────────────────────────── */
     .page-card {
-        background: linear-gradient(135deg, #1e1b3a 0%, #0f0d24 100%);
-        border: 1px solid #6366f1;
-        border-radius: 14px;
-        padding: 18px;
-        margin-bottom: 14px;
+        border: 1px solid rgba(99, 102, 241, 0.2) !important;
     }
-    .page-card h4 {
-        color: #a5b4fc;
-        margin: 0 0 4px 0;
-        font-size: 1.05rem;
-    }
-    .page-card .purpose {
-        color: #c7d2fe;
-        font-size: 0.82rem;
-        font-style: italic;
-    }
-
-    .visual-card {
-        background: #1a1a2e;
-        border: 1px solid #374151;
-        border-radius: 10px;
-        padding: 12px;
-        margin: 6px 0;
-    }
-    .visual-card .v-title {
-        color: #e2e8f0;
-        font-weight: 600;
-        font-size: 0.88rem;
-    }
-    .visual-card .v-type {
-        display: inline-block;
-        background: #312e81;
-        color: #c4b5fd;
-        padding: 2px 10px;
-        border-radius: 12px;
-        font-size: 0.72rem;
-        font-weight: 600;
-        margin-left: 8px;
-    }
-    .visual-card .v-reason {
-        color: #94a3b8;
-        font-size: 0.78rem;
-        margin-top: 6px;
-    }
-
-    .filter-badge {
-        display: inline-block;
-        background: #164e63;
-        color: #67e8f9;
-        padding: 4px 12px;
-        border-radius: 16px;
-        font-size: 0.76rem;
-        font-weight: 600;
-        margin: 3px 4px;
-        border: 1px solid #0891b2;
-    }
-
-    .dax-block {
-        background: #0d1117;
-        border: 1px solid #30363d;
-        border-radius: 8px;
-        padding: 10px 14px;
-        font-family: 'Cascadia Code', 'Fira Code', monospace;
-        font-size: 0.78rem;
-        color: #c9d1d9;
-        margin: 6px 0;
-        white-space: pre-wrap;
-    }
-
-    .measure-name {
-        color: #79c0ff;
-        font-weight: 700;
-        font-size: 0.85rem;
-    }
-    .measure-table {
-        color: #7ee787;
-        font-size: 0.75rem;
+    .page-card:hover {
+        border-color: rgba(99, 102, 241, 0.5) !important;
+        box-shadow: 0 4px 25px rgba(99, 102, 241, 0.15) !important;
+        transform: translateY(-2px);
     }
 
     .drill-card {
-        background: linear-gradient(135deg, #2d1b3a 0%, #1a0f24 100%);
-        border: 1px solid #a855f7;
-        border-radius: 12px;
-        padding: 16px;
-        margin-bottom: 12px;
+        border: 1px solid rgba(168, 85, 247, 0.2) !important;
     }
-    .drill-card h4 {
-        color: #d8b4fe;
-        margin: 0 0 4px 0;
-        font-size: 1rem;
-    }
-    .drill-card .drill-field {
-        color: #e9d5ff;
-        font-size: 0.8rem;
-        font-family: monospace;
+    .drill-card:hover {
+        border-color: rgba(168, 85, 247, 0.5) !important;
+        box-shadow: 0 4px 25px rgba(168, 85, 247, 0.15) !important;
+        transform: translateY(-2px);
     }
 
-    /* ── Data Dictionary Styles ───────────────────────────────── */
     .dd-card {
-        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-        border: 1px solid #374151;
-        border-radius: 12px;
-        padding: 14px 16px;
-        margin-bottom: 10px;
+        border: 1px solid rgba(107, 114, 128, 0.2) !important;
     }
-    .dd-card .dd-field {
-        color: #e2e8f0;
-        font-size: 0.92rem;
-        font-weight: 600;
-        margin-bottom: 4px;
-    }
-    .dd-card .dd-def {
-        color: #94a3b8;
-        font-size: 0.82rem;
-        margin-bottom: 8px;
+    .dd-card:hover {
+        border-color: rgba(107, 114, 128, 0.5) !important;
+        box-shadow: 0 4px 25px rgba(107, 114, 128, 0.15) !important;
+        transform: translateY(-2px);
     }
 
-    .cls-fhir {
-        display: inline-block;
-        background: #14532d; color: #86efac; padding: 3px 10px;
-        border-radius: 12px; font-size: 0.72rem; font-weight: 700;
-        margin-right: 6px;
-    }
-    .cls-derived {
-        display: inline-block;
-        background: #312e81; color: #c4b5fd; padding: 3px 10px;
-        border-radius: 12px; font-size: 0.72rem; font-weight: 700;
-        margin-right: 6px;
-    }
-    .cls-non-fhir {
-        display: inline-block;
-        background: #422006; color: #fcd34d; padding: 3px 10px;
-        border-radius: 12px; font-size: 0.72rem; font-weight: 700;
-        margin-right: 6px;
-    }
-
-    .src-direct {
-        display: inline-block;
-        background: #164e63; color: #67e8f9; padding: 3px 10px;
-        border-radius: 12px; font-size: 0.72rem; font-weight: 700;
-        margin-right: 6px;
-    }
-    .src-derived {
-        display: inline-block;
-        background: #3b1f2b; color: #fda4af; padding: 3px 10px;
-        border-radius: 12px; font-size: 0.72rem; font-weight: 700;
-        margin-right: 6px;
-    }
-    .src-sme-rule {
-        display: inline-block;
-        background: #1a3a2a; color: #86efac; padding: 3px 10px;
-        border-radius: 12px; font-size: 0.72rem; font-weight: 700;
-        margin-right: 6px;
-    }
-
-    .usage-badge {
-        display: inline-block;
-        background: #0f172a; color: #94a3b8; padding: 3px 10px;
-        border-radius: 8px; font-size: 0.72rem; font-weight: 600;
-        border: 1px solid #334155; margin-right: 6px;
-    }
-
-    .dd-source-info {
-        color: #64748b;
-        font-size: 0.75rem;
-        font-family: monospace;
-        margin-top: 6px;
-    }
-    .dd-transform {
-        color: #78716c;
-        font-size: 0.75rem;
-        margin-top: 4px;
-        font-style: italic;
-    }
-
-    /* ── Measure Generator Styles ─────────────────────────────── */
     .msr-card {
-        background: linear-gradient(135deg, #1a1625 0%, #1e1b3a 100%);
-        border: 1px solid #4338ca;
-        border-radius: 12px;
-        padding: 14px 16px;
-        margin-bottom: 10px;
+        border: 1px solid rgba(79, 70, 229, 0.2) !important;
     }
-    .msr-card .msr-name {
-        color: #e2e8f0;
-        font-size: 0.92rem;
-        font-weight: 700;
-        margin-bottom: 4px;
-    }
-    .msr-card .msr-def {
-        color: #94a3b8;
-        font-size: 0.82rem;
-        margin-bottom: 8px;
-    }
-    .msr-card .msr-formula {
-        background: #0d1117;
-        border: 1px solid #30363d;
-        border-radius: 6px;
-        padding: 8px 12px;
-        font-family: 'Cascadia Code', 'Fira Code', monospace;
-        font-size: 0.76rem;
-        color: #c9d1d9;
-        margin: 6px 0;
+    .msr-card:hover {
+        border-color: rgba(79, 70, 229, 0.5) !important;
+        box-shadow: 0 4px 25px rgba(79, 70, 229, 0.15) !important;
+        transform: translateY(-2px);
     }
 
-    .mtype-count {
-        display: inline-block;
-        background: #1e3a5f; color: #7dd3fc; padding: 3px 10px;
-        border-radius: 12px; font-size: 0.72rem; font-weight: 700;
-        margin-right: 6px;
-    }
-    .mtype-sum {
-        display: inline-block;
-        background: #14532d; color: #86efac; padding: 3px 10px;
-        border-radius: 12px; font-size: 0.72rem; font-weight: 700;
-        margin-right: 6px;
-    }
-    .mtype-average {
-        display: inline-block;
-        background: #312e81; color: #c4b5fd; padding: 3px 10px;
-        border-radius: 12px; font-size: 0.72rem; font-weight: 700;
-        margin-right: 6px;
-    }
-    .mtype-percentage {
-        display: inline-block;
-        background: #422006; color: #fcd34d; padding: 3px 10px;
-        border-radius: 12px; font-size: 0.72rem; font-weight: 700;
-        margin-right: 6px;
-    }
-    .mtype-ratio {
-        display: inline-block;
-        background: #3b1f2b; color: #fda4af; padding: 3px 10px;
-        border-radius: 12px; font-size: 0.72rem; font-weight: 700;
-        margin-right: 6px;
-    }
-    .mtype-distinct-count {
-        display: inline-block;
-        background: #164e63; color: #67e8f9; padding: 3px 10px;
-        border-radius: 12px; font-size: 0.72rem; font-weight: 700;
-        margin-right: 6px;
-    }
-    .mtype-trend {
-        display: inline-block;
-        background: #1a3a2a; color: #86efac; padding: 3px 10px;
-        border-radius: 12px; font-size: 0.72rem; font-weight: 700;
-        margin-right: 6px;
-    }
-
-    .mcls-base {
-        display: inline-block;
-        background: #0f172a; color: #94a3b8; padding: 3px 10px;
-        border-radius: 8px; font-size: 0.72rem; font-weight: 600;
-        border: 1px solid #334155; margin-right: 6px;
-    }
-    .mcls-derived {
-        display: inline-block;
-        background: #312e81; color: #c4b5fd; padding: 3px 10px;
-        border-radius: 8px; font-size: 0.72rem; font-weight: 600;
-        border: 1px solid #4338ca; margin-right: 6px;
-    }
-    .mcls-kpi {
-        display: inline-block;
-        background: #14532d; color: #86efac; padding: 3px 10px;
-        border-radius: 8px; font-size: 0.72rem; font-weight: 600;
-        border: 1px solid #16a34a; margin-right: 6px;
-    }
-
-    .msr-src-tag {
-        display: inline-block;
-        background: #1e293b;
-        color: #94a3b8;
-        padding: 2px 7px;
-        border-radius: 5px;
-        font-size: 0.68rem;
-        margin: 1px 2px;
-        font-family: monospace;
-    }
-    .msr-tbl-tag {
-        display: inline-block;
-        background: #1e3a5f;
-        color: #7dd3fc;
-        padding: 2px 7px;
-        border-radius: 5px;
-        font-size: 0.68rem;
-        margin: 1px 2px;
-        font-family: monospace;
-    }
-
-    /* ── Dependency Diagnostics Styles ───────────────────────── */
-    .diag-found {
-        background: #14532d; color: #86efac; padding: 3px 12px;
-        border-radius: 12px; font-size: 0.78rem; font-weight: 700;
-        display: inline-block;
-    }
-    .diag-missing {
-        background: #450a0a; color: #fca5a5; padding: 3px 12px;
-        border-radius: 12px; font-size: 0.78rem; font-weight: 700;
-        display: inline-block;
-    }
-    .diag-card {
-        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-        border: 1px solid #334155;
-        border-radius: 12px;
-        padding: 14px 16px;
-        margin-bottom: 10px;
-    }
-    .diag-card .diag-name {
-        color: #e2e8f0;
-        font-size: 0.92rem;
-        font-weight: 700;
-        margin-bottom: 4px;
-    }
-    .diag-card .diag-path {
-        color: #64748b;
-        font-size: 0.75rem;
-        font-family: monospace;
-        margin-bottom: 4px;
-    }
-    .diag-card .diag-size {
-        color: #94a3b8;
-        font-size: 0.72rem;
-    }
-    .pipeline-stage {
-        display: inline-block;
-        padding: 6px 14px;
-        border-radius: 8px;
-        font-size: 0.78rem;
-        font-weight: 600;
-        margin: 3px 2px;
-    }
-    .pipeline-ok {
-        background: #14532d; color: #86efac;
-        border: 1px solid #16a34a;
-    }
-    .pipeline-blocked {
-        background: #450a0a; color: #fca5a5;
-        border: 1px solid #dc2626;
-    }
-    .pipeline-arrow {
-        color: #4b5563;
-        font-size: 1.2rem;
-        padding: 0 2px;
-    }
-
-    /* ── DAX Generator Styles ─────────────────────────────────── */
     .dax-card {
-        background: linear-gradient(135deg, #1e1e38 0%, #0d0d1e 100%);
-        border: 1px solid #6366f1;
-        border-radius: 12px;
-        padding: 14px 16px;
-        margin-bottom: 10px;
+        border: 1px solid rgba(99, 102, 241, 0.25) !important;
     }
-    .dax-card .dax-name {
-        color: #818cf8;
-        font-size: 0.95rem;
-        font-weight: 700;
-        margin-bottom: 4px;
-    }
-    .dax-card .dax-def {
-        color: #94a3b8;
-        font-size: 0.82rem;
-        margin-bottom: 8px;
-    }
-    .dax-card .dax-expr-block {
-        background: #09090e;
-        border: 1px solid #312e81;
-        border-radius: 6px;
-        padding: 8px 12px;
-        font-family: 'Cascadia Code', 'Fira Code', monospace;
-        font-size: 0.8rem;
-        color: #e0e7ff;
-        margin: 6px 0;
-        white-space: pre-wrap;
-    }
-    .badge-dax-valid {
-        background: #14532d; color: #86efac; padding: 2px 10px;
-        border-radius: 12px; font-size: 0.72rem; font-weight: 700;
-        display: inline-block; margin-right: 6px;
-    }
-    .badge-dax-warning {
-        background: #422006; color: #fcd34d; padding: 2px 10px;
-        border-radius: 12px; font-size: 0.72rem; font-weight: 700;
-        display: inline-block; margin-right: 6px;
-    }
-    .badge-dax-error {
-        background: #450a0a; color: #fca5a5; padding: 2px 10px;
-        border-radius: 12px; font-size: 0.72rem; font-weight: 700;
-        display: inline-block; margin-right: 6px;
+    .dax-card:hover {
+        border-color: rgba(99, 102, 241, 0.6) !important;
+        box-shadow: 0 4px 25px rgba(99, 102, 241, 0.2) !important;
+        transform: translateY(-2px);
     }
 
-    /* ── PBIP Validation Styles ───────────────────────────────── */
+    .diag-card {
+        border: 1px solid rgba(148, 163, 184, 0.2) !important;
+    }
+    .diag-card:hover {
+        border-color: rgba(148, 163, 184, 0.5) !important;
+        box-shadow: 0 4px 25px rgba(148, 163, 184, 0.15) !important;
+        transform: translateY(-2px);
+    }
+
     .pbip-valid-card {
-        background: linear-gradient(135deg, #052e16 0%, #0a2315 100%);
-        border: 1px solid #16a34a;
-        border-radius: 10px;
-        padding: 10px 14px;
-        margin-bottom: 6px;
+        border: 1px solid rgba(16, 185, 129, 0.3) !important;
+        background: linear-gradient(135deg, rgba(6, 78, 59, 0.2) 0%, rgba(15, 23, 42, 0.4) 100%) !important;
     }
     .pbip-missing-card {
-        background: linear-gradient(135deg, #450a0a 0%, #2d0606 100%);
-        border: 1px solid #dc2626;
-        border-radius: 10px;
-        padding: 10px 14px;
-        margin-bottom: 6px;
+        border: 1px solid rgba(239, 68, 68, 0.3) !important;
+        background: linear-gradient(135deg, rgba(127, 29, 29, 0.2) 0%, rgba(15, 23, 42, 0.4) 100%) !important;
     }
     .pbip-empty-card {
-        background: linear-gradient(135deg, #422006 0%, #2d1a04 100%);
-        border: 1px solid #d97706;
-        border-radius: 10px;
-        padding: 10px 14px;
-        margin-bottom: 6px;
+        border: 1px solid rgba(245, 158, 11, 0.3) !important;
+        background: linear-gradient(135deg, rgba(120, 53, 4, 0.2) 0%, rgba(15, 23, 42, 0.4) 100%) !important;
     }
-    .pbip-file-name {
-        font-family: 'Cascadia Code', 'Fira Code', monospace;
-        font-size: 0.85rem;
-        font-weight: 700;
-        margin-bottom: 2px;
+
+    /* Titles inside cards */
+    .fact-card h4, .dim-card h4, .drill-card h4, .page-card h4, .dax-card .dax-name, .diag-card .diag-name {
+        font-weight: 700 !important;
+        letter-spacing: -0.02em !important;
+        margin-top: 0 !important;
+        margin-bottom: 6px !important;
     }
-    .pbip-file-desc {
-        font-size: 0.78rem;
+    .fact-card h4 { color: #60a5fa !important; }
+    .dim-card h4 { color: #34d399 !important; }
+    .drill-card h4 { color: #c084fc !important; }
+    .page-card h4 { color: #a5b4fc !important; }
+    .dax-card .dax-name { color: #818cf8 !important; }
+
+    /* Custom badges */
+    .badge-terminology, .badge-business-rule, .badge-preference, .conf-high, .conf-medium, .conf-low, .intent-badge {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-size: 0.75rem !important;
+        font-weight: 700 !important;
+        padding: 4px 12px !important;
+        border-radius: 20px !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.05em !important;
+        display: inline-block;
+    }
+
+    .badge-terminology { background: rgba(59, 130, 246, 0.15) !important; color: #60a5fa !important; border: 1px solid rgba(59, 130, 246, 0.3) !important; }
+    .badge-business-rule { background: rgba(244, 63, 94, 0.15) !important; color: #fb7185 !important; border: 1px solid rgba(244, 63, 94, 0.3) !important; }
+    .badge-preference { background: rgba(16, 185, 129, 0.15) !important; color: #34d399 !important; border: 1px solid rgba(16, 185, 129, 0.3) !important; }
+
+    .conf-high { background: rgba(16, 185, 129, 0.15) !important; color: #34d399 !important; border: 1px solid rgba(16, 185, 129, 0.3) !important; }
+    .conf-medium { background: rgba(245, 158, 11, 0.15) !important; color: #fbbf24 !important; border: 1px solid rgba(245, 158, 11, 0.3) !important; }
+    .conf-low { background: rgba(239, 68, 68, 0.15) !important; color: #f87171 !important; border: 1px solid rgba(239, 68, 68, 0.3) !important; }
+
+    /* Custom Metric Pills and Tags */
+    .metric-pill, .col-tag, .col-req, .attr-chip, .visual-rec {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-size: 0.72rem !important;
+        font-weight: 600 !important;
+        padding: 4px 10px !important;
+        border-radius: 8px !important;
+        display: inline-block;
+        margin: 3px 4px !important;
+        transition: all 0.2s ease;
+    }
+
+    .metric-pill {
+        background: rgba(99, 102, 241, 0.12) !important;
+        color: #a5b4fc !important;
+        border: 1px solid rgba(99, 102, 241, 0.25) !important;
+    }
+    .metric-pill:hover {
+        background: rgba(99, 102, 241, 0.25) !important;
+    }
+
+    .col-tag {
+        background: rgba(75, 85, 99, 0.15) !important;
+        color: #cbd5e1 !important;
+        border: 1px solid rgba(156, 163, 175, 0.2) !important;
+    }
+    .col-type {
         color: #94a3b8;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.65rem;
+        margin-left: 4px;
     }
-    .pbip-file-size {
-        font-size: 0.72rem;
+
+    .col-req {
+        background: rgba(245, 158, 11, 0.1) !important;
+        color: #fde047 !important;
+        border: 1px solid rgba(245, 158, 11, 0.2) !important;
+    }
+
+    .attr-chip {
+        background: rgba(168, 85, 247, 0.12) !important;
+        color: #e9d5ff !important;
+        border: 1px solid rgba(168, 85, 247, 0.25) !important;
+    }
+
+    .visual-rec {
+        background: rgba(6, 182, 212, 0.12) !important;
+        color: #22d3ee !important;
+        border: 1px solid rgba(6, 182, 212, 0.25) !important;
+    }
+
+    /* Relationship Row */
+    .rel-row {
+        background: rgba(30, 41, 59, 0.4) !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        border-radius: 12px !important;
+        padding: 12px 18px !important;
+        margin-bottom: 8px !important;
+        font-size: 0.85rem !important;
+        display: flex;
+        align-items: center;
+    }
+    .rel-row .arrow {
+        color: #a855f7 !important;
+        font-weight: 800 !important;
+        padding: 0 10px !important;
+    }
+    .rel-row .key {
+        color: #fde047 !important;
+        font-family: 'JetBrains Mono', monospace !important;
+        font-size: 0.78rem !important;
+        background: rgba(0, 0, 0, 0.2);
+        padding: 2px 6px;
+        border-radius: 4px;
+    }
+
+    /* DAX and SQL formula blocks */
+    .dax-block, .msr-card .msr-formula, .dax-card .dax-expr-block {
+        background: #05070c !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        border-radius: 10px !important;
+        padding: 14px !important;
+        font-family: 'JetBrains Mono', monospace !important;
+        font-size: 0.8rem !important;
+        color: #e2e8f0 !important;
+        line-height: 1.5 !important;
+    }
+
+    /* Streamlit Metric Overrides */
+    [data-testid="stMetricValue"] {
+        font-size: 1.8rem !important;
+        font-weight: 700 !important;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+    }
+    [data-testid="stMetricLabel"] {
+        font-size: 0.82rem !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.05em !important;
+        color: #94a3b8 !important;
+        font-weight: 600 !important;
+    }
+    [data-testid="stMetric"] {
+        background: rgba(15, 23, 42, 0.3) !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        border-radius: 12px !important;
+        padding: 12px 16px !important;
+    }
+
+    /* Pipeline Banner styles */
+    .pipeline-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: rgba(15, 23, 42, 0.45);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
+        padding: 12px 24px;
+        margin-bottom: 28px;
+        width: 100%;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+    .pipeline-item {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 0.82rem;
+        font-weight: 600;
+        padding: 6px 14px;
+        border-radius: 8px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .pipeline-item-active {
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        color: #ffffff;
+        box-shadow: 0 0 14px rgba(99, 102, 241, 0.45);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    .pipeline-item-inactive {
+        background: rgba(30, 41, 59, 0.35);
         color: #64748b;
-        font-family: monospace;
+        border: 1px solid rgba(255, 255, 255, 0.02);
     }
-    .pbip-badge-valid {
-        background: #14532d; color: #86efac; padding: 2px 10px;
-        border-radius: 12px; font-size: 0.72rem; font-weight: 700;
-        display: inline-block;
-    }
-    .pbip-badge-missing {
-        background: #450a0a; color: #fca5a5; padding: 2px 10px;
-        border-radius: 12px; font-size: 0.72rem; font-weight: 700;
-        display: inline-block;
-    }
-    .pbip-badge-empty {
-        background: #422006; color: #fcd34d; padding: 2px 10px;
-        border-radius: 12px; font-size: 0.72rem; font-weight: 700;
-        display: inline-block;
-    }
-    .pbip-summary-pass {
-        background: linear-gradient(135deg, #052e16 0%, #0a2315 100%);
-        border: 2px solid #16a34a;
-        border-radius: 14px;
-        padding: 18px 22px;
-        text-align: center;
-        margin-bottom: 16px;
-    }
-    .pbip-summary-fail {
-        background: linear-gradient(135deg, #450a0a 0%, #2d0606 100%);
-        border: 2px solid #dc2626;
-        border-radius: 14px;
-        padding: 18px 22px;
-        text-align: center;
-        margin-bottom: 16px;
+    .pipeline-connector {
+        flex-grow: 1;
+        height: 2px;
+        background: rgba(255, 255, 255, 0.06);
+        margin: 0 12px;
     }
     </style>
     """,
     unsafe_allow_html=True,
 )
 
+# ── Helpers / Component Renderers ────────────────────────────────────
+def draw_pipeline_banner(current_stage: str):
+    stages = [
+        ("📂 Ingestion", "📂 Data Ingestion"),
+        ("💬 SME", "💬 Collaboration"),
+        ("🔗 Modeling", "🔗 Mapping & Modeling"),
+        ("🛡️ Validation", "🛡️ Validation & Compliance"),
+        ("📐 Generation", "📐 Report Generation")
+    ]
+    
+    html = '<div class="pipeline-container">'
+    for label, stage_name in stages:
+        active_class = "pipeline-item-active" if stage_name == current_stage else "pipeline-item-inactive"
+        html += f'<div class="pipeline-item {active_class}">{label}</div>'
+        if label != stages[-1][0]:
+            html += '<div class="pipeline-connector"></div>'
+    html += '</div>'
+    
+    st.markdown(html, unsafe_allow_html=True)
+
+
 # ── Sidebar ──────────────────────────────────────────────────────────
 with st.sidebar:
-    st.markdown("## 🏥 Navigation")
-    page = st.radio(
-        "Go to",
+    st.markdown("## 🏥 Healthcare Reporting AI")
+    
+    stage = st.selectbox(
+        "Select Pipeline Stage",
         [
-            "📄 Upload & Extract",
-            "💬 SME Workspace",
-            "🔗 FHIR Mapping",
-            "📊 Analytics Model",
-            "🛡️ Model Validator",
-            "🎨 Report Layout Validator",
-            "🎯 Reporting Intent",
-            "📝 Report Definition",
-            "📖 Data Dictionary",
-            "📐 Measure Generator",
-            "🔢 DAX Generator",
-            "📦 PBIP Generator",
-            "✅ PBIP Validation",
-            "🔧 Dependency Diagnostics",
-            "📂 Stored Documents",
-        ],
-        label_visibility="collapsed",
+            "📂 Data Ingestion",
+            "💬 Collaboration",
+            "🔗 Mapping & Modeling",
+            "🛡️ Validation & Compliance",
+            "📐 Report Generation"
+        ]
     )
+    
+    st.markdown("### 📄 Pages")
+    if stage == "📂 Data Ingestion":
+        page = st.radio(
+            "Go to",
+            ["📄 Upload & Extract", "📂 Stored Documents"],
+            label_visibility="collapsed"
+        )
+    elif stage == "💬 Collaboration":
+        page = st.radio(
+            "Go to",
+            ["💬 SME Workspace"],
+            label_visibility="collapsed"
+        )
+    elif stage == "🔗 Mapping & Modeling":
+        page = st.radio(
+            "Go to",
+            ["🔗 FHIR Mapping", "📊 Analytics Model"],
+            label_visibility="collapsed"
+        )
+    elif stage == "🛡️ Validation & Compliance":
+        page = st.radio(
+            "Go to",
+            [
+                "🛡️ Model Validator",
+                "🎨 Report Layout Validator",
+                "✅ PBIP Validation",
+                "🔧 Dependency Diagnostics"
+            ],
+            label_visibility="collapsed"
+        )
+    else:  # "📐 Report Generation"
+        page = st.radio(
+            "Go to",
+            [
+                "🎯 Reporting Intent",
+                "📝 Report Definition",
+                "📖 Data Dictionary",
+                "📐 Measure Generator",
+                "🔢 DAX Generator",
+                "📦 PBIP Generator"
+            ],
+            label_visibility="collapsed"
+        )
+        
     st.divider()
     st.markdown(
         "**Healthcare Reporting AI** v1.0  \n"
         "Upload → Extract → Collaborate → Map → Model → Intent → Report → Dict → Measures → DAX → PBIP."
     )
+
+# Draw the pipeline banner globally at the top of the content area
+draw_pipeline_banner(stage)
 
 
 # ── Helpers ──────────────────────────────────────────────────────────
@@ -920,7 +685,7 @@ if page == "📄 Upload & Extract":
                             for note in req["notes"]:
                                 st.markdown(f"  - {note}")
 
-                st.download_button(
+                render_download_button(
                     label="⬇️ Download requirements.json",
                     data=json.dumps(req, indent=2),
                     file_name="requirements.json",
@@ -1106,7 +871,7 @@ elif page == "💬 SME Workspace":
                                 st.rerun()
 
             all_decs = [d.model_dump() for d in decisions]
-            st.download_button(
+            render_download_button(
                 label="⬇️ Download org_decisions.json",
                 data=json.dumps(all_decs, indent=2),
                 file_name="org_decisions.json",
@@ -1338,7 +1103,7 @@ elif page == "🔗 FHIR Mapping":
                 st.rerun()
 
         with bulk2:
-            st.download_button(
+            render_download_button(
                 label="⬇️ Download mappings JSON",
                 data=json.dumps(mappings_data, indent=2),
                 file_name="fhir_mappings.json",
@@ -1363,7 +1128,7 @@ elif page == "🔗 FHIR Mapping":
         available_cols = [c for c in display_cols if c in cache_df.columns]
         st.dataframe(cache_df[available_cols], use_container_width=True, hide_index=True)
 
-        st.download_button(
+        render_download_button(
             label="⬇️ Download mapping_cache.json",
             data=json.dumps(cached_mappings, indent=2),
             file_name="mapping_cache.json",
@@ -1823,7 +1588,7 @@ elif page == "📊 Analytics Model":
                 st.success("✅ Model is approved and saved", icon="✅")
 
         with action2:
-            st.download_button(
+            render_download_button(
                 label="⬇️ Download analytics_model.json",
                 data=json.dumps(model_data, indent=2),
                 file_name="analytics_model.json",
@@ -2473,7 +2238,7 @@ elif page == "🎯 Reporting Intent":
                 st.success("✅ Intents are approved and saved", icon="✅")
 
         with act2:
-            st.download_button(
+            render_download_button(
                 label="⬇️ Download reporting_intent.json",
                 data=json.dumps(intents_data, indent=2),
                 file_name="reporting_intent.json",
@@ -2784,7 +2549,7 @@ elif page == "📝 Report Definition":
                 st.success("✅ Report is approved and saved", icon="✅")
 
         with act2:
-            st.download_button(
+            render_download_button(
                 label="⬇️ Download report_definition.json",
                 data=json.dumps(rpt, indent=2),
                 file_name="report_definition.json",
@@ -3140,7 +2905,7 @@ elif page == "📖 Data Dictionary":
                 st.success("✅ Data dictionary is approved and saved", icon="✅")
 
         with act2:
-            st.download_button(
+            render_download_button(
                 label="⬇️ Download data_dictionary.json",
                 data=json.dumps(dd_data, indent=2),
                 file_name="data_dictionary.json",
@@ -3555,7 +3320,7 @@ elif page == "📐 Measure Generator":
                 st.success("✅ Measures are approved and saved", icon="✅")
 
         with act2:
-            st.download_button(
+            render_download_button(
                 label="⬇️ Download measures.json",
                 data=json.dumps(msr_data, indent=2),
                 file_name="measures.json",
@@ -3773,7 +3538,7 @@ elif page == "🔢 DAX Generator":
                 st.success("✅ DAX measures are approved and saved", icon="✅")
 
         with act2:
-            st.download_button(
+            render_download_button(
                 label="⬇️ Download dax_artifacts.json",
                 data=json.dumps(dax_data, indent=2),
                 file_name="dax_artifacts.json",
@@ -3920,7 +3685,7 @@ elif page == "📦 PBIP Generator":
 
             d1, d2 = st.columns(2)
             with d1:
-                st.download_button(
+                render_download_button(
                     label="⬇️ Download pbip_project.zip",
                     data=zip_bytes,
                     file_name="pbip_project.zip",
