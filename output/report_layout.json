@@ -73,7 +73,7 @@
           "title": "Monthly Determination Volume Trend",
           "visual_type": "line_chart",
           "dimensions": [
-            "DimDate.month"
+            "DimDate.month_name"
           ],
           "measures": [
             "Total Org Determinations Override"
@@ -113,7 +113,7 @@
           "title": "Determinations by Provider",
           "visual_type": "clustered_bar_chart",
           "dimensions": [
-            "DimProvider.npi"
+            "DimProvider.provider_name"
           ],
           "measures": [
             "Total Org Determinations Override"
@@ -128,9 +128,9 @@
         },
         {
           "title": "Determinations by Organization",
-          "visual_type": "donut_chart",
+          "visual_type": "clustered_bar_chart",
           "dimensions": [
-            "DimOrganization.organization_type"
+            "DimOrganization.organization_name"
           ],
           "measures": [
             "Total Org Determinations Override"
@@ -164,7 +164,7 @@
           "title": "Trend Analysis",
           "visual_type": "line_chart",
           "dimensions": [
-            "DimDate.month"
+            "DimDate.month_name"
           ],
           "measures": [
             "Total Org Determinations Override"
@@ -232,7 +232,7 @@
           "title": "Quality Trend",
           "visual_type": "line_chart",
           "dimensions": [
-            "DimDate.month"
+            "DimDate.month_name"
           ],
           "measures": [
             "Quality Trend"

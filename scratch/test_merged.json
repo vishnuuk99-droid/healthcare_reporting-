@@ -1,0 +1,93 @@
+{
+  "cms_requirements": {
+    "report_name": "Test Report",
+    "report_type": "",
+    "reporting_entities": [],
+    "metrics": [
+      "Total Organization Determinations"
+    ],
+    "dimensions": [
+      "Date",
+      "Organization"
+    ],
+    "filters": [
+      "State"
+    ],
+    "business_rules": [
+      "Rule 1"
+    ],
+    "exclusions": [],
+    "reporting_frequency": "",
+    "notes": []
+  },
+  "frs_requirements": {
+    "business_definitions": [],
+    "kpi_definitions": [
+      {
+        "name": "Total Organization Determinations",
+        "definition": "The total count of organization determinations processed.",
+        "formula": "Count of determinations",
+        "target": "95%",
+        "visual_type": "Card"
+      }
+    ],
+    "page_expectations": [
+      {
+        "page_name": "Outcome Distribution",
+        "purpose": "Display the distribution of outcomes for organization determinations.",
+        "expected_visuals": [],
+        "expected_kpis": [
+          "Total Organization Determinations"
+        ]
+      },
+      {
+        "page_name": "CMS Submission Detail",
+        "purpose": "Provide detailed information regarding CMS submissions.",
+        "expected_visuals": [],
+        "expected_kpis": []
+      }
+    ],
+    "visualization_expectations": [],
+    "filters": [],
+    "dimensions": [],
+    "drillthrough_requirements": [],
+    "user_expectations": []
+  },
+  "merged_metrics": [
+    "Total Organization Determinations"
+  ],
+  "merged_dimensions": [
+    "Date",
+    "Organization"
+  ],
+  "merged_filters": [
+    "State"
+  ],
+  "merged_business_rules": [
+    "Rule 1"
+  ],
+  "conflicts": [
+    {
+      "field": "Outcome Distribution Page",
+      "cms_value": "Not specified",
+      "frs_value": "Required",
+      "conflict_type": "missing_in_cms",
+      "resolution": "",
+      "resolved": false
+    },
+    {
+      "field": "CMS Submission Detail Page",
+      "cms_value": "Not specified",
+      "frs_value": "Required",
+      "conflict_type": "missing_in_cms",
+      "resolution": "",
+      "resolved": false
+    }
+  ],
+  "assumptions": [
+    {
+      "assumption": "The FRS KPI definition for 'Total Organization Determinations' is compatible with the CMS metric.",
+      "reason": "The names match exactly and the FRS definition provides necessary implementation detail for the CMS requirement."
+    }
+  ]
+}

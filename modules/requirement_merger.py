@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 
-from modules.schemas import MergedRequirementModel, MergeConflict
+from modules.schemas import MergedRequirementModel, MergeConflict, CMSRequirements, FRSRequirements, MergeAssumption
 
 # Load .env from project root
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -84,14 +84,14 @@ def merge_requirements(
     if not frs_req:
         # No FRS — just wrap CMS requirements
         return MergedRequirementModel(
-            cms_requirements=cms_req,
-            frs_requirements={},
+            cms_requirements=CMSRequirements.model_validate(cms_req),
+            frs_requirements=FRSRequirements(),
             merged_metrics=cms_req.get("metrics", []),
             merged_dimensions=cms_req.get("dimensions", []),
             merged_filters=cms_req.get("filters", []),
             merged_business_rules=cms_req.get("business_rules", []),
             conflicts=[],
-            assumptions=[{"assumption": "No FRS provided", "reason": "CMS requirements used as-is."}],
+            assumptions=[MergeAssumption(assumption="No FRS provided", reason="CMS requirements used as-is.")],
         )
 
     # Build the prompt
@@ -120,8 +120,8 @@ def merge_requirements(
     merged = MergedRequirementModel.model_validate(raw_json)
 
     # Ensure original requirements are preserved
-    merged.cms_requirements = cms_req
-    merged.frs_requirements = frs_req
+    merged.cms_requirements = CMSRequirements.model_validate(cms_req)
+    merged.frs_requirements = FRSRequirements.model_validate(frs_req) if frs_req else FRSRequirements()
 
     return merged
 
@@ -161,7 +161,7 @@ def save_merged_requirements(
         f.write(merged.model_dump_json(indent=2))
 
     # Also save the flat conformed requirements for downstream stages
-    conformed = merged.cms_requirements.copy() if merged.cms_requirements else {}
+    conformed = merged.cms_requirements.model_dump() if merged.cms_requirements else {}
     conformed["metrics"] = merged.merged_metrics
     conformed["dimensions"] = merged.merged_dimensions
     conformed["filters"] = merged.merged_filters

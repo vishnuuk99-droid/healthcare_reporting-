@@ -48,7 +48,7 @@ For EACH measure produce:
 - business_definition: Plain-language explanation of what the measure calculates.
 - dax_expression: The DAX formula.
   - Base measures should query the star schema tables directly.
-    Example: `COUNTROWS(FactObservation)` or `SUM(FactObservation[duration_days])` or `DISTINCTCOUNT(DimPatient[patient_key])`.
+    Example: `COUNTROWS(FactOrganizationDetermination)` or `SUM(FactOrganizationDetermination[duration_days])` or `DISTINCTCOUNT(DimPatient[patient_key])`.
   - Derived measures and KPIs should reference other measures (using brackets syntax `[Measure Name]`) to preserve dry principles and dependency chains.
     Example: `DIVIDE([Total Adverse Decisions], [Total Organization Determinations], 0)` or `CALCULATE([Total Decisions], FILTER(DimPatient, DimPatient[state] = "CA"))`.
 - dependencies: The names of other DAX measures referenced in the `dax_expression`. If none, return an empty list `[]`.

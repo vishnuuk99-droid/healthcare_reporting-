@@ -66,9 +66,9 @@ For EACH report field produce:
     - **SME Rule**: Value is determined by an organizational decision
       or SME-defined business rule.
 - source_resource: The FHIR resource or star schema table this field
-  originates from (e.g., "Patient", "FactObservation", "DimDate").
+  originates from (e.g., "Patient", "FactOrganizationDetermination", "DimDate").
 - source_field: The specific source column or FHIR field path (e.g.,
-  "Patient.identifier", "FactObservation.disposition").
+  "Patient.identifier", "FactOrganizationDetermination.disposition").
 - transformation_rule: Description of any transformation applied.
   For direct fields use "None — direct mapping". For derived fields
   describe the calculation. For SME rules cite the organizational

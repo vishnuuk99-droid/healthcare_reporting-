@@ -1,0 +1,21 @@
+{
+  "report_name": "Test Report",
+  "report_type": "",
+  "reporting_entities": [],
+  "metrics": [
+    "Total Organization Determinations"
+  ],
+  "dimensions": [
+    "Date",
+    "Organization"
+  ],
+  "filters": [
+    "State"
+  ],
+  "business_rules": [
+    "Rule 1"
+  ],
+  "exclusions": [],
+  "reporting_frequency": "",
+  "notes": []
+}

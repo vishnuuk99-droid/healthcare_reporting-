@@ -68,11 +68,11 @@ For EACH measure produce:
     - **Trend**: A time-series or period-over-period calculation
 - formula_description: Human-readable description of the formula logic.
   Include the DAX expression or pseudo-formula. For example:
-  "COUNTROWS(FILTER(FactObservation, disposition = 'Adverse'))"
+  "COUNTROWS(FILTER(FactOrganizationDetermination, disposition = 'Adverse'))"
 - source_fields: List of star schema column names consumed by this
   measure (e.g., ["od_number", "disposition", "date_of_decision_key"]).
 - source_tables: List of star schema tables this measure draws from
-  (e.g., ["FactObservation", "DimDate"]).
+  (e.g., ["FactOrganizationDetermination", "DimDate"]).
 - classification: Exactly one of:
     - **Base Measure**: A foundational measure that does not depend on
       other measures (e.g., total count, sum).

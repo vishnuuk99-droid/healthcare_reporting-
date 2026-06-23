@@ -16,14 +16,36 @@ import streamlit as st
 
 # ── Monkey Patching Gemini SDK for Automatic Failover ────────────────
 try:
+    import google.genai
     import google.genai.models
+    from google.genai import types
     import time
     
+    # 1. Patch Client.__init__ to set attempts=1 for fast failover
+    _original_client_init = google.genai.Client.__init__
+
+    def patched_client_init(self, *args, **kwargs):
+        if "http_options" not in kwargs or kwargs["http_options"] is None:
+            kwargs["http_options"] = types.HttpOptions(
+                timeout=90000,
+                retry_options=types.HttpRetryOptions(attempts=1)
+            )
+        else:
+            ho = kwargs["http_options"]
+            if ho.retry_options is None:
+                ho.retry_options = types.HttpRetryOptions(attempts=1)
+            else:
+                ho.retry_options.attempts = 1
+        _original_client_init(self, *args, **kwargs)
+
+    google.genai.Client.__init__ = patched_client_init
+
+    # 2. Patch generate_content to failover dynamically
     _original_generate_content = google.genai.models.Models.generate_content
 
     def patched_generate_content(self, *, model: str, contents, config=None):
-        # Failover models list
-        models_to_try = ["gemini-3.5-flash", "gemini-2.5-flash", "gemini-2.0-flash", "gemini-flash-latest", "gemini-2.5-pro"]
+        # Failover models list, prioritizing working ones with quota and excluding 1.5 models (which return 404)
+        models_to_try = ["gemini-3.1-flash-lite", "gemini-2.5-flash", "gemini-2.0-flash", "gemini-2.5-pro"]
         
         # Ensure the requested model is tried first
         if model in models_to_try:
@@ -40,20 +62,28 @@ try:
                 label = st.session_state.get("active_status_label", "Running")
                 status.update(label=f"⏳ {label} with **{m}**...")
             
-            try:
-                return _original_generate_content(self, model=m, contents=contents, config=config)
-            except Exception as e:
-                last_error = e
-                err_str = str(e).lower()
-                is_quota_or_spike = any(
-                    kw in err_str
-                    for kw in ["quota", "exhausted", "503", "unavailable", "429", "resource_exhausted", "limit"]
-                )
-                if is_quota_or_spike:
-                    st.warning(f"⚠️ **{m}** failed (quota/overload). Failing over to next model...")
-                    time.sleep(1)
-                    continue
-                raise e
+            # Retry the same model up to 5 times with backoff for transient limits before failing over
+            max_attempts = 5
+            for attempt in range(max_attempts):
+                try:
+                    return _original_generate_content(self, model=m, contents=contents, config=config)
+                except Exception as e:
+                    last_error = e
+                    err_str = str(e).lower()
+                    is_quota_or_spike = any(
+                        kw in err_str
+                        for kw in ["quota", "exhausted", "503", "unavailable", "429", "resource_exhausted", "limit", "504", "deadline", "timeout"]
+                    )
+                    if is_quota_or_spike:
+                        # Sleep with incremental backoff and retry if we haven't exhausted attempts for this model
+                        if attempt < max_attempts - 1:
+                            time.sleep(attempt * 1.5 + 2.0)
+                            continue
+                        else:
+                            st.warning(f"⚠️ **{m}** failed (quota/overload) after {max_attempts} attempts. Failing over...")
+                            time.sleep(1.0)
+                            break
+                    raise e
         
         raise Exception(f"All Gemini models failed. Last error: {last_error}")
 
@@ -175,11 +205,11 @@ def _init_active_session():
     mg._ANALYTICS_MODEL_FILE = active_output_dir / "analytics_model.json"
     mg._INTENT_FILE = active_output_dir / "reporting_intent.json"
     mg._REQUIREMENTS_FILE = req_path
-    mg._MEASURES_OUTPUT = active_output_dir / "measures.json"
+    mg._MEASURES_FILE = active_output_dir / "measures.json"
 
     dg._ANALYTICS_MODEL_FILE = active_output_dir / "analytics_model.json"
     dg._MEASURES_FILE = active_output_dir / "measures.json"
-    dg._DAX_OUTPUT = active_output_dir / "dax_artifacts.json"
+    dg._DAX_OUTPUT_FILE = active_output_dir / "dax_artifacts.json"
 
     pg._ANALYTICS_MODEL_FILE = active_output_dir / "analytics_model.json"
     pg._REPORT_DEFINITION_FILE = active_output_dir / "report_definition.json"
@@ -627,15 +657,44 @@ def _get_stage_status_icon(stage_id: str) -> str:
 _STAGE_GROUP_MAP = {
     "📂 Data Ingestion": ["requirement_extraction", "frs_processing", "requirement_merge"],
     "💬 Collaboration": ["sme_review"],
-    "🔗 Mapping & Modeling": ["fhir_mapping", "analytics_model"],
-    "🛡️ Validation & Compliance": ["reporting_intent"],
-    "📐 Report Generation": ["report_definition", "data_dictionary", "measures", "dax_generation", "pbip_generation"],
+    "🔗 Traceability Mapping": ["fhir_mapping"],
+    "📊 Analytics Modeling": ["analytics_model"],
+    "📐 Report Generation": ["reporting_intent", "report_definition", "data_dictionary", "measures", "dax_generation", "pbip_generation"],
+    "🛡️ Validation & Compliance": [],
 }
 
 
 def _get_group_status_icon(group_label: str) -> str:
     """Get a summary status icon for a pipeline group."""
     ps = _get_pipeline_state()
+    
+    if group_label == "🛡️ Validation & Compliance":
+        # Check if report generation is completed first (the prerequisite for validation)
+        if not ps.is_completed("pbip_generation"):
+            return "⏳"
+        
+        # Run actual validation checks dynamically
+        try:
+            from modules.analytics_generator import load_analytics_model
+            from modules.relationship_validator import validate_relationships
+            from modules.report_layout_validator import validate_report_layout_from_files
+            
+            model_data = load_analytics_model()
+            has_error = False
+            
+            if model_data:
+                rel_issues = validate_relationships(model_data)
+                if any(i.get("status") == "Error" for i in rel_issues):
+                    has_error = True
+            
+            layout_issues = validate_report_layout_from_files()
+            if any(i.get("status") == "Error" for i in layout_issues):
+                has_error = True
+                
+            return "❌" if has_error else "✅"
+        except Exception:
+            return "❌"
+
     stage_ids = _STAGE_GROUP_MAP.get(group_label, [])
     if not stage_ids:
         return "⏳"
@@ -669,9 +728,10 @@ def draw_pipeline_banner(current_stage: str):
     stages = [
         ("📂 Ingestion", "📂 Data Ingestion"),
         ("💬 SME", "💬 Collaboration"),
-        ("🔗 Modeling", "🔗 Mapping & Modeling"),
-        ("🛡️ Validation", "🛡️ Validation & Compliance"),
-        ("📐 Generation", "📐 Report Generation")
+        ("🔗 Traceability", "🔗 Traceability Mapping"),
+        ("📊 Modeling", "📊 Analytics Modeling"),
+        ("📐 Generation", "📐 Report Generation"),
+        ("🛡️ Validation", "🛡️ Validation & Compliance")
     ]
     
     # Show active session banner if one exists
@@ -734,9 +794,10 @@ with st.sidebar:
         [
             "📂 Data Ingestion",
             "💬 Collaboration",
-            "🔗 Mapping & Modeling",
-            "🛡️ Validation & Compliance",
-            "📐 Report Generation"
+            "🔗 Traceability Mapping",
+            "📊 Analytics Modeling",
+            "📐 Report Generation",
+            "🛡️ Validation & Compliance"
         ]
     )
     
@@ -753,24 +814,19 @@ with st.sidebar:
             ["💬 SME Workspace"],
             label_visibility="collapsed"
         )
-    elif stage == "🔗 Mapping & Modeling":
+    elif stage == "🔗 Traceability Mapping":
         page = st.radio(
             "Go to",
-            ["🔗 FHIR Mapping", "📊 Analytics Model"],
+            ["🔗 FHIR Mapping"],
             label_visibility="collapsed"
         )
-    elif stage == "🛡️ Validation & Compliance":
+    elif stage == "📊 Analytics Modeling":
         page = st.radio(
             "Go to",
-            [
-                "🛡️ Model Validator",
-                "🎨 Report Layout Validator",
-                "✅ PBIP Validation",
-                "🔧 Dependency Diagnostics"
-            ],
+            ["📊 Analytics Model"],
             label_visibility="collapsed"
         )
-    else:  # "📐 Report Generation"
+    elif stage == "📐 Report Generation":
         page = st.radio(
             "Go to",
             [
@@ -780,6 +836,17 @@ with st.sidebar:
                 "📐 Measure Generator",
                 "🔢 DAX Generator",
                 "📦 PBIP Generator"
+            ],
+            label_visibility="collapsed"
+        )
+    else:  # "🛡️ Validation & Compliance"
+        page = st.radio(
+            "Go to",
+            [
+                "🛡️ Model Validator",
+                "🎨 Report Layout Validator",
+                "✅ PBIP Validation",
+                "🔧 Dependency Diagnostics"
             ],
             label_visibility="collapsed"
         )
@@ -798,7 +865,7 @@ with st.sidebar:
     st.divider()
     st.markdown(
         "**Healthcare Reporting AI** v2.0  \n"
-        "Upload → FRS → Merge → SME → Map → Model → Intent → Report → Dict → Measures → DAX → PBIP."
+        "Ingestion ➜ SME Review ➜ FHIR Mapping ➜ Analytics Modeling ➜ Report Generation ➜ Validation."
     )
 
 # Draw the pipeline banner globally at the top of the content area
@@ -844,18 +911,24 @@ if page in report_specific_pages and st.session_state.get("active_session_id") i
 
 
 def _load_requirements() -> dict | None:
-    req_path = _get_active_output_dir() / "requirements.json"
-    if req_path.exists():
-        with open(req_path, "r", encoding="utf-8") as f:
-            return json.load(f)
+    try:
+        req_path = _get_active_output_dir() / "requirements.json"
+        if req_path.exists():
+            with open(req_path, "r", encoding="utf-8") as f:
+                return json.load(f)
+    except ValueError:
+        pass
     return None
 
 
 def _load_decisions() -> list[dict]:
-    dec_path = _get_active_knowledge_dir() / "org_decisions.json"
-    if dec_path.exists():
-        with open(dec_path, "r", encoding="utf-8") as f:
-            return json.load(f)
+    try:
+        dec_path = _get_active_knowledge_dir() / "org_decisions.json"
+        if dec_path.exists():
+            with open(dec_path, "r", encoding="utf-8") as f:
+                return json.load(f)
+    except ValueError:
+        pass
     return []
 
 
@@ -1007,6 +1080,7 @@ if page == "📄 Upload & Extract":
                 frs_reqs_dict = None
                 inputs_used_for_merge = [str(active_out / "requirements.json")]
                 if frs_text:
+                    time.sleep(4.0)  # Wait for API rate limit window to clear
                     with st.status("Extracting FRS requirements") as status:
                         st.session_state["active_status_container"] = status
                         st.session_state["active_status_label"] = "Extracting FRS requirements"
@@ -1030,6 +1104,7 @@ if page == "📄 Upload & Extract":
                         )
 
                 # 6. Run merge engine
+                time.sleep(4.0)  # Wait for API rate limit window to clear
                 with st.status("Merging requirements") as status:
                     st.session_state["active_status_container"] = status
                     st.session_state["active_status_label"] = "Merging requirements"
@@ -1104,7 +1179,8 @@ elif page == "🔀 Requirement Merge":
     if merged.assumptions:
         with st.expander("📝 Merge Engine Assumptions", expanded=False):
             for a in merged.assumptions:
-                st.markdown(f"**Assumption:** {a.get('assumption', '—')}  \n*Reason:* {a.get('reason', '—')}")
+                a_dict = a if isinstance(a, dict) else a.model_dump()
+                st.markdown(f"**Assumption:** {a_dict.get('assumption', '—')}  \n*Reason:* {a_dict.get('reason', '—')}")
 
     # Conflict Resolution
     st.markdown("### ⚠️ Merge Conflicts")
@@ -1650,19 +1726,22 @@ elif page == "📊 Analytics Model":
 
     decisions = _load_decisions()
 
-    # ── FHIR→Star mapping reference ──────────────────────────────────
-    with st.expander("🗺️ FHIR → Star Schema Mapping Rules", expanded=False):
-        rule_cols = st.columns(2)
-        facts = {k: v for k, v in FHIR_TO_STAR.items() if v.startswith("Fact")}
-        dims = {k: v for k, v in FHIR_TO_STAR.items() if v.startswith("Dim")}
-        with rule_cols[0]:
-            st.markdown("**Fact Tables**")
-            for fhir, star in facts.items():
-                st.markdown(f"- `{fhir}` → **{star}**")
-        with rule_cols[1]:
-            st.markdown("**Dimension Tables**")
-            for fhir, star in dims.items():
-                st.markdown(f"- `{fhir}` → **{star}**")
+    # ── CMS-First mapping reference ──────────────────────────────────
+    with st.expander("🗺️ CMS-First Star Schema Modeling Rules", expanded=False):
+        st.markdown(
+            "**CMS Business Terminology Precedence**  \n"
+            "The analytics model is generated directly from CMS business requirements. "
+            "Fact tables represent CMS business entities directly, prioritizing regulatory vocabulary "
+            "over generic clinical terminology (e.g. `FactOrganizationDetermination` instead of `FactObservation`).\n\n"
+            "**Core CMS Entities:**  \n"
+            "- **Appeals & Reconsiderations** → `FactAppeal`  \n"
+            "- **Grievances** → `FactGrievance`  \n"
+            "- **Organization Determinations** → `FactOrganizationDetermination`  \n"
+            "- **Enrollments & Disenrollments** → `FactEnrollment` / `FactDisenrollment`  \n"
+            "- **Provider Payments** → `FactProviderPayment`  \n"
+            "- **Supplemental Benefits** → `FactSupplementalBenefit`  \n\n"
+            "**Shared Dimensions:** Linked as needed by requirements (e.g., `DimPatient`, `DimProvider`, `DimOrganization`, `DimDate`, `DimCondition`)."
+        )
 
     # ── Context summary ───────────────────────────────────────────────
     from modules.fhir_mapper import load_mapping_cache as _load_fhir_cache
@@ -1675,11 +1754,7 @@ elif page == "📊 Analytics Model":
     ctx3.metric("Model Status", "✅ Saved" if prev_model else "⏳ Not Generated")
 
     if not cached_mappings:
-        st.warning(
-            "⚠️ No approved FHIR mappings found. Please generate and approve "
-            "mappings on the **FHIR Mapping** page first."
-        )
-        st.stop()
+        st.info("ℹ️ Note: No approved FHIR mappings found. The analytics model will be generated directly from conformed requirements and SME decisions, without FHIR metadata.")
 
     # ── Generate / Regenerate button ──────────────────────────────────
     st.markdown("---")

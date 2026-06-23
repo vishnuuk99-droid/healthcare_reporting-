@@ -53,16 +53,16 @@ PIPELINE_STAGES = [
     {
         "id": "fhir_mapping",
         "label": "🔗 FHIR Mapping",
-        "prerequisites": ["requirement_extraction"],
+        "prerequisites": ["sme_review", "requirement_merge"],
         "output_artifact": "mapping_cache.json",
-        "input_artifacts": ["requirements.json"],
+        "input_artifacts": ["requirements.json", "org_decisions.json"],
     },
     {
         "id": "analytics_model",
         "label": "📊 Analytics Model",
         "prerequisites": ["fhir_mapping"],
         "output_artifact": "analytics_model.json",
-        "input_artifacts": ["requirements.json", "mapping_cache.json"],
+        "input_artifacts": ["requirements.json", "org_decisions.json", "mapping_cache.json"],
     },
     {
         "id": "reporting_intent",
@@ -142,6 +142,7 @@ class PipelineState:
                 self._stages = {}
 
         # Ensure every known stage has an entry
+        modified = False
         for stage_def in PIPELINE_STAGES:
             sid = stage_def["id"]
             if sid not in self._stages:
@@ -152,6 +153,30 @@ class PipelineState:
                     "error": None,
                     "artifact_path": None,
                 }
+                modified = True
+
+            # Dynamic check: if status is not COMPLETED and we have a state file, check if artifact exists on disk
+            if self._stages[sid]["status"] != StageStatus.COMPLETED.value and self._state_file:
+                project_dir = self._state_file.parent
+                art_name = stage_def["output_artifact"]
+                if sid in ("sme_review", "fhir_mapping"):
+                    art_path = project_dir / "knowledge" / art_name
+                else:
+                    art_path = project_dir / "output" / art_name
+
+                if art_path.exists():
+                    self._stages[sid]["status"] = StageStatus.COMPLETED.value
+                    self._stages[sid]["artifact_path"] = str(art_path)
+                    if not self._stages[sid]["completed_at"]:
+                        try:
+                            mtime = art_path.stat().st_mtime
+                            self._stages[sid]["completed_at"] = datetime.fromtimestamp(mtime, timezone.utc).isoformat()
+                        except Exception:
+                            self._stages[sid]["completed_at"] = datetime.now(timezone.utc).isoformat()
+                    modified = True
+
+        if modified and self._state_file:
+            self._save()
 
     def _save(self):
         """Persist current state to disk."""

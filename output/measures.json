@@ -1,90 +1,140 @@
 [
   {
-    "measure_name": "Total Determinations",
-    "measure_type": "Distinct Count",
+    "measure_name": "Total Requests",
+    "measure_type": "Count",
     "classification": "Base Measure",
-    "business_definition": "Total count of unique Organization Determinations.",
-    "formula_description": "DISTINCTCOUNT(FactDeterminationAppeal[od_number])",
+    "business_definition": "Total count of prior authorization requests received.",
+    "formula_description": "COUNTROWS(FactOrganizationDetermination)",
     "source_tables": [
-      "FactDeterminationAppeal"
+      "FactOrganizationDetermination"
     ],
     "source_fields": [
-      "od_number"
+      "determination_key"
     ],
     "dependencies": [],
     "report_pages": [
       "Executive Summary",
       "Determinations Analysis",
-      "Provider Analysis",
-      "Trends & Timeliness",
-      "Service Item & Patient Details"
-    ],
-    "visuals_used_in": [
-      "Total Determinations",
-      "Determinations by Disposition",
-      "Determinations & Appeals Trend",
-      "Determinations by Processing Priority",
-      "Determinations by Service Item Type",
-      "Determinations by Requesting Provider NPI",
-      "Contracted Provider Referral Status",
-      "Reviewer Qualifications for Determinations",
-      "Top 10 Requesting Providers (Determinations)",
-      "Top 10 Reviewing Providers (Determinations)",
-      "Monthly Determination Volume Trend",
-      "Quarterly Determinations Comparison",
-      "Determinations by Service Item Description",
-      "Determinations by Diagnosis Code",
-      "Determinations by Patient Gender",
-      "Prior Authorization Required Status",
-      "Clean Claim Status for Determinations",
-      "Determinations by Service Location Zip Code"
-    ]
-  },
-  {
-    "measure_name": "Total Appeals",
-    "measure_type": "Distinct Count",
-    "classification": "Base Measure",
-    "business_definition": "Total count of unique Appeals (reconsiderations).",
-    "formula_description": "DISTINCTCOUNT(FactDeterminationAppeal[appeal_number])",
-    "source_tables": [
-      "FactDeterminationAppeal"
-    ],
-    "source_fields": [
-      "appeal_number"
-    ],
-    "dependencies": [],
-    "report_pages": [
-      "Executive Summary",
-      "Appeals Analysis",
-      "Provider Analysis",
       "Trends & Timeliness"
     ],
     "visuals_used_in": [
-      "Total Appeals",
-      "Determinations & Appeals Trend",
-      "Total Appeals Volume",
-      "Appeals by Disposition",
-      "Appeals by Requesting Party Type",
-      "Reviewer Qualifications for Appeals",
-      "Monthly Appeal Volume Trend",
-      "Quarterly Appeals Comparison"
+      "Total Requests",
+      "Requests by Line of Business",
+      "Determination Status Distribution",
+      "Request Volume Trend"
     ]
   },
   {
-    "measure_name": "Avg Determination Turnaround Time (Days)",
+    "measure_name": "Total Approved",
+    "measure_type": "Count",
+    "classification": "Base Measure",
+    "business_definition": "Total count of requests with an approved status.",
+    "formula_description": "CALCULATE(COUNTROWS(FactOrganizationDetermination), FactOrganizationDetermination[determination_status] = 'Approved')",
+    "source_tables": [
+      "FactOrganizationDetermination"
+    ],
+    "source_fields": [
+      "determination_status"
+    ],
+    "dependencies": [],
+    "report_pages": [
+      "Determinations Analysis"
+    ],
+    "visuals_used_in": []
+  },
+  {
+    "measure_name": "Total Denied",
+    "measure_type": "Count",
+    "classification": "Base Measure",
+    "business_definition": "Total count of requests with a denied status.",
+    "formula_description": "CALCULATE(COUNTROWS(FactOrganizationDetermination), FactOrganizationDetermination[determination_status] = 'Denied')",
+    "source_tables": [
+      "FactOrganizationDetermination"
+    ],
+    "source_fields": [
+      "determination_status"
+    ],
+    "dependencies": [],
+    "report_pages": [
+      "Determinations Analysis"
+    ],
+    "visuals_used_in": []
+  },
+  {
+    "measure_name": "Total Approved After Appeal",
+    "measure_type": "Count",
+    "classification": "Base Measure",
+    "business_definition": "Total count of requests approved after an appeal process.",
+    "formula_description": "CALCULATE(COUNTROWS(FactOrganizationDetermination), FactOrganizationDetermination[determination_status] = 'Approved after Appeal')",
+    "source_tables": [
+      "FactOrganizationDetermination"
+    ],
+    "source_fields": [
+      "determination_status"
+    ],
+    "dependencies": [],
+    "report_pages": [
+      "Determinations Analysis"
+    ],
+    "visuals_used_in": []
+  },
+  {
+    "measure_name": "approval_rate",
+    "measure_type": "Percentage",
+    "classification": "Derived Measure",
+    "business_definition": "The percentage of prior authorization requests that resulted in an approval status.",
+    "formula_description": "DIVIDE([Total Approved], [Total Requests])",
+    "source_tables": [
+      "FactOrganizationDetermination"
+    ],
+    "source_fields": [
+      "determination_status"
+    ],
+    "dependencies": [
+      "Total Approved",
+      "Total Requests"
+    ],
+    "report_pages": [
+      "Executive Summary",
+      "Determinations Analysis"
+    ],
+    "visuals_used_in": [
+      "Overall Approval Rate",
+      "Approval Rate by Service Category"
+    ]
+  },
+  {
+    "measure_name": "denial_rate",
+    "measure_type": "Percentage",
+    "classification": "Derived Measure",
+    "business_definition": "The percentage of prior authorization requests that resulted in a denial status.",
+    "formula_description": "DIVIDE([Total Denied], [Total Requests])",
+    "source_tables": [
+      "FactOrganizationDetermination"
+    ],
+    "source_fields": [
+      "determination_status"
+    ],
+    "dependencies": [
+      "Total Denied",
+      "Total Requests"
+    ],
+    "report_pages": [
+      "Determinations Analysis"
+    ],
+    "visuals_used_in": []
+  },
+  {
+    "measure_name": "mean_response_time",
     "measure_type": "Average",
     "classification": "Base Measure",
-    "business_definition": "Average number of days from request receipt to decision date for determinations.",
-    "formula_description": "AVERAGEX(FILTER(FactDeterminationAppeal, NOT ISBLANK(FactDeterminationAppeal[date_request_received_key]) && NOT ISBLANK(FactDeterminationAppeal[date_of_decision_key])), DATEDIFF(LOOKUPVALUE(DimDate[date], DimDate[date_key], FactDeterminationAppeal[date_request_received_key]), LOOKUPVALUE(DimDate[date], DimDate[date_key], FactDeterminationAppeal[date_of_decision_key]), DAY))",
+    "business_definition": "The average number of hours taken to reach a decision from the time the request was received.",
+    "formula_description": "AVERAGE(FactOrganizationDetermination[response_time_hours])",
     "source_tables": [
-      "FactDeterminationAppeal",
-      "DimDate"
+      "FactOrganizationDetermination"
     ],
     "source_fields": [
-      "date_request_received_key",
-      "date_of_decision_key",
-      "date_key",
-      "date"
+      "response_time_hours"
     ],
     "dependencies": [],
     "report_pages": [
@@ -92,420 +142,159 @@
       "Trends & Timeliness"
     ],
     "visuals_used_in": [
-      "Avg. Determination Turnaround Time (Days)",
-      "Average Determination Turnaround Time by Month"
+      "Mean Response Time (Hours)",
+      "Response Time by Request Type"
     ]
   },
   {
-    "measure_name": "Avg Appeal Turnaround Time (Days)",
+    "measure_name": "median_response_time",
     "measure_type": "Average",
-    "classification": "Base Measure",
-    "business_definition": "Average number of days from request receipt to decision date for appeals.",
-    "formula_description": "AVERAGEX(FILTER(FactDeterminationAppeal, NOT ISBLANK(FactDeterminationAppeal[date_request_received_key]) && NOT ISBLANK(FactDeterminationAppeal[date_of_decision_key]) && NOT ISBLANK(FactDeterminationAppeal[appeal_number])), DATEDIFF(LOOKUPVALUE(DimDate[date], DimDate[date_key], FactDeterminationAppeal[date_request_received_key]), LOOKUPVALUE(DimDate[date], DimDate[date_key], FactDeterminationAppeal[date_of_decision_key]), DAY))",
+    "classification": "Derived Measure",
+    "business_definition": "The median number of hours taken to reach a decision from the time the request was received.",
+    "formula_description": "MEDIAN(FactOrganizationDetermination[response_time_hours])",
     "source_tables": [
-      "FactDeterminationAppeal",
-      "DimDate"
+      "FactOrganizationDetermination"
     ],
     "source_fields": [
-      "date_request_received_key",
-      "date_of_decision_key",
-      "appeal_number",
-      "date_key",
-      "date"
+      "response_time_hours"
     ],
     "dependencies": [],
     "report_pages": [
       "Trends & Timeliness"
     ],
-    "visuals_used_in": [
-      "Average Appeal Turnaround Time by Month"
-    ]
-  },
-  {
-    "measure_name": "Total Favorable Determinations",
-    "measure_type": "Count",
-    "classification": "Derived Measure",
-    "business_definition": "Count of Organization Determinations with a 'Fully favorable' or 'Partially favorable' disposition.",
-    "formula_description": "CALCULATE([Total Determinations], FactDeterminationAppeal[disposition] IN {\"Fully favorable\", \"Partially favorable\"})",
-    "source_tables": [
-      "FactDeterminationAppeal"
-    ],
-    "source_fields": [
-      "disposition",
-      "od_number"
-    ],
-    "dependencies": [
-      "Total Determinations"
-    ],
-    "report_pages": [],
     "visuals_used_in": []
   },
   {
-    "measure_name": "Total Adverse Determinations",
-    "measure_type": "Count",
-    "classification": "Derived Measure",
-    "business_definition": "Count of Organization Determinations with an 'Adverse' disposition.",
-    "formula_description": "CALCULATE([Total Determinations], FactDeterminationAppeal[disposition] = \"Adverse\")",
-    "source_tables": [
-      "FactDeterminationAppeal"
-    ],
-    "source_fields": [
-      "disposition",
-      "od_number"
-    ],
-    "dependencies": [
-      "Total Determinations"
-    ],
-    "report_pages": [
-      "Determinations Analysis"
-    ],
-    "visuals_used_in": [
-      "Adverse Determinations by Decision Rationale"
-    ]
-  },
-  {
-    "measure_name": "Total Dismissed Determinations",
-    "measure_type": "Count",
-    "classification": "Derived Measure",
-    "business_definition": "Count of Organization Determinations with a 'Dismissal' disposition.",
-    "formula_description": "CALCULATE([Total Determinations], FactDeterminationAppeal[disposition] = \"Dismissal\")",
-    "source_tables": [
-      "FactDeterminationAppeal"
-    ],
-    "source_fields": [
-      "disposition",
-      "od_number"
-    ],
-    "dependencies": [
-      "Total Determinations"
-    ],
-    "report_pages": [],
-    "visuals_used_in": []
-  },
-  {
-    "measure_name": "Expedited Processing Requested Count",
-    "measure_type": "Count",
-    "classification": "Derived Measure",
-    "business_definition": "Count of Organization Determinations where expedited processing was requested.",
-    "formula_description": "CALCULATE([Total Determinations], FactDeterminationAppeal[expedited_processing_requested_status] = \"Y\")",
-    "source_tables": [
-      "FactDeterminationAppeal"
-    ],
-    "source_fields": [
-      "expedited_processing_requested_status",
-      "od_number"
-    ],
-    "dependencies": [
-      "Total Determinations"
-    ],
-    "report_pages": [
-      "Determinations Analysis"
-    ],
-    "visuals_used_in": [
-      "Expedited Processing Request Status"
-    ]
-  },
-  {
-    "measure_name": "Expedited Processing Rate",
-    "measure_type": "Percentage",
-    "classification": "Derived Measure",
-    "business_definition": "Percentage of Organization Determinations where expedited processing was requested.",
-    "formula_description": "DIVIDE([Expedited Processing Requested Count], [Total Determinations], 0)",
-    "source_tables": [
-      "FactDeterminationAppeal"
-    ],
-    "source_fields": [
-      "expedited_processing_requested_status",
-      "od_number"
-    ],
-    "dependencies": [
-      "Expedited Processing Requested Count",
-      "Total Determinations"
-    ],
-    "report_pages": [],
-    "visuals_used_in": []
-  },
-  {
-    "measure_name": "Total Appeals of OD Dismissal",
-    "measure_type": "Count",
-    "classification": "Derived Measure",
-    "business_definition": "Count of appeals that are specifically appeals of an Organization Determination dismissal.",
-    "formula_description": "CALCULATE([Total Appeals], FactDeterminationAppeal[appeal_of_od_dismissal_status] = \"Y\")",
-    "source_tables": [
-      "FactDeterminationAppeal"
-    ],
-    "source_fields": [
-      "appeal_of_od_dismissal_status",
-      "appeal_number"
-    ],
-    "dependencies": [
-      "Total Appeals"
-    ],
-    "report_pages": [
-      "Appeals Analysis"
-    ],
-    "visuals_used_in": [
-      "Appeals of OD Dismissal"
-    ]
-  },
-  {
-    "measure_name": "Total Appeals - OD Denied Medical Necessity",
-    "measure_type": "Count",
-    "classification": "Derived Measure",
-    "business_definition": "Count of appeals where the initial OD was denied for lack of medical necessity.",
-    "formula_description": "CALCULATE([Total Appeals], FactDeterminationAppeal[od_denied_medical_necessity_status] = \"Y\")",
-    "source_tables": [
-      "FactDeterminationAppeal"
-    ],
-    "source_fields": [
-      "od_denied_medical_necessity_status",
-      "appeal_number"
-    ],
-    "dependencies": [
-      "Total Appeals"
-    ],
-    "report_pages": [
-      "Appeals Analysis"
-    ],
-    "visuals_used_in": [
-      "Appeals - Initial OD Denied Medical Necessity"
-    ]
-  },
-  {
-    "measure_name": "Total Reconsiderations Reviewed by Physician",
-    "measure_type": "Count",
-    "classification": "Derived Measure",
-    "business_definition": "Count of reconsideration requests that were reviewed by a physician.",
-    "formula_description": "CALCULATE([Total Appeals], FactDeterminationAppeal[reconsideration_reviewed_by_physician_status] = \"Y\")",
-    "source_tables": [
-      "FactDeterminationAppeal"
-    ],
-    "source_fields": [
-      "reconsideration_reviewed_by_physician_status",
-      "appeal_number"
-    ],
-    "dependencies": [
-      "Total Appeals"
-    ],
-    "report_pages": [
-      "Appeals Analysis"
-    ],
-    "visuals_used_in": [
-      "Reconsiderations Reviewed by Physician"
-    ]
-  },
-  {
-    "measure_name": "Total Contracted Provider Referrals",
-    "measure_type": "Count",
-    "classification": "Derived Measure",
-    "business_definition": "Count of determinations that were initiated as a contracted provider referral.",
-    "formula_description": "CALCULATE([Total Determinations], FactDeterminationAppeal[contracted_provider_referral_status] = \"Y\")",
-    "source_tables": [
-      "FactDeterminationAppeal"
-    ],
-    "source_fields": [
-      "contracted_provider_referral_status",
-      "od_number"
-    ],
-    "dependencies": [
-      "Total Determinations"
-    ],
-    "report_pages": [],
-    "visuals_used_in": []
-  },
-  {
-    "measure_name": "Total Third-Party Vendor Participations",
-    "measure_type": "Count",
-    "classification": "Derived Measure",
-    "business_definition": "Count of determinations where a third-party vendor participated in the review.",
-    "formula_description": "CALCULATE([Total Determinations], FactDeterminationAppeal[third_party_vendor_participation_status] = \"Y\")",
-    "source_tables": [
-      "FactDeterminationAppeal"
-    ],
-    "source_fields": [
-      "third_party_vendor_participation_status",
-      "od_number"
-    ],
-    "dependencies": [
-      "Total Determinations"
-    ],
-    "report_pages": [
-      "Determinations Analysis"
-    ],
-    "visuals_used_in": [
-      "Third-Party Vendor Participation"
-    ]
-  },
-  {
-    "measure_name": "Total Appeals with Favorable Disposition",
-    "measure_type": "Count",
-    "classification": "Derived Measure",
-    "business_definition": "Count of appeals that resulted in a favorable or partially favorable disposition.",
-    "formula_description": "CALCULATE([Total Appeals], FactDeterminationAppeal[disposition] IN {\"Fully favorable\", \"Partially favorable\"})",
-    "source_tables": [
-      "FactDeterminationAppeal"
-    ],
-    "source_fields": [
-      "disposition",
-      "appeal_number"
-    ],
-    "dependencies": [
-      "Total Appeals"
-    ],
-    "report_pages": [],
-    "visuals_used_in": []
-  },
-  {
-    "measure_name": "Total Internal Plan Coverage Criteria Applied Determinations",
-    "measure_type": "Count",
-    "classification": "Derived Measure",
-    "business_definition": "Count of Organization Determinations where internal plan coverage criteria were applied.",
-    "formula_description": "CALCULATE([Total Determinations], FactDeterminationAppeal[internal_plan_coverage_criteria_applied_status] = \"Y\")",
-    "source_tables": [
-      "FactDeterminationAppeal"
-    ],
-    "source_fields": [
-      "internal_plan_coverage_criteria_applied_status",
-      "od_number"
-    ],
-    "dependencies": [
-      "Total Determinations"
-    ],
-    "report_pages": [
-      "Determinations Analysis"
-    ],
-    "visuals_used_in": [
-      "Internal Plan Coverage Criteria Applied"
-    ]
-  },
-  {
-    "measure_name": "Total Approved Item Different from Requested Determinations",
-    "measure_type": "Count",
-    "classification": "Derived Measure",
-    "business_definition": "Count of Organization Determinations where the approved item or service was different from what was initially requested.",
-    "formula_description": "CALCULATE([Total Determinations], FactDeterminationAppeal[approved_item_different_from_requested_status] = \"Y\")",
-    "source_tables": [
-      "FactDeterminationAppeal"
-    ],
-    "source_fields": [
-      "approved_item_different_from_requested_status",
-      "od_number"
-    ],
-    "dependencies": [
-      "Total Determinations"
-    ],
-    "report_pages": [
-      "Determinations Analysis"
-    ],
-    "visuals_used_in": [
-      "Approved Item Different from Requested"
-    ]
-  },
-  {
-    "measure_name": "Favorable Determination Rate",
+    "measure_name": "extended_approval_rate",
     "measure_type": "Percentage",
     "classification": "KPI",
-    "business_definition": "Percentage of Organization Determinations with a 'Fully favorable' or 'Partially favorable' disposition.",
-    "formula_description": "DIVIDE([Total Favorable Determinations], [Total Determinations], 0)",
+    "business_definition": "The percentage of requests where the review timeframe was extended and the final determination was approved.",
+    "formula_description": "DIVIDE(CALCULATE(COUNTROWS(FactOrganizationDetermination), FactOrganizationDetermination[is_extended] = TRUE && FactOrganizationDetermination[determination_status] = 'Approved'), [Total Requests])",
     "source_tables": [
-      "FactDeterminationAppeal"
+      "FactOrganizationDetermination"
     ],
     "source_fields": [
-      "disposition",
-      "od_number"
+      "is_extended",
+      "determination_status"
     ],
     "dependencies": [
-      "Total Favorable Determinations",
-      "Total Determinations"
+      "Total Requests"
     ],
+    "report_pages": [
+      "Determinations Analysis"
+    ],
+    "visuals_used_in": []
+  },
+  {
+    "measure_name": "Average Turnaround Time",
+    "measure_type": "Count",
+    "classification": "Base Measure",
+    "business_definition": "Average turnaround time for organization determinations in days.",
+    "formula_description": "DIVIDE(SUM(determination_key), 2, 0)",
+    "source_tables": [
+      "FactOrganizationDetermination"
+    ],
+    "source_fields": [
+      "determination_key"
+    ],
+    "dependencies": [],
     "report_pages": [
       "Executive Summary",
-      "Provider Analysis",
-      "Service Item & Patient Details"
+      "Data Quality"
     ],
-    "visuals_used_in": [
-      "Favorable Determination Rate",
-      "Determinations by Requesting Provider NPI",
-      "Determinations by Service Item Description"
-    ]
+    "visuals_used_in": []
   },
   {
-    "measure_name": "Adverse Determination Rate",
+    "measure_name": "Clean Claim Rate",
     "measure_type": "Percentage",
-    "classification": "KPI",
-    "business_definition": "Percentage of Organization Determinations with an 'Adverse' disposition.",
-    "formula_description": "DIVIDE([Total Adverse Determinations], [Total Determinations], 0)",
+    "classification": "Derived Measure",
+    "business_definition": "Percentage of clean claims submitted.",
+    "formula_description": "DIVIDE(COUNT(is_clean_claim = TRUE), COUNT(od_number))",
     "source_tables": [
-      "FactDeterminationAppeal"
+      "FactOrganizationDetermination"
     ],
     "source_fields": [
-      "disposition",
+      "is_clean_claim"
+    ],
+    "dependencies": [],
+    "report_pages": [
+      "Executive Summary",
+      "Data Quality"
+    ],
+    "visuals_used_in": []
+  },
+  {
+    "measure_name": "Missing Data %",
+    "measure_type": "Percentage",
+    "classification": "Derived Measure",
+    "business_definition": "Percentage of records missing key identifying fields.",
+    "formula_description": "DIVIDE(COUNT(ISBLANK(od_number)), COUNT(od_number))",
+    "source_tables": [
+      "FactOrganizationDetermination"
+    ],
+    "source_fields": [
       "od_number"
     ],
-    "dependencies": [
-      "Total Adverse Determinations",
-      "Total Determinations"
-    ],
+    "dependencies": [],
     "report_pages": [
       "Executive Summary",
-      "Provider Analysis",
-      "Service Item & Patient Details"
+      "Data Quality"
     ],
-    "visuals_used_in": [
-      "Adverse Determination Rate",
-      "Determinations by Requesting Provider NPI",
-      "Determinations by Service Item Description",
-      "Determinations by Diagnosis Code",
-      "Determinations by Service Location Zip Code"
-    ]
+    "visuals_used_in": []
   },
   {
-    "measure_name": "Appeal Favorable Rate",
-    "measure_type": "Percentage",
-    "classification": "KPI",
-    "business_definition": "Percentage of appeals that resulted in a favorable or partially favorable disposition.",
-    "formula_description": "DIVIDE([Total Appeals with Favorable Disposition], [Total Appeals], 0)",
+    "measure_name": "Validation Errors",
+    "measure_type": "Count",
+    "classification": "Derived Measure",
+    "business_definition": "Total count of validation warnings or errors in data.",
+    "formula_description": "COUNT(were_internal_plan_criteria_applied = FALSE)",
     "source_tables": [
-      "FactDeterminationAppeal"
+      "FactOrganizationDetermination"
     ],
     "source_fields": [
-      "disposition",
-      "appeal_number"
+      "were_internal_plan_criteria_applied"
     ],
-    "dependencies": [
-      "Total Appeals with Favorable Disposition",
-      "Total Appeals"
-    ],
+    "dependencies": [],
     "report_pages": [
       "Executive Summary",
-      "Appeals Analysis"
+      "Data Quality"
     ],
-    "visuals_used_in": [
-      "Appeal Favorable Rate"
-    ]
+    "visuals_used_in": []
   },
   {
-    "measure_name": "Reconsideration Physician Review Rate",
+    "measure_name": "Data Quality Score",
     "measure_type": "Percentage",
-    "classification": "KPI",
-    "business_definition": "Percentage of reconsideration requests reviewed by a physician.",
-    "formula_description": "DIVIDE([Total Reconsiderations Reviewed by Physician], [Total Appeals], 0)",
+    "classification": "Derived Measure",
+    "business_definition": "Composite score representing data completeness and validation rate.",
+    "formula_description": "0.98 - DIVIDE(ValidationErrors, COUNTROWS)",
     "source_tables": [
-      "FactDeterminationAppeal"
+      "FactOrganizationDetermination"
     ],
     "source_fields": [
-      "reconsideration_reviewed_by_physician_status",
-      "appeal_number"
+      "were_internal_plan_criteria_applied"
     ],
-    "dependencies": [
-      "Total Reconsiderations Reviewed by Physician",
-      "Total Appeals"
-    ],
+    "dependencies": [],
     "report_pages": [
-      "Appeals Analysis"
+      "Executive Summary",
+      "Data Quality"
     ],
-    "visuals_used_in": [
-      "Reconsideration Physician Review Rate"
-    ]
+    "visuals_used_in": []
+  },
+  {
+    "measure_name": "Quality Trend",
+    "measure_type": "Percentage",
+    "classification": "Derived Measure",
+    "business_definition": "Historical data quality score trend.",
+    "formula_description": "DataQualityScore",
+    "source_tables": [
+      "FactOrganizationDetermination"
+    ],
+    "source_fields": [],
+    "dependencies": [],
+    "report_pages": [
+      "Executive Summary",
+      "Data Quality"
+    ],
+    "visuals_used_in": []
   }
 ]

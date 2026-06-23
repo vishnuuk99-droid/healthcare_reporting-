@@ -373,7 +373,7 @@
       "projections": {
         "Category": [
           {
-            "queryRef": "DimDate[month]"
+            "queryRef": "DimDate[month_name]"
           }
         ],
         "Y": [
@@ -402,9 +402,9 @@
                   "Source": "d"
                 }
               },
-              "Property": "month"
+              "Property": "month_name"
             },
-            "Name": "DimDate[month]"
+            "Name": "DimDate[month_name]"
           },
           {
             "Measure": {
@@ -433,7 +433,7 @@
         "implicit": {
           "sortDirection": 1,
           "sortBy": {
-            "queryRef": "DimDate[month]"
+            "queryRef": "DimDate[month_name]"
           }
         }
       },
@@ -599,7 +599,7 @@
       "projections": {
         "Category": [
           {
-            "queryRef": "DimProvider[npi]"
+            "queryRef": "DimProvider[provider_name]"
           }
         ],
         "Y": [
@@ -628,9 +628,9 @@
                   "Source": "d"
                 }
               },
-              "Property": "npi"
+              "Property": "provider_name"
             },
-            "Name": "DimProvider[npi]"
+            "Name": "DimProvider[provider_name]"
           },
           {
             "Measure": {
@@ -659,7 +659,7 @@
         "implicit": {
           "sortDirection": 1,
           "sortBy": {
-            "queryRef": "DimProvider[npi]"
+            "queryRef": "DimProvider[provider_name]"
           }
         }
       },
@@ -708,11 +708,11 @@
       }
     ],
     "singleVisual": {
-      "visualType": "donutChart",
+      "visualType": "clusteredBarChart",
       "projections": {
         "Category": [
           {
-            "queryRef": "DimOrganization[organization_type]"
+            "queryRef": "DimOrganization[organization_name]"
           }
         ],
         "Y": [
@@ -741,9 +741,9 @@
                   "Source": "d"
                 }
               },
-              "Property": "organization_type"
+              "Property": "organization_name"
             },
-            "Name": "DimOrganization[organization_type]"
+            "Name": "DimOrganization[organization_name]"
           },
           {
             "Measure": {
@@ -772,7 +772,7 @@
         "implicit": {
           "sortDirection": 1,
           "sortBy": {
-            "queryRef": "DimOrganization[organization_type]"
+            "queryRef": "DimOrganization[organization_name]"
           }
         }
       },
@@ -938,7 +938,7 @@
       "projections": {
         "Category": [
           {
-            "queryRef": "DimDate[month]"
+            "queryRef": "DimDate[month_name]"
           }
         ],
         "Y": [
@@ -967,9 +967,9 @@
                   "Source": "d"
                 }
               },
-              "Property": "month"
+              "Property": "month_name"
             },
-            "Name": "DimDate[month]"
+            "Name": "DimDate[month_name]"
           },
           {
             "Measure": {
@@ -998,7 +998,7 @@
         "implicit": {
           "sortDirection": 1,
           "sortBy": {
-            "queryRef": "DimDate[month]"
+            "queryRef": "DimDate[month_name]"
           }
         }
       },
@@ -1318,7 +1318,7 @@
       "projections": {
         "Category": [
           {
-            "queryRef": "DimDate[month]"
+            "queryRef": "DimDate[month_name]"
           }
         ],
         "Y": [
@@ -1347,9 +1347,9 @@
                   "Source": "d"
                 }
               },
-              "Property": "month"
+              "Property": "month_name"
             },
-            "Name": "DimDate[month]"
+            "Name": "DimDate[month_name]"
           },
           {
             "Measure": {
@@ -1378,7 +1378,7 @@
         "implicit": {
           "sortDirection": 1,
           "sortBy": {
-            "queryRef": "DimDate[month]"
+            "queryRef": "DimDate[month_name]"
           }
         }
       },

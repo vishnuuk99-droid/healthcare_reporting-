@@ -651,7 +651,7 @@ def compile_pbip_project() -> dict:
     # ── 2. <ProjectName>.Report/definition.pbir ──────────────────────
     pbir_data = {
         "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definitionProperties/2.0.0/schema.json",
-        "version": "4.0",
+        "version": "1.0",
         "datasetReference": {
             "byPath": {
                 "path": f"../{project_slug}.SemanticModel"
@@ -1782,6 +1782,10 @@ def _generate_mock_table_records(table_name: str, columns: list) -> list:
     }
     
     table_vals = conformed_vals.get(table_name, {})
+    if not table_vals:
+        # Fallback mapping for CMS-First table names
+        if table_name in ("FactOrganizationDetermination", "FactAppeal", "FactGrievance", "FactEnrollment", "FactProviderPayment", "FactSupplementalBenefit"):
+            table_vals = conformed_vals.get("FactDetermination", {})
     
     for idx in range(5):
         row = {}

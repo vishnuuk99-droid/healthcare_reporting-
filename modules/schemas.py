@@ -482,6 +482,12 @@ class DAXSet(BaseModel):
 
 # ── FRS (Functional Requirements Specification) Models ───────────────
 
+class FRSBusinessDefinition(BaseModel):
+    """A business term and its definition from the FRS."""
+    term: str = Field(description="Business-specific term.")
+    definition: str = Field(description="Definition of the term.")
+
+
 class FRSKPIDefinition(BaseModel):
     """A KPI definition extracted from the FRS."""
     name: str = Field(description="KPI name.")
@@ -499,9 +505,16 @@ class FRSPageExpectation(BaseModel):
     expected_kpis: list[str] = Field(default_factory=list, description="KPIs expected on this page.")
 
 
+class FRSVisualizationExpectation(BaseModel):
+    """An expected visualization configuration from the FRS."""
+    visual_type: str = Field(description="Expected visualization type.")
+    context: str = Field(description="Purpose or context of the visual.")
+    fields: list[str] = Field(default_factory=list, description="Expected fields bound to this visual.")
+
+
 class FRSRequirements(BaseModel):
     """Structured requirements extracted from a Functional Requirements Specification."""
-    business_definitions: list[dict] = Field(
+    business_definitions: list[FRSBusinessDefinition] = Field(
         default_factory=list,
         description="Business terms and their definitions from the FRS.",
     )
@@ -513,7 +526,7 @@ class FRSRequirements(BaseModel):
         default_factory=list,
         description="Expected report pages and their contents.",
     )
-    visualization_expectations: list[dict] = Field(
+    visualization_expectations: list[FRSVisualizationExpectation] = Field(
         default_factory=list,
         description="Expected visualization types and configurations.",
     )
@@ -545,14 +558,20 @@ class MergeConflict(BaseModel):
     resolved: bool = Field(default=False, description="Whether this conflict has been resolved.")
 
 
+class MergeAssumption(BaseModel):
+    """An assumption made during the merge of CMS and FRS requirements."""
+    assumption: str = Field(description="Details of the assumption.")
+    reason: str = Field(default="", description="Reason or justification for the assumption.")
+
+
 class MergedRequirementModel(BaseModel):
     """Merged model combining CMS + FRS requirements."""
-    cms_requirements: dict = Field(default_factory=dict, description="Original CMS requirements.")
-    frs_requirements: dict = Field(default_factory=dict, description="Original FRS requirements.")
+    cms_requirements: CMSRequirements = Field(default_factory=CMSRequirements, description="Original CMS requirements.")
+    frs_requirements: FRSRequirements = Field(default_factory=FRSRequirements, description="Original FRS requirements.")
     merged_metrics: list[str] = Field(default_factory=list, description="Unified metric list.")
     merged_dimensions: list[str] = Field(default_factory=list, description="Unified dimension list.")
     merged_filters: list[str] = Field(default_factory=list, description="Unified filter list.")
     merged_business_rules: list[str] = Field(default_factory=list, description="Unified business rules.")
     conflicts: list[MergeConflict] = Field(default_factory=list, description="Detected conflicts.")
-    assumptions: list[dict] = Field(default_factory=list, description="Assumptions made during merge.")
+    assumptions: list[MergeAssumption] = Field(default_factory=list, description="Assumptions made during merge.")
 

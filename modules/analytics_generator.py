@@ -24,41 +24,65 @@ load_dotenv(_PROJECT_ROOT / ".env")
 _MAPPING_CACHE_FILE = KNOWLEDGE_DIR / "mapping_cache.json"
 _ANALYTICS_OUTPUT = OUTPUT_DIR / "analytics_model.json"
 
-# FHIR resource → star schema table name mapping rules
+# FHIR resource → star schema table name mapping rules (kept for description/UI compat)
 FHIR_TO_STAR = {
-    "Patient": "DimPatient",
+    "Patient": "DimPatient (or DimMember)",
     "Practitioner": "DimProvider",
     "Organization": "DimOrganization",
     "Condition": "DimCondition",
-    "Encounter": "FactEncounter",
-    "Observation": "FactObservation",
+    "Encounter": "FactEncounter / FactAdmissionNotification",
+    "Observation": "FactOrganizationDetermination / FactGrievance / FactSupplementalBenefit",
     "Procedure": "FactProcedure",
     "MedicationRequest": "FactMedication",
 }
 
 _SYSTEM_INSTRUCTION = """\
 You are a healthcare data warehouse architect. Your job is to generate
-an analytics-ready star schema model from CMS reporting requirements
-and their approved FHIR mappings.
+an analytics-ready star schema model from CMS reporting requirements,
+incorporating organizational decisions.
 
-You will receive:
-1. The CMS requirements (metrics, dimensions, filters, business rules).
-2. Organizational decisions from SME reviews.
-3. Approved FHIR mappings (CMS concept → FHIR resource.field).
-4. A mapping of FHIR resources to star schema table names.
+CMS business terminology MUST always take precedence over FHIR terminology.
+Do not convert CMS concepts into generic healthcare concepts. The goal is to
+build reports based on CMS language, not based on FHIR resource names.
 
-Generate a complete star schema model:
+Generate analytics models from CMS business entities.
+You MUST generate separate fact tables for each distinct CMS business concept.
+Examples of fact tables to generate:
+- FactOrganizationDetermination (NOT FactObservation)
+- FactAppeal (NOT FactObservation)
+- FactGrievance (NOT FactObservation)
+- FactEnrollment (NOT FactObservation)
+- FactProviderPayment (NOT FactObservation)
+- FactSupplementalBenefit (NOT FactProcedure)
+- FactSNP_CareManagement (NOT FactObservation)
+- FactAdmissionNotification (NOT FactEncounter)
+(Or other explicit CMS business entities described in the requirements).
+
+Do NOT create generic healthcare/FHIR tables like:
+- FactObservation
+- FactClinicalEvent
+- FactFHIRResource
+- FactEncounter
+- FactProcedure
+- FactMedication
+under any circumstances. Instead, split these events into their respective CMS business entity fact tables (e.g. FactGrievance, FactAppeal, FactOrganizationDetermination).
+
+Dimensions (e.g., DimPatient, DimProvider, DimOrganization, DimDate, DimCondition) should be generated only when required by the business requirements.
+
+For each fact and dimension table, populate the columns' source_fhir_resource and source_fhir_field using general FHIR knowledge as supporting metadata/traceability only.
+
+Generate a complete star schema model conforming to the response schema:
 
 **fact_tables**: Each fact table must have:
-  - name: The star schema table name (e.g., FactEncounter)
-  - source_fhir_resource: The FHIR resource it derives from
+  - name: The star schema table name (e.g., FactOrganizationDetermination)
+  - source_fhir_resource: The FHIR resource it derives from (optional metadata, e.g., Observation)
   - description: Business purpose of this fact table
   - grain: What one row represents
   - columns: List of column objects with {name, data_type, source_fhir_field, description}
 
 **dimension_tables**: Each dimension table must have:
   - name: The star schema table name (e.g., DimPatient)
-  - source_fhir_resource: The FHIR resource it derives from
+  - source_fhir_resource: The FHIR resource it derives from (optional metadata)
   - description: Business purpose
   - columns: List of column objects with {name, data_type, source_fhir_field, description}
 
@@ -69,7 +93,7 @@ Generate a complete star schema model:
   - relationship_type: "many-to-one" or "many-to-many"
 
 **metrics**: Business metrics that can be computed:
-  - name: Metric name (e.g., "readmission_rate")
+  - name: Metric name (e.g., "total_grievances")
   - description: Business definition
   - formula: SQL-like formula or calculation logic
   - fact_table: Which fact table it comes from
@@ -82,14 +106,12 @@ Generate a complete star schema model:
   - description: What this attribute represents
 
 Rules:
-- Use the FHIR-to-star-schema mapping provided.
-- Include surrogate key columns (e.g., patient_key, encounter_key).
+- Include surrogate key columns (e.g., patient_key, provider_key, date_key).
 - Include date dimension foreign keys where applicable.
 - Include degenerate dimensions in fact tables where appropriate.
 - Add a DimDate dimension table for time-based analysis.
 - Metrics should reflect the CMS requirements' metrics list.
 - Apply organizational decisions — use mapped terms, not source terms.
-- Be thorough — include all concepts from the approved mappings.
 """
 
 
@@ -118,7 +140,7 @@ def generate_analytics_model(
     decisions: list[dict] | None = None,
 ) -> AnalyticsModel:
     """
-    Generate a star schema analytics model from approved FHIR mappings.
+    Generate a star schema analytics model from conformed requirements and decisions.
 
     Args:
         requirements: The extracted CMS requirements dict.
@@ -128,21 +150,9 @@ def generate_analytics_model(
         A validated AnalyticsModel instance.
     """
     client = _get_client()
-    cached_mappings = _load_mapping_cache()
-
-    if not cached_mappings:
-        raise ValueError(
-            "No approved FHIR mappings found. Please generate and approve "
-            "mappings on the FHIR Mapping page first."
-        )
 
     # Build context
     context_parts = []
-
-    context_parts.append(
-        f"=== FHIR-TO-STAR-SCHEMA TABLE MAPPING ===\n"
-        f"{json.dumps(FHIR_TO_STAR, indent=2)}"
-    )
 
     context_parts.append(
         f"=== CMS REQUIREMENTS ===\n{json.dumps(requirements, indent=2)}"
@@ -152,10 +162,6 @@ def generate_analytics_model(
         context_parts.append(
             f"=== ORGANIZATIONAL DECISIONS ===\n{json.dumps(decisions, indent=2)}"
         )
-
-    context_parts.append(
-        f"=== APPROVED FHIR MAPPINGS ===\n{json.dumps(cached_mappings, indent=2)}"
-    )
 
     content = "\n\n".join(context_parts)
 

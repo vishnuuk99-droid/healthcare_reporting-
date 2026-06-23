@@ -555,7 +555,23 @@ def auto_correct_report_layout() -> Tuple[List[Dict[str, str]], Dict[str, Any]]:
 
                 if tbl:
                     if tbl not in valid_tables:
-                        if col in model_columns_map:
+                        # Try explicit legacy table fallback first
+                        TABLE_FALLBACKS = {
+                            "FactObservation": "FactOrganizationDetermination",
+                            "FactEncounter": "FactAdmissionNotification",
+                            "FactProcedure": "FactSupplementalBenefit",
+                            "FactMedication": "FactSupplementalBenefit",
+                        }
+                        if tbl in TABLE_FALLBACKS and TABLE_FALLBACKS[tbl] in valid_tables:
+                            new_tbl = TABLE_FALLBACKS[tbl]
+                            corrected_dims.append(f"{new_tbl}[{col}]" if is_bracket else f"{new_tbl}.{col}")
+                            table_replacements[tbl] = new_tbl
+                            applied_fixes.append({
+                                "visual": title,
+                                "issue": f"Dimension references legacy table '{tbl}' in field '{d_field}'.",
+                                "fix_applied": f"Remapped table '{tbl}' to conformed CMS-First table '{new_tbl}'."
+                            })
+                        elif col in model_columns_map:
                             new_tbl = model_columns_map[col][0]
                             corrected_dims.append(f"{new_tbl}[{col}]" if is_bracket else f"{new_tbl}.{col}")
                             table_replacements[tbl] = new_tbl

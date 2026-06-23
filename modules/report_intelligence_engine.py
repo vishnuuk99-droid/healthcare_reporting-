@@ -191,51 +191,51 @@ def run_report_intelligence_engine() -> Dict[str, Any]:
         {
             "measure_name": "Average Turnaround Time",
             "business_definition": "Average turnaround time for organization determinations in days.",
-            "dax_expression": "DIVIDE(SUM(FactDetermination[determination_key]), 2, 0)",
+            "dax_expression": "DIVIDE(SUM(FactOrganizationDetermination[determination_key]), 2, 0)",
             "measure_type": "Count",
             "classification": "Base Measure",
             "formula_description": "DIVIDE(SUM(determination_key), 2, 0)",
-            "source_tables": ["FactDetermination"],
+            "source_tables": ["FactOrganizationDetermination"],
             "source_fields": ["determination_key"]
         },
         {
             "measure_name": "Clean Claim Rate",
             "business_definition": "Percentage of clean claims submitted.",
-            "dax_expression": "DIVIDE(CALCULATE(COUNTROWS(FactDetermination), FactDetermination[is_clean_claim] = TRUE), COUNTROWS(FactDetermination), 0)",
+            "dax_expression": "DIVIDE(CALCULATE(COUNTROWS(FactOrganizationDetermination), FactOrganizationDetermination[is_clean_claim] = TRUE), COUNTROWS(FactOrganizationDetermination), 0)",
             "measure_type": "Percentage",
             "classification": "Derived Measure",
             "formula_description": "DIVIDE(COUNT(is_clean_claim = TRUE), COUNT(od_number))",
-            "source_tables": ["FactDetermination"],
+            "source_tables": ["FactOrganizationDetermination"],
             "source_fields": ["is_clean_claim"]
         },
         {
             "measure_name": "Missing Data %",
             "business_definition": "Percentage of records missing key identifying fields.",
-            "dax_expression": "DIVIDE(CALCULATE(COUNTROWS(FactDetermination), ISBLANK(FactDetermination[od_number])), COUNTROWS(FactDetermination), 0)",
+            "dax_expression": "DIVIDE(CALCULATE(COUNTROWS(FactOrganizationDetermination), ISBLANK(FactOrganizationDetermination[od_number])), COUNTROWS(FactOrganizationDetermination), 0)",
             "measure_type": "Percentage",
             "classification": "Derived Measure",
             "formula_description": "DIVIDE(COUNT(ISBLANK(od_number)), COUNT(od_number))",
-            "source_tables": ["FactDetermination"],
+            "source_tables": ["FactOrganizationDetermination"],
             "source_fields": ["od_number"]
         },
         {
             "measure_name": "Validation Errors",
             "business_definition": "Total count of validation warnings or errors in data.",
-            "dax_expression": "CALCULATE(COUNTROWS(FactDetermination), FactDetermination[were_internal_plan_criteria_applied] = FALSE)",
+            "dax_expression": "CALCULATE(COUNTROWS(FactOrganizationDetermination), FactOrganizationDetermination[were_internal_plan_criteria_applied] = FALSE)",
             "measure_type": "Count",
             "classification": "Derived Measure",
             "formula_description": "COUNT(were_internal_plan_criteria_applied = FALSE)",
-            "source_tables": ["FactDetermination"],
+            "source_tables": ["FactOrganizationDetermination"],
             "source_fields": ["were_internal_plan_criteria_applied"]
         },
         {
             "measure_name": "Data Quality Score",
             "business_definition": "Composite score representing data completeness and validation rate.",
-            "dax_expression": "0.98 - DIVIDE([Validation Errors], COUNTROWS(FactDetermination), 0)",
+            "dax_expression": "0.98 - DIVIDE([Validation Errors], COUNTROWS(FactOrganizationDetermination), 0)",
             "measure_type": "Percentage",
             "classification": "Derived Measure",
             "formula_description": "0.98 - DIVIDE(ValidationErrors, COUNTROWS)",
-            "source_tables": ["FactDetermination"],
+            "source_tables": ["FactOrganizationDetermination"],
             "source_fields": ["were_internal_plan_criteria_applied"]
         },
         {
@@ -245,7 +245,7 @@ def run_report_intelligence_engine() -> Dict[str, Any]:
             "measure_type": "Percentage",
             "classification": "Derived Measure",
             "formula_description": "DataQualityScore",
-            "source_tables": ["FactDetermination"],
+            "source_tables": ["FactOrganizationDetermination"],
             "source_fields": []
         }
     ]
@@ -338,7 +338,7 @@ def run_report_intelligence_engine() -> Dict[str, Any]:
                     {
                         "title": "Outcome Distribution",
                         "visual_type": "donut_chart",
-                        "dimensions": ["FactDetermination.disposition"],
+                        "dimensions": ["FactOrganizationDetermination.disposition"],
                         "measures": ["Total Org Determinations Override"]
                     }
                 ]
@@ -362,7 +362,7 @@ def run_report_intelligence_engine() -> Dict[str, Any]:
                     {
                         "title": "Decisions by Disposition",
                         "visual_type": "clustered_bar_chart",
-                        "dimensions": ["FactDetermination.disposition"],
+                        "dimensions": ["FactOrganizationDetermination.disposition"],
                         "measures": ["Total Org Determinations Override"]
                     },
                     {
@@ -410,18 +410,18 @@ def run_report_intelligence_engine() -> Dict[str, Any]:
                     {
                         "title": "CMS Submission Matrix",
                         "visual_type": "matrix",
-                        "dimensions": ["FactDetermination.disposition", "FactDetermination.processing_priority"],
+                        "dimensions": ["FactOrganizationDetermination.disposition", "FactOrganizationDetermination.processing_priority"],
                         "measures": ["Total Org Determinations Override"]
                     },
                     {
                         "title": "CMS Submission Detail Table",
                         "visual_type": "table",
                         "dimensions": [
-                            "FactDetermination.od_number",
+                            "FactOrganizationDetermination.od_number",
                             "DimPatient.mbi",
-                            "FactDetermination.processing_priority",
-                            "FactDetermination.disposition",
-                            "FactDetermination.decision_rationale"
+                            "FactOrganizationDetermination.processing_priority",
+                            "FactOrganizationDetermination.disposition",
+                            "FactOrganizationDetermination.decision_rationale"
                         ],
                         "measures": ["Total Org Determinations Override"]
                     }
