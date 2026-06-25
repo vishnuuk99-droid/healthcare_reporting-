@@ -470,10 +470,8 @@ def translate_to_pbir_visual(legacy_config: dict) -> dict:
             ]
         }
     else:
-        import copy
         visual_json["visual"]["query"] = {
-            "queryState": query_state,
-            "prototypeQuery": copy.deepcopy(query_state)
+            "queryState": query_state
         }
         if sort_def:
             visual_json["visual"]["query"]["sortDefinition"] = sort_def
@@ -653,7 +651,7 @@ def compile_pbip_project() -> dict:
     # ── 2. <ProjectName>.Report/definition.pbir ──────────────────────
     pbir_data = {
         "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definitionProperties/2.0.0/schema.json",
-        "version": "1.0",
+        "version": "4.0",
         "datasetReference": {
             "byPath": {
                 "path": f"../{project_slug}.SemanticModel"
@@ -1192,7 +1190,7 @@ def compile_pbip_project() -> dict:
 
     version_json_data = {
         "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/versionMetadata/1.0.0/schema.json",
-        "version": "1.0"
+        "version": "2.0.0"
     }
     version_json_path = report_definition_dir / "version.json"
     _write_json(version_json_path, version_json_data)
@@ -1330,9 +1328,9 @@ def validate_pbip_project() -> dict:
     if pbir_path.exists():
         try:
             pbir = json.loads(pbir_path.read_text(encoding="utf-8"))
-            if pbir.get("version") != "1.0":
-                warnings.append(f"definition.pbir version is '{pbir.get('version')}', expected '1.0' for legacy format compatibility.")
-                recommended_fixes.append("Change version to '1.0' in `definition.pbir` to match legacy report layout expectations.")
+            if pbir.get("version") != "4.0":
+                warnings.append(f"definition.pbir version is '{pbir.get('version')}', expected '4.0'.")
+                recommended_fixes.append("Change version to '4.0' in `definition.pbir` to match PBIR-enhanced layout expectations.")
             
             if "datasetReference" not in pbir:
                 errors.append("`definition.pbir` is missing `datasetReference` property.")
