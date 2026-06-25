@@ -24,10 +24,6 @@ def run_all():
     intent = generate_reporting_intents(reqs, decisions)
     save_reporting_intents([i.model_dump() for i in intent])
     
-    print("Generating Report Definition...")
-    rd = generate_report_definition(reqs, [i.model_dump() for i in intent], decisions)
-    save_report_definition(rd)
-    
     print("Generating Measures...")
     m = generate_measures(reqs, [i.model_dump() for i in intent])
     save_measures([mx.model_dump() for mx in m.measures])
@@ -35,6 +31,10 @@ def run_all():
     print("Generating DAX...")
     dax = generate_dax_measures()
     save_dax_artifacts([dx.model_dump() for dx in dax])
+
+    print("Generating Report Definition...")
+    rd = generate_report_definition(reqs, [i.model_dump() for i in intent], decisions)
+    save_report_definition(rd)
     
     print("Validating Coverage...")
     validate_coverage(out_dir)

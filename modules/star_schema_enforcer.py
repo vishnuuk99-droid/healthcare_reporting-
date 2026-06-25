@@ -257,6 +257,33 @@ def enforce_star_schema(model_data: Dict[str, Any]) -> Tuple[Dict[str, Any], Lis
         if not conflict_found:
             break
 
+    # ── Rule 8: Missing Foreign Key Columns in Fact Tables ──────────────
+    # A relationship's join_key must exist as a column in the fact table.
+    fact_table_dict = {f.get("name"): f for f in fact_tables}
+    for rel in relationships:
+        ft = rel.get("fact_table", "")
+        jk = rel.get("join_key", "")
+        
+        if ft in fact_table_dict:
+            fact_tbl = fact_table_dict[ft]
+            cols = fact_tbl.get("columns", [])
+            col_names = {c.get("name", "") for c in cols}
+            
+            if jk and jk not in col_names:
+                cols.append({
+                    "name": jk,
+                    "data_type": "VARCHAR",
+                    "source_fhir_field": f"{fact_tbl.get('source_fhir_resource', '')}.{jk}",
+                    "description": f"Auto-injected foreign key for relationship to {rel.get('dimension_table', '')}"
+                })
+                fact_tbl["columns"] = cols
+                applied_fixes.append({
+                    "issue": f"Foreign key '{jk}' missing in fact table '{ft}'.",
+                    "severity": "Error",
+                    "auto_fix": f"Injected missing column '{jk}' into fact table '{ft}'.",
+                    "status": "Fixed"
+                })
+
     corrected_model["relationships"] = relationships
     return corrected_model, applied_fixes
 

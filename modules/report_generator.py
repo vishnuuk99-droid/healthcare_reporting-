@@ -75,7 +75,8 @@ You MUST include these page categories (adapt titles to the data):
 
 Rules:
 - Reference ONLY tables and columns present in the star schema model.
-- Create DAX measures for every business metric in the analytics model.
+- You MUST only use measure names that are explicitly defined in the provided PRE-GENERATED DAX MEASURES. Do NOT invent new DAX measures or hallucinate measure names.
+- Do NOT generate inline DAX expressions in the visuals. Only reference the pre-generated measures by their exact name.
 - Include at least one slicer/filter for each major dimension.
 - Each page should have 4-8 visuals for a balanced layout.
 - Use business-friendly titles, not technical column names.
@@ -95,6 +96,13 @@ def _get_client() -> genai.Client:
         )
     return genai.Client(api_key=api_key)
 
+
+def _load_json_file(path: Path) -> dict | list | None:
+    """Load a JSON file."""
+    if not path.exists():
+        return None
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
 
 def _load_analytics_model() -> dict | None:
     """Load the saved analytics model."""
@@ -144,6 +152,14 @@ def generate_report_definition(
     if reporting_intent:
         context_parts.append(
             f"=== REPORTING INTENT ===\n{json.dumps(reporting_intent, indent=2)}"
+        )
+        
+    dax_artifacts = _load_json_file(OUTPUT_DIR / "dax_artifacts.json")
+    if dax_artifacts:
+        context_parts.append(
+            f"=== PRE-GENERATED DAX MEASURES ===\n"
+            f"You must select exact measure names from this list for your visuals:\n"
+            f"{json.dumps(dax_artifacts, indent=2)}"
         )
 
     if decisions:

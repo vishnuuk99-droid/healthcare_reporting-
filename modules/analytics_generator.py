@@ -106,8 +106,11 @@ Generate a complete star schema model conforming to the response schema:
   - description: What this attribute represents
 
 Rules:
-- Include surrogate key columns (e.g., patient_key, provider_key, date_key).
+- Include surrogate key columns (e.g., patient_key, provider_key, date_key, organization_key).
+- Include `organization_key` in all primary fact tables, linked to `DimOrganization`.
+- Include `calendar_month` in the `DimDate` table and `plan_name` in the `DimOrganization` table.
 - Include date dimension foreign keys where applicable.
+- Prevent circular active relationships: If multiple fact tables link to `DimDate` but are also linked to each other (e.g. `FactPriorAuthorization` and `FactAppeal`), set `is_active: false` on the secondary fact table's date relationship to avoid multiple active filtering paths.
 - Include degenerate dimensions in fact tables where appropriate.
 - Add a DimDate dimension table for time-based analysis.
 - Metrics should reflect the CMS requirements' metrics list.
