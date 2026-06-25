@@ -1196,6 +1196,16 @@ def compile_pbip_project() -> dict:
     _write_json(version_json_path, version_json_data)
     file_paths[f"{project_slug}.Report/definition/version.json"] = version_json_path
 
+    # Copy StaticResources and .platform to ensure Power BI can open the Enhanced PBIR properly
+    import shutil
+    canonical_static = Path("scratch/canonical_pbip/Pharmacy_Claims_Cost_Summary_Report.Report/StaticResources")
+    if canonical_static.exists():
+        shutil.copytree(canonical_static, report_definition_dir.parent / "StaticResources", dirs_exist_ok=True)
+    canonical_platform = Path("scratch/canonical_pbip/Pharmacy_Claims_Cost_Summary_Report.Report/.platform")
+    if canonical_platform.exists():
+        shutil.copy2(canonical_platform, report_definition_dir.parent / ".platform")
+
+
     page_order_ids = [p["page_id"] for p in pages_list]
     pages_json_data = {
         "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/pagesMetadata/1.1.0/schema.json",
