@@ -213,8 +213,13 @@ def run_report_intelligence_engine() -> Dict[str, Any]:
         if metric_type in ("Percentage", "Ratio"):
             classification = "Derived Measure"
 
+        import re
+        measure_id = re.sub(r"[^\w\s]", "", metric_name).strip().lower()
+        measure_id = re.sub(r"[\s]+", "_", measure_id)
+
         required_measures.append({
-            "measure_name": metric_name.replace(":", " -").strip(),
+            "measure_id": measure_id,
+            "display_name": metric_name,
             "business_definition": sm.get("business_definition", metric_name),
             "dax_expression": "",  # Will be filled by DAX generator
             "measure_type": metric_type,
@@ -230,11 +235,12 @@ def run_report_intelligence_engine() -> Dict[str, Any]:
         required_measures = []
 
     modified_dax = False
-    existing_dax_names = {m["measure_name"] for m in dax_list}
+    existing_dax_ids = {m.get("measure_id") for m in dax_list}
     for rm in required_measures:
-        if rm["measure_name"] not in existing_dax_names:
+        if rm["measure_id"] not in existing_dax_ids:
             dax_list.append({
-                "measure_name": rm["measure_name"],
+                "measure_id": rm["measure_id"],
+                "display_name": rm["display_name"],
                 "business_definition": rm["business_definition"],
                 "dax_expression": rm["dax_expression"],
                 "dependencies": []
@@ -242,11 +248,12 @@ def run_report_intelligence_engine() -> Dict[str, Any]:
             modified_dax = True
 
     modified_measures = False
-    existing_measure_names = {m["measure_name"] for m in measures_list}
+    existing_measure_ids = {m.get("measure_id") for m in measures_list}
     for rm in required_measures:
-        if rm["measure_name"] not in existing_measure_names:
+        if rm["measure_id"] not in existing_measure_ids:
             measures_list.append({
-                "measure_name": rm["measure_name"],
+                "measure_id": rm["measure_id"],
+                "display_name": rm["display_name"],
                 "measure_type": rm["measure_type"],
                 "classification": rm["classification"],
                 "business_definition": rm["business_definition"],
@@ -288,37 +295,37 @@ def run_report_intelligence_engine() -> Dict[str, Any]:
                         "title": "Total Organization Determinations",
                         "visual_type": "card",
                         "dimensions": [],
-                        "measures": ["Total Org Determinations Override"]
+                        "measures": [{"measure_id": "total_org_determinations_override", "display_name": "Total Org Determinations Override"}]
                     },
                     {
                         "title": "Adverse Decision Rate",
                         "visual_type": "kpi",
                         "dimensions": [],
-                        "measures": ["Adverse Decision Rate"]
+                        "measures": [{"measure_id": "adverse_decision_rate", "display_name": "Adverse Decision Rate"}]
                     },
                     {
                         "title": "Average Turnaround Time",
                         "visual_type": "card",
                         "dimensions": [],
-                        "measures": ["Average Turnaround Time"]
+                        "measures": [{"measure_id": "average_turnaround_time", "display_name": "Average Turnaround Time"}]
                     },
                     {
                         "title": "Clean Claim Rate",
                         "visual_type": "kpi",
                         "dimensions": [],
-                        "measures": ["Clean Claim Rate"]
+                        "measures": [{"measure_id": "clean_claim_rate", "display_name": "Clean Claim Rate"}]
                     },
                     {
                         "title": "Monthly Determination Volume Trend",
                         "visual_type": "line_chart",
                         "dimensions": ["DimDate.month_name"],
-                        "measures": ["Total Org Determinations Override"]
+                        "measures": [{"measure_id": "total_org_determinations_override", "display_name": "Total Org Determinations Override"}]
                     },
                     {
                         "title": "Outcome Distribution",
                         "visual_type": "donut_chart",
                         "dimensions": ["FactOrganizationDetermination.disposition"],
-                        "measures": ["Total Org Determinations Override"]
+                        "measures": [{"measure_id": "total_org_determinations_override", "display_name": "Total Org Determinations Override"}]
                     }
                 ]
             },
@@ -330,25 +337,25 @@ def run_report_intelligence_engine() -> Dict[str, Any]:
                         "title": "Determinations by Provider",
                         "visual_type": "clustered_bar_chart",
                         "dimensions": ["DimProvider.provider_name"],
-                        "measures": ["Total Org Determinations Override"]
+                        "measures": [{"measure_id": "total_org_determinations_override", "display_name": "Total Org Determinations Override"}]
                     },
                     {
                         "title": "Determinations by Organization",
                         "visual_type": "clustered_bar_chart",
                         "dimensions": ["DimOrganization.organization_name"],
-                        "measures": ["Total Org Determinations Override"]
+                        "measures": [{"measure_id": "total_org_determinations_override", "display_name": "Total Org Determinations Override"}]
                     },
                     {
                         "title": "Decisions by Disposition",
                         "visual_type": "clustered_bar_chart",
                         "dimensions": ["FactOrganizationDetermination.disposition"],
-                        "measures": ["Total Org Determinations Override"]
+                        "measures": [{"measure_id": "total_org_determinations_override", "display_name": "Total Org Determinations Override"}]
                     },
                     {
                         "title": "Trend Analysis",
                         "visual_type": "line_chart",
                         "dimensions": ["DimDate.month_name"],
-                        "measures": ["Total Org Determinations Override"]
+                        "measures": [{"measure_id": "total_org_determinations_override", "display_name": "Total Org Determinations Override"}]
                     }
                 ]
             },
@@ -360,25 +367,25 @@ def run_report_intelligence_engine() -> Dict[str, Any]:
                         "title": "Missing Data %",
                         "visual_type": "kpi",
                         "dimensions": [],
-                        "measures": ["Missing Data %"]
+                        "measures": [{"measure_id": "missing_data_percent", "display_name": "Missing Data %"}]
                     },
                     {
                         "title": "Validation Errors",
                         "visual_type": "card",
                         "dimensions": [],
-                        "measures": ["Validation Errors"]
+                        "measures": [{"measure_id": "validation_errors", "display_name": "Validation Errors"}]
                     },
                     {
                         "title": "Data Quality Score",
                         "visual_type": "kpi",
                         "dimensions": [],
-                        "measures": ["Data Quality Score"]
+                        "measures": [{"measure_id": "data_quality_score", "display_name": "Data Quality Score"}]
                     },
                     {
                         "title": "Quality Trend",
                         "visual_type": "line_chart",
                         "dimensions": ["DimDate.month_name"],
-                        "measures": ["Quality Trend"]
+                        "measures": [{"measure_id": "quality_trend", "display_name": "Quality Trend"}]
                     }
                 ]
             },
@@ -390,7 +397,7 @@ def run_report_intelligence_engine() -> Dict[str, Any]:
                         "title": "CMS Submission Matrix",
                         "visual_type": "matrix",
                         "dimensions": ["FactOrganizationDetermination.disposition", "FactOrganizationDetermination.processing_priority"],
-                        "measures": ["Total Org Determinations Override"]
+                        "measures": [{"measure_id": "total_org_determinations_override", "display_name": "Total Org Determinations Override"}]
                     },
                     {
                         "title": "CMS Submission Detail Table",
@@ -402,7 +409,7 @@ def run_report_intelligence_engine() -> Dict[str, Any]:
                             "FactOrganizationDetermination.disposition",
                             "FactOrganizationDetermination.decision_rationale"
                         ],
-                        "measures": ["Total Org Determinations Override"]
+                        "measures": [{"measure_id": "total_org_determinations_override", "display_name": "Total Org Determinations Override"}]
                     }
                 ]
             }
@@ -540,7 +547,8 @@ def run_report_intelligence_engine() -> Dict[str, Any]:
         ]),
         "measures": [
             {
-                "name": rm["measure_name"],
+                "measure_id": rm["measure_id"],
+                "display_name": rm["display_name"],
                 "dax_expression": rm["dax_expression"],
                 "format_string": "0.0%" if rm["measure_type"] == "Percentage" else "#,##0",
                 "description": rm["business_definition"],

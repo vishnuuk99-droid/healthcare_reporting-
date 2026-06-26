@@ -65,7 +65,7 @@ You MUST include these page categories (adapt titles to the data):
     * matrix: Use for grouped summaries with multiple dimensions.
     * table: Use for detailed records.
   - dimensions: Columns from the star schema used as axis/legend/rows
-  - measures: Measure names or inline DAX expressions
+  - measures: List of objects containing measure_id and display_name. The display_name MUST be exactly preserved from the provided artifacts (including any parentheses).
   - business_reason: Why this visual matters
 
 **filters** – report-level slicers:
@@ -73,7 +73,7 @@ You MUST include these page categories (adapt titles to the data):
     date_range, relative_date), default_value, scope (report or page)
 
 **measures** – reusable DAX measures:
-  - name, dax_expression, format_string, description, home_table
+  - measure_id, display_name, dax_expression, format_string, description, home_table
 
 **drillthrough_pages** – detail pages users can right-click into:
   - page_name, purpose, drillthrough_field, visuals
@@ -82,8 +82,8 @@ Rules:
 - Choose the simplest valid visual that satisfies the reporting requirement.
 - If a metric does not include a valid trend dimension, NEVER select a KPI visual.
 - Reference ONLY tables and columns present in the star schema model.
-- You MUST only use measure names that are explicitly defined in the provided PRE-GENERATED DAX MEASURES. Do NOT invent new DAX measures or hallucinate measure names.
-- Do NOT generate inline DAX expressions in the visuals. Only reference the pre-generated measures by their exact name.
+- You MUST only use measures that are explicitly defined in the provided artifacts (Analytics Model metrics or PRE-GENERATED DAX MEASURES). Do NOT invent new measures or hallucinate display names.
+- Do NOT generate inline DAX expressions in the visuals. Only reference the pre-generated measures by their exact measure_id and display_name.
 - Include at least one slicer/filter for each major dimension.
 - Each page should have 4-8 visuals for a balanced layout.
 - Use business-friendly titles, not technical column names.

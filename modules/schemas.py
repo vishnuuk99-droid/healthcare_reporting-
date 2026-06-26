@@ -253,7 +253,8 @@ class Relationship(BaseModel):
 class MetricDef(BaseModel):
     """A business metric that can be computed from the star schema."""
 
-    name: str = Field(description="Metric name (snake_case).")
+    measure_id: str = Field(description="Stable technical identifier (snake_case).")
+    display_name: str = Field(description="Canonical business label, preserving exact original text.")
     description: str = Field(default="", description="Business definition.")
     formula: str = Field(default="", description="SQL-like formula or calculation logic.")
     fact_table: str = Field(default="", description="Source fact table.")
@@ -281,6 +282,11 @@ class AnalyticsModel(BaseModel):
 
 # ── Report Definition / Power BI Models ──────────────────────────────
 
+class ReportVisualMeasure(BaseModel):
+    """Canonical reference to a measure within a visual."""
+    measure_id: str = Field(description="Technical identifier linking to the canonical measure.")
+    display_name: str = Field(description="The exact visual display name for the measure.")
+
 class ReportVisual(BaseModel):
     """A single visual element in a Power BI report page."""
 
@@ -293,9 +299,9 @@ class ReportVisual(BaseModel):
         default_factory=list,
         description="Dimension columns used (axis, legend, rows).",
     )
-    measures: list[str] = Field(
+    measures: list[ReportVisualMeasure] = Field(
         default_factory=list,
-        description="Measure names or DAX expressions used as values.",
+        description="Measures used as values.",
     )
     business_reason: str = Field(
         default="",
@@ -333,7 +339,8 @@ class ReportFilter(BaseModel):
 class ReportMeasure(BaseModel):
     """A DAX measure defined for the report."""
 
-    name: str = Field(description="Measure name.")
+    measure_id: str = Field(description="Technical identifier.")
+    display_name: str = Field(description="Canonical measure name.")
     dax_expression: str = Field(default="", description="DAX formula.")
     format_string: str = Field(default="", description="Display format (e.g., #,##0, 0.0%).")
     description: str = Field(default="", description="Business definition.")
@@ -457,8 +464,11 @@ class DataDictionarySet(BaseModel):
 class MeasureEntry(BaseModel):
     """A single business measure generated from the report definition."""
 
-    measure_name: str = Field(
-        description="The measure name (business-friendly, e.g., 'Total Organization Determinations').",
+    measure_id: str = Field(
+        description="Stable technical identifier (snake_case).",
+    )
+    display_name: str = Field(
+        description="The measure name (canonical, exact business-friendly string).",
     )
     measure_type: str = Field(
         default="",
@@ -528,8 +538,11 @@ class MeasureSet(BaseModel):
 class DAXEntry(BaseModel):
     """A single Power BI DAX measure."""
 
-    measure_name: str = Field(
-        description="The measure name (business-friendly, matching measures.json).",
+    measure_id: str = Field(
+        description="Stable technical identifier (snake_case).",
+    )
+    display_name: str = Field(
+        description="The measure name (canonical display name matching other artifacts).",
     )
     business_definition: str = Field(
         default="",

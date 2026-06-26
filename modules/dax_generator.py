@@ -48,14 +48,15 @@ You will receive:
 Your task: Generate a DAX measure for EACH approved business measure.
 
 For EACH measure produce:
-- measure_name: Exactly the same name as the input business measure.
+- measure_id: Exactly the same technical measure_id as the input business measure.
+- display_name: Exactly the same canonical display_name as the input business measure.
 - business_definition: Plain-language explanation of what the measure calculates.
 - dax_expression: The DAX formula.
   - Base measures should query the star schema tables directly.
     Example: `COUNTROWS(FactOrganizationDetermination)` or `SUM(FactOrganizationDetermination[duration_days])` or `DISTINCTCOUNT(DimPatient[patient_key])`.
-  - Derived measures and KPIs should reference other measures (using brackets syntax `[Measure Name]`) to preserve dry principles and dependency chains.
+  - Derived measures and KPIs should reference other measures (using brackets syntax `[Display Name]`) to preserve dry principles and dependency chains. Power BI DAX requires the exact literal canonical display_name inside brackets.
     Example: `DIVIDE([Total Adverse Decisions], [Total Organization Determinations], 0)` or `CALCULATE([Total Decisions], FILTER(DimPatient, DimPatient[state] = "CA"))`.
-- dependencies: The names of other DAX measures referenced in the `dax_expression`. If none, return an empty list `[]`.
+- dependencies: The measure_ids of other DAX measures referenced in the `dax_expression`. If none, return an empty list `[]`.
 
 Supported/Preferred DAX Functions:
 - COUNTROWS
@@ -229,7 +230,7 @@ def check_cycles(dax_measures: list[dict]) -> set[str]:
     """Detect nodes participating in circular dependencies using DFS."""
     adj = {}
     for m in dax_measures:
-        name = m.get("measure_name", "")
+        name = m.get("measure_id", "")
         adj[name] = m.get("dependencies", [])
 
     visited = {}  # name -> 0=unvisited, 1=visiting, 2=visited
@@ -263,7 +264,7 @@ def validate_dax_measure(measure: dict, all_measure_names: set[str], cycle_nodes
     errors = []
     warnings = []
 
-    name = measure.get("measure_name", "")
+    name = measure.get("measure_id", "")
     dax_expr = measure.get("dax_expression", "")
     deps = measure.get("dependencies", [])
 

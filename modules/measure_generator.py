@@ -54,8 +54,8 @@ cover every metric needed by the report visuals, KPI cards, trend
 analyses, and data exports.
 
 For EACH measure produce:
-- measure_name: A business-friendly name (e.g., "Total Organization
-  Determinations", "Adverse Decision Rate", "Quarterly Volume Trend").
+- measure_id: Stable technical identifier (e.g., "total_organization_determinations").
+- display_name: Exact canonical business label (e.g., "Total Organization Determinations", "Adverse Decision Rate (Standard)"). You MUST preserve the exact characters from the report definition or provided artifacts.
 - business_definition: Clear explanation of what this measure represents
   and why it matters for CMS reporting.
 - measure_type: Exactly one of:
@@ -80,11 +80,11 @@ For EACH measure produce:
       measures (e.g., rate = adverse / total).
     - **KPI**: A key performance indicator with a target or threshold
       (e.g., timeliness rate, compliance percentage).
-- dependencies: List of names of other measures that this measure depends on.
+- dependencies: List of measure_ids of other measures that this measure depends on.
   For Base Measures, this must be an empty list []. For Derived Measures
-  or KPIs, list the exact measure names that are used in its calculation
+  or KPIs, list the exact measure_ids that are used in its calculation
   (e.g. if Adverse Rate = Adverse Decisions / Total Decisions, it depends on
-  ["Total Adverse Decisions", "Total Decisions"]).
+  ["total_adverse_decisions", "total_decisions"]).
 - report_pages: List of names of report pages (from the report definition)
   where this measure is used in a visual.
 - visuals_used_in: List of titles of report visuals (from the report definition)

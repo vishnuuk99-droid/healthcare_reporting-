@@ -737,7 +737,7 @@ def compile_pbip_project(datasource_config_path: str = None) -> dict:
     measures_converted = []
     for dax in dax_list:
         measures_converted.append({
-            "name": dax["measure_name"],
+            "name": dax.get("display_name", dax.get("measure_id", "")),
             "expression": dax["dax_expression"],
             "description": dax.get("business_definition", "")
         })
@@ -904,7 +904,7 @@ def compile_pbip_project(datasource_config_path: str = None) -> dict:
         ""
     ]
     for dax in dax_list:
-        dax_tmdl_lines.append(f"\tmeasure '{dax['measure_name']}' = {dax['dax_expression']}")
+        dax_tmdl_lines.append(f"\tmeasure '{dax.get('display_name', dax.get('measure_id', 'Unknown'))}' = {dax['dax_expression']}")
         if dax.get("business_definition"):
             dax_tmdl_lines.append(f"\t\t// Description: {dax['business_definition']}")
         dax_tmdl_lines.append("")
@@ -1249,7 +1249,7 @@ def compile_pbip_project(datasource_config_path: str = None) -> dict:
         },
         "contents": {
             "tables": [t["name"] for t in tables_list if t["name"] != "_Measures"],
-            "measures": [m["measure_name"] for m in dax_list],
+            "measures": [m.get("display_name", m.get("measure_id", "")) for m in dax_list],
             "pages": [p["page_name"] for p in pages_list]
         }
     }

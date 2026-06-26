@@ -93,7 +93,8 @@ Generate a complete star schema model conforming to the response schema:
   - relationship_type: "many-to-one" or "many-to-many"
 
 **metrics**: Business metrics that can be computed:
-  - name: Metric name (e.g., "total_grievances")
+  - measure_id: Stable technical identifier (e.g., "total_grievances")
+  - display_name: Canonical business label, preserving exact original text from CMS requirements (including parentheses).
   - description: Business definition
   - formula: SQL-like formula or calculation logic
   - fact_table: Which fact table it comes from

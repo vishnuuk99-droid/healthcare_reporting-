@@ -14,6 +14,7 @@ _VISUAL_TYPE_MAP = {
     "gauge": "gauge",
     "line_chart": "lineChart",
     "clustered_bar_chart": "clusteredBarChart",
+    "bar_chart": "clusteredBarChart",
     "pie_chart": "pieChart",
     "donut_chart": "donutChart",
     "table": "tableEx",
@@ -28,7 +29,7 @@ def compile_visual_config(
     title: str,
     visual_type: str,
     dimensions: List[str],
-    measures: List[str],
+    measures: List[Any],
     position: Dict[str, Any]
 ) -> Dict[str, Any]:
     """
@@ -68,13 +69,18 @@ def compile_visual_config(
         })
         
     for m in measures:
-        if "[" in m and m.endswith("]"):
-            tbl, m_clean = m[:-1].split("[", 1)
-        elif "." in m:
-            tbl, m_clean = m.split(".", 1)
+        if isinstance(m, dict):
+            m_name = m.get("display_name", m.get("measure_id", ""))
+        else:
+            m_name = m
+            
+        if "[" in m_name and m_name.endswith("]"):
+            tbl, m_clean = m_name[:-1].split("[", 1)
+        elif "." in m_name:
+            tbl, m_clean = m_name.split(".", 1)
         else:
             tbl = "_Measures"
-            m_clean = m
+            m_clean = m_name
         query_fields.append({
             "queryRef": f"{tbl}[{m_clean}]",
             "table": tbl,
